@@ -1,11 +1,5 @@
 package com.facadeimpl.sdmetrics;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
-import java.util.HashSet;
 import com.sdmetrics.model.MetaModel;
 import com.sdmetrics.model.Model;
 import com.sdmetrics.model.ModelElement;
@@ -18,105 +12,90 @@ import com.sdmetrics.metrics.Metric;
 import com.sdmetrics.metrics.Matrix;
 import com.sdmetrics.metrics.MatrixData;
 import com.sdmetrics.metrics.MatrixEngine;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 public class SDMetricFacade {
     private MetaModel metaModel;
     private Model model;
     private MetricStore metricStore;
     private MetricsEngine metricsEngine;
+    private Server jettyServer;
 
-    // Set of coupling and cohesion metric names to include
     private static final Set<String> METRICS_TO_INCLUDE = new HashSet<>();
     private static final Set<String> MATRICES_TO_INCLUDE = new HashSet<>();
 
     static {
-        // Coupling Metrics
-        METRICS_TO_INCLUDE.add("Dep_Out");
-        METRICS_TO_INCLUDE.add("Dep_In");
-        METRICS_TO_INCLUDE.add("NumAssEl_ssc");
-        METRICS_TO_INCLUDE.add("NumAssEl_sb");
-        METRICS_TO_INCLUDE.add("NumAssEl_nsb");
-        METRICS_TO_INCLUDE.add("EC_Attr");
-        METRICS_TO_INCLUDE.add("IC_Attr");
-        METRICS_TO_INCLUDE.add("EC_Par");
-        METRICS_TO_INCLUDE.add("IC_Par");
-        METRICS_TO_INCLUDE.add("Assoc");
-        METRICS_TO_INCLUDE.add("Ca");
-        METRICS_TO_INCLUDE.add("Ce");
-        METRICS_TO_INCLUDE.add("DepPack");
-        METRICS_TO_INCLUDE.add("MsgSent");
-        METRICS_TO_INCLUDE.add("MsgRecv");
-        METRICS_TO_INCLUDE.add("Assoc_Out");
-        METRICS_TO_INCLUDE.add("Assoc_In");
-        METRICS_TO_INCLUDE.add("MsgSent_Outside");
-        METRICS_TO_INCLUDE.add("MsgRecv_Outside");
-
-        // Cohesion Metrics
-        METRICS_TO_INCLUDE.add("LCOM1");
-        METRICS_TO_INCLUDE.add("TCC");
-        METRICS_TO_INCLUDE.add("AUC");
+        METRICS_TO_INCLUDE.add("Dep_Out"); METRICS_TO_INCLUDE.add("Dep_In");
+        METRICS_TO_INCLUDE.add("NumAssEl_ssc"); METRICS_TO_INCLUDE.add("NumAssEl_sb");
+        METRICS_TO_INCLUDE.add("NumAssEl_nsb"); METRICS_TO_INCLUDE.add("EC_Attr");
+        METRICS_TO_INCLUDE.add("IC_Attr"); METRICS_TO_INCLUDE.add("EC_Par");
+        METRICS_TO_INCLUDE.add("IC_Par"); METRICS_TO_INCLUDE.add("Assoc");
+        METRICS_TO_INCLUDE.add("Ca"); METRICS_TO_INCLUDE.add("Ce");
+        METRICS_TO_INCLUDE.add("DepPack"); METRICS_TO_INCLUDE.add("MsgSent");
+        METRICS_TO_INCLUDE.add("MsgRecv"); METRICS_TO_INCLUDE.add("Assoc_Out");
+        METRICS_TO_INCLUDE.add("Assoc_In"); METRICS_TO_INCLUDE.add("MsgSent_Outside");
+        METRICS_TO_INCLUDE.add("MsgRecv_Outside"); METRICS_TO_INCLUDE.add("LCOM1");
+        METRICS_TO_INCLUDE.add("TCC"); METRICS_TO_INCLUDE.add("AUC");
         METRICS_TO_INCLUDE.add("PCI");
-
-        // Leave MATRICES_TO_INCLUDE empty to process all matrices
     }
 
-    public SDMetricFacade(String metaModelURL, String xmiTransURL, String xmiFile, String metricsURL) throws Exception {
+    public SDMetricFacade(String metaModelURL, String xmiTransURL, String xmiFile, String metricsURL, int wsPort) throws Exception {
         XMLParser parser = new XMLParser();
-
-        // Parse the metamodel
         metaModel = new MetaModel();
         parser.parse(metaModelURL, metaModel.getSAXParserHandler());
-
-        // Parse the XMI transformations
         XMITransformations trans = new XMITransformations(metaModel);
         parser.parse(xmiTransURL, trans.getSAXParserHandler());
-
-        // Parse the UML model (XMI file)
         model = new Model(metaModel);
         XMIReader xmiReader = new XMIReader(trans, model);
         parser.parse(xmiFile, xmiReader);
-
-        // Create and load the MetricStore with metric definitions
         metricStore = new MetricStore(metaModel);
         parser.parse(metricsURL, metricStore.getSAXParserHandler());
         metricsEngine = new MetricsEngine(metricStore, model);
+
+        // Start Jetty server with WebSocket
+        jettyServer = new Server(wsPort);
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.setContextPath("/");
+        jettyServer.setHandler(context);
+
+        JakartaWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) -> {
+            wsContainer.addEndpoint(MetricsWebSocketEndpoint.class);
+        });
+
+        jettyServer.start();
+        System.out.println("Jetty WebSocket server started on port: " + wsPort);
     }
 
-    public void calculateAndExportMetricsToCSV(String scalarOutputFile) throws IOException {
-        // Export scalar metrics to CSV
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(scalarOutputFile))) {
-            // Write header
-            StringBuilder header = new StringBuilder("Element");
-            for (String metricName : METRICS_TO_INCLUDE) {
-                header.append(",").append(metricName);
-            }
-            writer.write(header.toString());
-            writer.newLine();
+    public void calculateAndSendMetrics() {
+        Map<String, Map<String, Object>> metricsData = new HashMap<>();
 
-            // Write data for each element
-            for (ModelElement element : model) {
-                StringBuilder row = new StringBuilder(element.getFullName());
-                Collection<Metric> metrics = metricStore.getMetrics(element.getType());
-                for (String metricName : METRICS_TO_INCLUDE) {
-                    Object metricValue = null;
-                    for (Metric metric : metrics) {
-                        if (!metric.isInternal() && metric.getName().equals(metricName)) {
-                            metricValue = metricsEngine.getMetricValue(element, metric);
-                            break;
-                        }
-                    }
-                    row.append(",").append(metricValue != null ? metricValue.toString() : "N/A");
+        for (ModelElement element : model) {
+            Map<String, Object> elementMetrics = new HashMap<>();
+            Collection<Metric> metrics = metricStore.getMetrics(element.getType());
+            for (Metric metric : metrics) {
+                if (!metric.isInternal() && METRICS_TO_INCLUDE.contains(metric.getName())) {
+                    Object metricValue = metricsEngine.getMetricValue(element, metric);
+                    elementMetrics.put(metric.getName(), metricValue != null ? metricValue : "N/A");
                 }
-                writer.write(row.toString());
-                writer.newLine();
+            }
+            if (!elementMetrics.isEmpty()) {
+                metricsData.put(element.getFullName(), elementMetrics);
             }
         }
 
-        // Export matrices to separate CSV files
-        calculateAndExportMatricesToCSV();
+        MetricsWebSocketEndpoint.sendMetrics(metricsData);
+        calculateAndSendMatrices();
     }
 
-    public void calculateAndExportMatricesToCSV() throws IOException {
+    private void calculateAndSendMatrices() {
         MatrixEngine matrixEngine = new MatrixEngine(metricsEngine);
         Collection<Matrix> matrices = metricStore.getMatrices();
 
@@ -124,7 +103,7 @@ public class SDMetricFacade {
             if (MATRICES_TO_INCLUDE.isEmpty() || MATRICES_TO_INCLUDE.contains(matrix.getName())) {
                 try {
                     MatrixData matrixData = matrixEngine.calculate(matrix);
-                    exportMatrixToCSV(matrixData);
+                    sendMatrix(matrixData);
                 } catch (Exception e) {
                     System.err.println("Error calculating matrix " + matrix.getName() + ": " + e.getMessage());
                 }
@@ -132,46 +111,51 @@ public class SDMetricFacade {
         }
     }
 
-    private void exportMatrixToCSV(MatrixData matrixData) throws IOException {
+    private void sendMatrix(MatrixData matrixData) {
         if (matrixData.isEmpty()) {
-            System.out.println("Matrix " + matrixData.getMatrixDefinition().getName() + " is empty. Skipping CSV export.");
+            System.out.println("Matrix " + matrixData.getMatrixDefinition().getName() + " is empty.");
             return;
         }
 
-        String fileName = matrixData.getMatrixDefinition().getName() + ".csv";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            // Write column headers
-            StringBuilder header = new StringBuilder(",");
-            for (int col = 0; col < matrixData.getNumberOfColumns(); col++) {
-                header.append(matrixData.getColumnElement(col).getName()).append(",");
-            }
-            writer.write(header.toString());
-            writer.newLine();
+        Map<String, Object> matrixJson = new HashMap<>();
+        String[] columns = new String[matrixData.getNumberOfColumns()];
+        for (int col = 0; col < matrixData.getNumberOfColumns(); col++) {
+            columns[col] = matrixData.getColumnElement(col).getName();
+        }
+        matrixJson.put("columns", columns);
 
-            // Write rows with values
-            for (int row = 0; row < matrixData.getNumberOfRows(); row++) {
-                StringBuilder rowData = new StringBuilder(matrixData.getRowElement(row).getName() + ",");
-                for (int col = 0; col < matrixData.getNumberOfColumns(); col++) {
-                    Integer value = matrixData.getValueAt(row, col);
-                    rowData.append(value != null ? value : 0).append(",");
-                }
-                writer.write(rowData.toString());
-                writer.newLine();
+        Map<String, int[]> rows = new HashMap<>();
+        for (int row = 0; row < matrixData.getNumberOfRows(); row++) {
+            int[] values = new int[matrixData.getNumberOfColumns()];
+            for (int col = 0; col < matrixData.getNumberOfColumns(); col++) {
+                Integer value = matrixData.getValueAt(row, col);
+                values[col] = value != null ? value : 0;
             }
-            System.out.println("Exported matrix to " + fileName);
+            rows.put(matrixData.getRowElement(row).getName(), values);
+        }
+        matrixJson.put("rows", rows);
+
+        MetricsWebSocketEndpoint.sendMatrix(matrixData.getMatrixDefinition().getName(), matrixJson);
+    }
+
+    public void stopServer() throws Exception {
+        if (jettyServer != null) {
+            jettyServer.stop();
         }
     }
 
-    // Main method for testing (adjust paths as needed)
     public static void main(String[] args) {
         try {
             SDMetricFacade facade = new SDMetricFacade(
-                "path/to/metamodel.xml",
-                "path/to/xmi_transformations.xml",
-                "path/to/university_uml.xmi",
-                "path/to/metrics.xml"
+                "resources/metamodel.xml",
+                "resources/xmi_transformations.xml",
+                "resources/university_uml.xmi",
+                "resources/metrics.xml",
+                8080
             );
-            facade.calculateAndExportMetricsToCSV("metrics_output.csv");
+            facade.calculateAndSendMetrics();
+            // Keep the server running
+            Thread.currentThread().join();
         } catch (Exception e) {
             e.printStackTrace();
         }
