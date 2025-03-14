@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML">
+<uml:Model xmi:id="_universitySystem" name="UniversitySystem">
+  <packagedElement xmi:type="uml:Package" xmi:id="_peoplePackage" name="People">
+    <packagedElement xmi:type="uml:Class" xmi:id="_person" name="Person" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_personName" name="name" visibility="protected" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_personGetName" name="getName" visibility="public" isQuery="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_personGetNameResult" name="result" type="_string" direction="return"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_student" name="Student">
+      <generalization xmi:type="uml:Generalization" xmi:id="_studentPerson" general="_person"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_studentID" name="studentID" visibility="private" type="_string"/>
+       <ownedAttribute xmi:type="uml:Port" xmi:id="_studentPort" name="studentPort" visibility="public" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_studentEnroll" name="enroll" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_studentEnrollCourse" name="course" type="_course" direction="in"/>
+      </ownedOperation>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connector1" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end" role="_studentID"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2" role="_studentPort"/>
+         </ownedConnector>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Interface" xmi:id="_igraduate" name="IGraduate">
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_igraduateGrad" name="graduate" visibility="public"/>
+    </packagedElement>
+
+     <packagedElement xmi:type="uml:Class" xmi:id="_undergrad" name="UndergraduateStudent">
+        <generalization xmi:type="uml:Generalization" xmi:id="_undergradIS" general="_student"/>
+      </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_gradStudent" name="GradStudent">
+      <generalization xmi:type="uml:Generalization" xmi:id="_gradStudentPerson" general="_student"/>
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_gradStudentIGrad" contract="_igraduate" implementingClassifier="_gradStudent"/>
+    </packagedElement>
+      
+      <packagedElement xmi:type="uml:Class" xmi:id="_professor" name = "Professor" isAbstract="true">
+          <generalization xmi:type="uml:Generalization" xmi:id="_professorPerson" general="_person"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_profID" name="professorID" visibility="private" type="_string"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_adjunct" name = "AdjunctProfessor" isAbstract="false">
+          <generalization xmi:type="uml:Generalization" xmi:id="_adjunctToProfessor" general="_professor"/>
+      </packagedElement>
+      
+        <packagedElement xmi:type="uml:Class" xmi:id="_ta" name = "TeachingAssistant" isAbstract="false">
+          <generalization xmi:type="uml:Generalization" xmi:id="_taTOprofessor" general="_professor"/>
+            <generalization xmi:type="uml:Generalization" xmi:id="_taTOgrad" general="_gradStudent"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_admin" name="Administrator">
+        <generalization xmi:type="uml:Generalization" xmi:id="_adminPerson" general="_person"/>
+      </packagedElement>
+      
+      
+  </packagedElement>
+
+  <packagedElement xmi:type="uml:Package" xmi:id="_coursesPackage" name="Courses">
+    <packagedElement xmi:type="uml:DataType" xmi:id="_string" name="String"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_integer" name="Integer"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_course" name="Course">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_courseCode" name="courseCode" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_courseCredits" name="credits" visibility="public" type="_integer"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_courseDesc" name="description" visibility="public" type="_string"/>
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_qual" name="qualifier" visibility="public" type="_integer">
+            <qualifier xmi:type="uml:Property" name="qual" xmi:id="_qual" type="_string"/>
+         </ownedAttribute>
+    </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="_lecture" name="Lecture">
+        <generalization xmi:type="uml:Generalization" xmi:id="_lectureCourse" general="_course"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_lectureRoom" name="room" visibility="private" type="_string"/>
+      </packagedElement>
+       <packagedElement xmi:type="uml:Class" xmi:id="_lab" name="Lab">
+        <generalization xmi:type="uml:Generalization" xmi:id="_labCourse" general="_course"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_labEquip" name="equipment" visibility="private" type="_string"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="_dept" name = "Department">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_deptName" name="departmentName" visibility="private" type="_string"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_depts" name="department" visibility="private" type="_dept"/>
+      </packagedElement>
+
+    <packagedElement xmi:type="uml:AssociationClass" xmi:id="_enrollment" name="Enrollment">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_enrollmentGrade" name="grade" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_enrollmentDate" name="dateEnrolled" visibility="public" type="_string"/>
+    </packagedElement>
+      
+    <packagedElement xmi:type="uml:Association" xmi:id="_enrollmentAssociation" name="Enrolls" memberEnd="_studentEnrollment _courseEnrollment">
+    </packagedElement>
+
+      <packagedElement xmi:type="uml:Property" xmi:id="_studentEnrollment" name="student" association="_enrollmentAssociation" type="_student">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_sELower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_sEUpper" value="*"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_courseEnrollment" name="course" association="_enrollmentAssociation" type="_course">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cELower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cEUpper" value="1"/>
+      </packagedElement>
+
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_studentCourseDependency" client="_student" supplier="_course"/>
+
+       <packagedElement xmi:type="uml:Class" xmi:id="_onlineCourse" name="OnlineCourse">
+            <generalization xmi:type="uml:Generalization" xmi:id="_onlineTOcourse" general="_course"/>
+      </packagedElement>
+  </packagedElement>
+
+    <packagedElement xmi:type="uml:Package" xmi:id="_adminPackage" name="Administration">
+     
+      <packagedElement xmi:type="uml:Class" xmi:id="_building" name = "Building">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_buildingName" name="buildingName" visibility="private" type="_string"/>
+      </packagedElement>
+         <packagedElement xmi:type="uml:Class" xmi:id="_room" name = "Room">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_roomNum" name="roomNumber" visibility="private" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_roomCap" name="capacity" visibility="private" type="_integer"/>
+      </packagedElement>
+
+    <packagedElement xmi:type="uml:Association" xmi:id="_building_association" name="Contains" memberEnd="_building_rooms _room_building">
+        </packagedElement>
+
+       <packagedElement xmi:type="uml:Property" xmi:id="_building_rooms" name="rooms" type="_room" association="_building_association" aggregation="composite" isNavigable="true">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_bRoomsLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_bRoomsUpper" value="*"/>
+        </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_room_building" name="building" type="_building" association="_building_association">
+              <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_rBLower" value="1"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_rBUpper" value="1"/>
+       </packagedElement>
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_year" name="Year">
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_freshman" name="Freshman"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_sophomore" name="Sophomore"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_junior" name="Junior"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_senior" name="Senior"/>
+        </packagedElement>
+        
+          <packagedElement xmi:type="uml:Class" xmi:id="_finaid" name = "FinancialAid">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_finaidType" name="aidType" visibility="private" type="_string"/>
+      </packagedElement>
+        
+         <packagedElement xmi:type="uml:Class" xmi:id="_scholar" name = "Scholarship">
+             <generalization xmi:type="uml:Generalization" xmi:id="_scholarTOaid" general="_finaid"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_scholarAmount" name="amount" visibility="private" type="_integer"/>
+      </packagedElement>
+
+        <packagedElement xmi:type="uml:Association" xmi:id="_student_aid_association" isLeaf="false" isAbstract="false" name="Receives" memberEnd="_studentAid _aidStudent">
+        </packagedElement>
+        
+        <packagedElement xmi:type="uml:Property" xmi:id="_studentAid" name="financialAid" type="_finaid" association="_student_aid_association">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_aidLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_aidUpper" value="*"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_aidStudent" name="student" type="_student" association="_student_aid_association">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_studentLower" value="0"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_studentUpper" value="1"/>
+      </packagedElement>
+
+         
+  </packagedElement>
+
+    <packagedElement xmi:type="uml:Package" xmi:id="_securityPackage" name="Security">
+     
+      <packagedElement xmi:type="uml:Class" xmi:id="_clearance" name = "Clearance">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_clearanceLevel" name="clearanceLevel" visibility="private" type="_integer"/>
+      </packagedElement>
+         <packagedElement xmi:type="uml:Class" xmi:id="_guard" name = "SecurityGuard">
+            <generalization xmi:type="uml:Generalization" xmi:id="_guardPerson" general="_person"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_guardID" name="guardID" visibility="private" type="_string"/>
+      </packagedElement>
+
+    <packagedElement xmi:type="uml:Association" xmi:id="_guard_association" isLeaf="false" isAbstract="false" name="Has" memberEnd="_guardClearance _clearanceGuard">
+        </packagedElement>
+
+       <packagedElement xmi:type="uml:Property" xmi:id="_guardClearance" name="clearance" type="_clearance" association="_guard_association">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_clearLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_clearUpper" value="1"/>
+        </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_clearanceGuard" name="guard" type="_guard" association="_guard_association">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_guardLower" value="1"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_guardUpper" value="1"/>
+       </packagedElement>
+  </packagedElement>
+</uml:Model>
+</XMI>

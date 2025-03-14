@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" 
+         xmlns:uml="http://schema.omg.org/spec/UML/2.1" 
+         timestamp="Thu Mar 13 09:00:00 EST 2025">
+  <xmi:Documentation>
+    <xmi:exporter>Grok 3 (xAI)</xmi:exporter>
+    <xmi:exporterVersion>1.0</xmi:exporterVersion>
+  </xmi:Documentation>
+  <uml:Model xmi:id="m1" name="OnlineLearningPlatform" visibility="public">
+    <packagedElement xmi:type="uml:Package" xmi:id="p1" name="LearningSystem">
+      <!-- Classes -->
+      <packagedElement xmi:type="uml:Class" xmi:id="c1" name="User" visibility="public" isAbstract="true">
+        <ownedAttribute xmi:id="a1" name="userID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a2" name="email" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedOperation xmi:id="op1" name="login" visibility="public">
+          <ownedParameter xmi:id="p1" name="return" direction="return">
+            <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Boolean"/>
+          </ownedParameter>
+        </ownedOperation>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c2" name="Student" visibility="public">
+        <generalization xmi:id="g1" general="c1"/>
+        <ownedAttribute xmi:id="a3" name="enrollmentDate" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Date"/>
+        </ownedAttribute>
+        <ownedOperation xmi:id="op2" name="submitAssignment" visibility="public"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c3" name="Instructor" visibility="public">
+        <generalization xmi:id="g2" general="c1"/>
+        <ownedAttribute xmi:id="a4" name="department" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedOperation xmi:id="op3" name="gradeAssignment" visibility="public"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c4" name="Course" visibility="public">
+        <ownedAttribute xmi:id="a5" name="courseID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a6" name="title" visibility="public">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedOperation xmi:id="op4" name="addStudent" visibility="public"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c5" name="Assignment" visibility="public">
+        <ownedAttribute xmi:id="a7" name="assignmentID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a8" name="dueDate" visibility="public">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Date"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c6" name="Submission" visibility="public">
+        <ownedAttribute xmi:id="a9" name="submissionDate" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Date"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a10" name="content" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c7" name="Grade" visibility="public">
+        <ownedAttribute xmi:id="a11" name="score" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Integer"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a12" name="feedback" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c8" name="Module" visibility="public">
+        <ownedAttribute xmi:id="a13" name="moduleID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a14" name="title" visibility="public">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c9" name="Content" visibility="public" isAbstract="true">
+        <ownedAttribute xmi:id="a15" name="contentID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c10" name="VideoContent" visibility="public">
+        <generalization xmi:id="g3" general="c9"/>
+        <ownedAttribute xmi:id="a16" name="duration" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Integer"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c11" name="TextContent" visibility="public">
+        <generalization xmi:id="g4" general="c9"/>
+        <ownedAttribute xmi:id="a17" name="wordCount" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Integer"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c12" name="Quiz" visibility="public">
+        <ownedAttribute xmi:id="a18" name="quizID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedOperation xmi:id="op5" name="calculateScore" visibility="public" isQuery="true"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c13" name="Question" visibility="public">
+        <ownedAttribute xmi:id="a19" name="questionText" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c14" name="Answer" visibility="public">
+        <ownedAttribute xmi:id="a20" name="answerText" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="a21" name="isCorrect" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#Boolean"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c15" name="Enrollment" visibility="public">
+        <ownedAttribute xmi:id="a22" name="enrollmentID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c16" name="Discussion" visibility="public">
+        <ownedAttribute xmi:id="a23" name="discussionID" visibility="private" isReadOnly="true">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c17" name="Post" visibility="public">
+        <ownedAttribute xmi:id="a24" name="postContent" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c18" name="Notification" visibility="public">
+        <ownedAttribute xmi:id="a25" name="message" visibility="private">
+          <type xmi:type="uml:PrimitiveType" href="http://schema.omg.org/spec/UML/2.1/uml.xml#String"/>
+        </ownedAttribute>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c19" name="Administrator" visibility="public">
+        <generalization xmi:id="g5" general="c1"/>
+        <ownedOperation xmi:id="op6" name="manageCourse" visibility="public"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="c20" name="LearningManagementSystem" visibility="public">
+        <ownedOperation xmi:id="op7" name="generateReport" visibility="public"/>
+      </packagedElement>
+
+      <!-- Associations -->
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc1" name="Enrolls">
+        <ownedEnd xmi:id="ae1" visibility="public" type="c2"/>
+        <ownedEnd xmi:id="ae2" visibility="public" type="c15" aggregation="shared"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc2" name="BelongsTo">
+        <ownedEnd xmi:id="ae3" visibility="public" type="c15"/>
+        <ownedEnd xmi:id="ae4" visibility="public" type="c4" aggregation="shared"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc3" name="Teaches">
+        <ownedEnd xmi:id="ae5" visibility="public" type="c3"/>
+        <ownedEnd xmi:id="ae6" visibility="public" type="c4" aggregation="shared"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc4" name="Contains">
+        <ownedEnd xmi:id="ae7" visibility="public" type="c4" aggregation="composite"/>
+        <ownedEnd xmi:id="ae8" visibility="public" type="c8"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc5" name="Has">
+        <ownedEnd xmi:id="ae9" visibility="public" type="c8" aggregation="composite"/>
+        <ownedEnd xmi:id="ae10" visibility="public" type="c9"/>
+      </packagedElement>
+
+      <!-- Dependency -->
+      <packagedElement xmi:type="uml:Dependency" xmi:id="dep1" client="c20" supplier="c4"/>
+    </packagedElement>
+  </uml:Model>
+</xmi:XMI>

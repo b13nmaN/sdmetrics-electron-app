@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="2.1" xmlns:uml="http://www.omg.org/spec/UML/20090901">
+    <uml:Model xmi:type="uml:Model" xmi:id="model2" name="ECommerceSystem">
+        
+        <!-- Class User -->
+        <packagedElement xmi:type="uml:Class" xmi:id="User" name="User">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="userId" name="userId" type="String"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="username" name="username" type="String"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="password" name="password" type="String"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="login" name="login"/>
+        </packagedElement>
+
+        <!-- Class Customer (inherits from User) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="Customer" name="Customer">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="customerId" name="customerId" type="String"/>
+            <generalization xmi:type="uml:Generalization" xmi:id="genUserCustomer" general="User"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="register" name="register"/>
+        </packagedElement>
+
+        <!-- Class Product -->
+        <packagedElement xmi:type="uml:Class" xmi:id="Product" name="Product">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="productId" name="productId" type="String"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="name" name="name" type="String"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="price" name="price" type="Float"/>
+        </packagedElement>
+
+        <!-- Class Order -->
+        <packagedElement xmi:type="uml:Class" xmi:id="Order" name="Order">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="orderId" name="orderId" type="String"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="date" name="date" type="Date"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="calculateTotal" name="calculateTotal"/>
+        </packagedElement>
+
+        <!-- Class OrderItem (composition relationship with Order) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="OrderItem" name="OrderItem">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="quantity" name="quantity" type="Integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="subtotal" name="subtotal" type="Float"/>
+        </packagedElement>
+
+        <!-- Class ShoppingCart (aggregation relationship with Customer) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="ShoppingCart" name="ShoppingCart">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="cartId" name="cartId" type="String"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="totalAmount" name="totalAmount" type="Float"/>
+        </packagedElement>
+
+        <!-- Associations -->
+        <!-- Association between Customer and ShoppingCart (Aggregation) -->
+        <packagedElement xmi:type="uml:Association" xmi:id="assocCustomerCart">
+            <memberEnd xmi:idref="customerEnd" type="Customer"/>
+            <memberEnd xmi:idref="cartEnd" type="ShoppingCart"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="customerEnd" type="Customer" aggregation="shared"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="cartEnd" type="ShoppingCart"/>
+        </packagedElement>
+
+        <!-- Association between Order and OrderItem (Composition) -->
+        <packagedElement xmi:type="uml:Association" xmi:id="assocOrderItem">
+            <memberEnd xmi:idref="orderEnd" type="Order"/>
+            <memberEnd xmi:idref="orderItemEnd" type="OrderItem"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="orderEnd" type="Order" aggregation="composite"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="orderItemEnd" type="OrderItem"/>
+        </packagedElement>
+
+        <!-- Association between Order and Customer (One-to-One) -->
+        <packagedElement xmi:type="uml:Association" xmi:id="assocOrderCustomer">
+            <memberEnd xmi:idref="orderCustomerEnd" type="Order"/>
+            <memberEnd xmi:idref="customerOrderEnd" type="Customer"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="orderCustomerEnd" type="Order"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="customerOrderEnd" type="Customer"/>
+        </packagedElement>
+
+        <!-- Association between ShoppingCart and Product (Many-to-Many) -->
+        <packagedElement xmi:type="uml:Association" xmi:id="assocCartProduct">
+            <memberEnd xmi:idref="cartProductEnd1" type="ShoppingCart"/>
+            <memberEnd xmi:idref="cartProductEnd2" type="Product"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="cartProductEnd1" type="ShoppingCart" upper="*"/>
+            <ownedEnd xmi:type="uml:Property" xmi:id="cartProductEnd2" type="Product" upper="*"/>
+        </packagedElement>
+        
+    </uml:Model>
+</XMI>
