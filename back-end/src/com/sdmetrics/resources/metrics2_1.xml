@@ -35,18 +35,18 @@ other part of SDMetrics.
   <!-- Custom Procedures and Operations (Added from testMetrics04.xml) -->
 
     <metricprocedure name="pairwise"
-        class="com.sdmetrics.test.MetricProcedurePairwise" />
-    <setprocedure name="conditionalset"
-        class="com.sdmetrics.test.SetProcedureCondition" />
-    <ruleprocedure name="verbobject"
-        class="com.sdmetrics.test.RuleProcedureVerbObject" />
+    class="com.sdmetrics.test.MetricProcedurePairwise" />
+<setprocedure name="conditionalset"
+    class="com.sdmetrics.test.SetProcedureCondition" />
+<ruleprocedure name="verbobject"
+    class="com.sdmetrics.test.RuleProcedureVerbObject" />
 
-    <scalaroperationdefinition name="maximun"
-        class="com.sdmetrics.test.ScalarOperationMax" />
-    <setoperationdefinition name="symmdiff"
-        class="com.sdmetrics.test.SetOperationSymmDiff" />
-    <booleanoperationdefinition name="xor"
-        class="com.sdmetrics.test.BooleanOperationXOR" />
+<scalaroperationdefinition name="maximun"
+    class="com.sdmetrics.test.ScalarOperationMax" />
+<setoperationdefinition name="symmdiff"
+    class="com.sdmetrics.test.SetOperationSymmDiff" />
+<booleanoperationdefinition name="xor"
+    class="com.sdmetrics.test.BooleanOperationXOR" />
 
 
 <!-- LCOM -->

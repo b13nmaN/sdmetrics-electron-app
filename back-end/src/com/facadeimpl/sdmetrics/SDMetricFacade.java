@@ -72,6 +72,9 @@ public class SDMetricFacade {
 
         jettyServer.start();
         System.out.println("Jetty WebSocket server started on port: " + wsPort);
+
+        // Set this instance in the WebSocket endpoint
+        MetricsWebSocketEndpoint.setFacade(this);
     }
 
     public void calculateAndSendMetrics() {
@@ -141,23 +144,6 @@ public class SDMetricFacade {
     public void stopServer() throws Exception {
         if (jettyServer != null) {
             jettyServer.stop();
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            SDMetricFacade facade = new SDMetricFacade(
-                "resources/metamodel.xml",
-                "resources/xmi_transformations.xml",
-                "resources/university_uml.xmi",
-                "resources/metrics.xml",
-                8080
-            );
-            facade.calculateAndSendMetrics();
-            // Keep the server running
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

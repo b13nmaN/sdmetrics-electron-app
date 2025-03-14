@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MetricsTable from "./MetricsTable";
 import MatrixTable from "./MatrixTable";
 import "./styles.css";
@@ -6,9 +6,11 @@ import "./styles.css";
 const App = () => {
   const [metrics, setMetrics] = useState({});
   const [matrices, setMatrices] = useState({});
+  const wsRef = useRef(null); // Store WebSocket instance
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080/metrics");
+    wsRef.current = ws;
 
     ws.onopen = () => {
       console.log("Connected to WebSocket server");
@@ -30,12 +32,26 @@ const App = () => {
       console.log("WebSocket connection closed");
     };
 
-    return () => ws.close();
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
   }, []);
+
+  const handleCalculateMetrics = () => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send("calculate_metrics");
+      console.log("Requested metrics calculation");
+    } else {
+      console.error("WebSocket is not connected");
+    }
+  };
 
   return (
     <div className="App">
       <h1>SDMetrics Results</h1>
+      <button onClick={handleCalculateMetrics}>Calculate Metrics</button>
       <h2>Scalar Metrics</h2>
       <MetricsTable metrics={metrics} />
       <h2>Matrices</h2>

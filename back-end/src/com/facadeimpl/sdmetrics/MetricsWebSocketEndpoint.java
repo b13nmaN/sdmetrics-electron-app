@@ -2,6 +2,7 @@ package com.facadeimpl.sdmetrics;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import com.fasterxml.jackson.databind.ObjectMapper; // Import Jackson
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
@@ -11,14 +12,21 @@ public class MetricsWebSocketEndpoint {
     private static final Map<String, Map<String, Object>> metricsData = new ConcurrentHashMap<>();
     private static final Map<String, Object> matrixData = new ConcurrentHashMap<>();
     private static final Map<Session, Boolean> sessions = new ConcurrentHashMap<>();
+    private static SDMetricFacade facade; // Reference to the facade
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // Single Jackson instance
+
+    // Setter for the facade instance
+    public static void setFacade(SDMetricFacade facadeInstance) {
+        facade = facadeInstance;
+    }
 
     @OnOpen
     public void onOpen(Session session) {
         sessions.put(session, true);
         System.out.println("New WebSocket connection: " + session.getId());
         try {
-            session.getBasicRemote().sendText("{\"type\": \"metrics\", \"data\": " + new com.google.code.gson.Gson().toJson(metricsData) + "}");
-            session.getBasicRemote().sendText("{\"type\": \"matrices\", \"data\": " + new com.google.code.gson.Gson().toJson(matrixData) + "}");
+            session.getBasicRemote().sendText("{\"type\": \"metrics\", \"data\": " + MAPPER.writeValueAsString(metricsData) + "}");
+            session.getBasicRemote().sendText("{\"type\": \"matrices\", \"data\": " + MAPPER.writeValueAsString(matrixData) + "}");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,18 +46,37 @@ public class MetricsWebSocketEndpoint {
     @OnMessage
     public void onMessage(Session session, String message) {
         System.out.println("Message from client: " + message);
+        if ("calculate_metrics".equals(message)) {
+            if (facade != null) {
+                facade.calculateAndSendMetrics(); // Trigger calculation
+            } else {
+                System.err.println("Facade not initialized!");
+            }
+        }
     }
 
     public static void sendMetrics(Map<String, Map<String, Object>> metrics) {
         metricsData.clear();
         metricsData.putAll(metrics);
-        String json = "{\"type\": \"metrics\", \"data\": " + new com.google.code.gson.Gson().toJson(metrics) + "}";
+        String json;
+        try {
+            json = "{\"type\": \"metrics\", \"data\": " + MAPPER.writeValueAsString(metrics) + "}";
+        } catch (Exception e) {
+            json = "{\"type\": \"metrics\", \"data\": \"Error serializing metrics\"}";
+            e.printStackTrace();
+        }
         broadcast(json);
     }
 
     public static void sendMatrix(String matrixName, Object matrix) {
         matrixData.put(matrixName, matrix);
-        String json = "{\"type\": \"matrix\", \"matrixName\": \"" + matrixName + "\", \"data\": " + new com.google.code.gson.Gson().toJson(matrix) + "}";
+        String json;
+        try {
+            json = "{\"type\": \"matrix\", \"matrixName\": \"" + matrixName + "\", \"data\": " + MAPPER.writeValueAsString(matrix) + "}";
+        } catch (Exception e) {
+            json = "{\"type\": \"matrix\", \"matrixName\": \"" + matrixName + "\", \"data\": \"Error serializing matrix\"}";
+            e.printStackTrace();
+        }
         broadcast(json);
     }
 

@@ -6,36 +6,62 @@
   <artifactId>sdmetrics</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+  </repositories>
+
   <dependencies>
-    <!-- Jakarta WebSocket API -->
+    <!-- <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency> -->
+
+    <!-- Add Jackson -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.15.2</version> <!-- Latest stable version as of March 2025 -->
+    </dependency>
     <dependency>
       <groupId>jakarta.websocket</groupId>
       <artifactId>jakarta.websocket-api</artifactId>
       <version>2.1.0</version>
     </dependency>
-    <!-- Jetty WebSocket Server (Implementation) -->
     <dependency>
       <groupId>org.eclipse.jetty.websocket</groupId>
       <artifactId>websocket-jakarta-server</artifactId>
       <version>11.0.15</version>
     </dependency>
-    <!-- Gson for JSON Serialization -->
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.10.1</version> <!-- Updated to a newer version -->
-    </dependency>
   </dependencies>
 
   <build>
+    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>resources</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
         <configuration>
-          <source>11</source> <!-- Ensure Java 11+ for Jakarta EE -->
+          <source>11</source>
           <target>11</target>
+          <fork>false</fork> <!-- Avoid forking issues -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <mainClass>com.facadeimpltest.uwific.sdmetrics.TestSDMetricsFacade</mainClass>
         </configuration>
       </plugin>
     </plugins>
