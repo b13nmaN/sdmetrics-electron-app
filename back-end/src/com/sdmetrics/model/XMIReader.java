@@ -29,6 +29,7 @@ import static com.sdmetrics.model.XMITrigger.TriggerType.GCATTRVAL;
 import static com.sdmetrics.model.XMITrigger.TriggerType.REFLIST;
 import static com.sdmetrics.model.XMITrigger.TriggerType.XMI2ASSOC;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -780,4 +781,9 @@ public class XMIReader extends SAXHandler {
 			}
 		}
 	}
+
+    public void read(InputStream inputStream) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'read'");
+    }
 }

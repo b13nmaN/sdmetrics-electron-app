@@ -9,6 +9,7 @@ import com.sdmetrics.util.XMLParser;
 import com.sdmetrics.metrics.MetricStore;
 import com.sdmetrics.metrics.MetricsEngine;
 import com.sdmetrics.metrics.Metric;
+import com.facadeimpl.sdmetrics.db.DiagramElement;
 import com.sdmetrics.metrics.Matrix;
 import com.sdmetrics.metrics.MatrixData;
 import com.sdmetrics.metrics.MatrixEngine;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 
 public class SDMetricFacade {
     private MetaModel metaModel;
@@ -28,7 +30,9 @@ public class SDMetricFacade {
     private MetricStore metricStore;
     private MetricsEngine metricsEngine;
     private Server jettyServer;
-
+    private final SDMetricsParser sdMetricsParser;
+    
+    private final DiagramDAO diagramDAO = new DiagramDAO();
     private static final Set<String> METRICS_TO_INCLUDE = new HashSet<>();
     private static final Set<String> MATRICES_TO_INCLUDE = new HashSet<>();
 
@@ -47,19 +51,8 @@ public class SDMetricFacade {
         METRICS_TO_INCLUDE.add("PCI");
     }
 
-    public SDMetricFacade(String metaModelURL, String xmiTransURL, String xmiFile, String metricsURL, int wsPort) throws Exception {
-        XMLParser parser = new XMLParser();
-        metaModel = new MetaModel();
-        parser.parse(metaModelURL, metaModel.getSAXParserHandler());
-        XMITransformations trans = new XMITransformations(metaModel);
-        parser.parse(xmiTransURL, trans.getSAXParserHandler());
-        model = new Model(metaModel);
-        XMIReader xmiReader = new XMIReader(trans, model);
-        parser.parse(xmiFile, xmiReader);
-        metricStore = new MetricStore(metaModel);
-        parser.parse(metricsURL, metricStore.getSAXParserHandler());
-        metricsEngine = new MetricsEngine(metricStore, model);
-
+    public SDMetricFacade(String metaModelURL, String xmiTransURL, String metricsURL, int wsPort) throws Exception {
+        this.sdMetricsParser = new SDMetricsParser(diagramDAO, metaModelURL, xmiTransURL, metricsURL);
         // Start Jetty server with WebSocket
         jettyServer = new Server(wsPort);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -73,8 +66,16 @@ public class SDMetricFacade {
         jettyServer.start();
         System.out.println("Jetty WebSocket server started on port: " + wsPort);
 
-        // Set this instance in the WebSocket endpoint
         MetricsWebSocketEndpoint.setFacade(this);
+    }
+
+    public void processXMI(String xmiContent, String fileName) throws Exception {
+        sdMetricsParser.parseXMI(xmiContent, fileName);
+        calculateAndSendMetrics(); // Optional: Trigger metrics calculation after parsing
+    }
+
+    public String getLatestXMIContent() {
+        return diagramDAO.getLatestXMIContent();
     }
 
     public void calculateAndSendMetrics() {
@@ -141,9 +142,18 @@ public class SDMetricFacade {
         MetricsWebSocketEndpoint.sendMatrix(matrixData.getMatrixDefinition().getName(), matrixJson);
     }
 
+    public List<com.facadeimpl.sdmetrics.model.DiagramElement> getAllElements() {
+        return diagramDAO.getAllElements();
+    }
+    public DiagramDAO getDiagramDAO() { // New getter
+        return diagramDAO;
+    }
+
     public void stopServer() throws Exception {
         if (jettyServer != null) {
             jettyServer.stop();
         }
     }
+
+ 
 }
