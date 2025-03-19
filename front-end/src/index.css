@@ -4,12 +4,13 @@
 /* main css */
 body {
   font-family: Arial, Helvetica, sans-serif;
+
 }
 
 
 @theme {
   /* Colors */
-  --color-border: hsl(var(--border-b));
+  --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   --color-background: hsl(var(--background));
@@ -61,6 +62,10 @@ body {
   }
 }
 
+body, div{
+  @apply  border-border;
+}
+
 /* Define the CSS variables referenced above (from your earlier CSS file) */
 @layer base {
   :root {
@@ -81,7 +86,7 @@ body {
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border-b: 0 0% 89.8%;
+    --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
