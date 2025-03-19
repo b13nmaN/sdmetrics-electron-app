@@ -16,7 +16,7 @@ export function RightPanel({
 }) {
   return (
     <div className="w-4/5 flex flex-col">
-      <TabsContent value="visualizations" className="flex-1 m-0 relative border-">
+      <TabsContent value="visualizations" className="flex-1 m-0 relative">
         <div className="absolute top-4 right-4 flex space-x-2 z-10">
           <Button variant="outline" size="icon" onClick={handleZoomIn}>
             <ZoomIn className="h-4 w-4" />
