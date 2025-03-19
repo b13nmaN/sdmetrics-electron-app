@@ -51,13 +51,12 @@ export function LeftPanel({
           type="single"
           value={perspective}
           onValueChange={setPerspective}
-          className="flex flex-col space-y-2"
         >
           <ToggleGroupItem value="software-engineer" className="justify-start">
             <Code2 className="h-4 w-4 mr-2" />
             Software Engineer
           </ToggleGroupItem>
-          <ToggleGroupItem value="computer-scientist" className="justify-start">
+          <ToggleGroupItem value="computer-scientist" className="justify-start ">
             <Network className="h-4 w-4 mr-2" />
             Computer Scientist
           </ToggleGroupItem>

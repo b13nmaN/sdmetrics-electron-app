@@ -23,7 +23,7 @@ function ToggleGroup({
       data-variant={variant}
       data-size={size}
       className={cn(
-        "group/toggle-group flex w-fit items-center rounded-md data-[variant=outline]:shadow-xs",
+        "items-center justify-center gap-2 flex flex-col space-y-2",
         className
       )}
       {...props}>
@@ -51,7 +51,7 @@ function ToggleGroupItem({
       className={cn(toggleVariants({
         variant: context.variant || variant,
         size: context.size || size,
-      }), "min-w-0 flex-1 shrink-0 rounded-none shadow-none first:rounded-l-md last:rounded-r-md focus:z-10 focus-visible:z-10 data-[variant=outline]:border-l-0 data-[variant=outline]:first:border-l", className)}
+      }), "w-full inline-flex justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground-t text-center border-border cursor-pointer", className)}
       {...props}>
       {children}
     </ToggleGroupPrimitive.Item>
