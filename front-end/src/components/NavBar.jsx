@@ -11,7 +11,7 @@ export function NavBar({ activeTab, setActiveTab }) {
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="visualizations">Visualizations</TabsTrigger>
         <TabsTrigger value="metrics">Metrics</TabsTrigger>
-        <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsTrigger value="editor">Editor</TabsTrigger>
       </TabsList>
     </div>
   </div>

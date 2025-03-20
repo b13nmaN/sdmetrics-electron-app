@@ -6,7 +6,7 @@ export default function PropertiesPanel({ selectedNode, nodes, edges }) {
   if (!selectedNode) {
     return (
       <div className="p-4">
-        <p className="text-muted-foreground text-center">Select a node to view its properties</p>
+        <p className="text-muted-foreground-t text-center">Select a node to view its properties</p>
       </div>
     )
   }

@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { ZoomIn, ZoomOut, Move } from "lucide-react"
 import GraphVisualization from "@/components/graph-visualization"
+import XMIEditor from "@/components/xmi-editor"
 
 export function RightPanel({ 
   nodes, 
@@ -55,16 +56,8 @@ export function RightPanel({
         {/* Metrics content remains the same */}
       </TabsContent>
 
-      <TabsContent value="settings" className="flex-1 m-0 p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Settings</CardTitle>
-            <CardDescription>Configure the visualization and application preferences.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Settings options will be available here.</p>
-          </CardContent>
-        </Card>
+      <TabsContent value="editor" >
+        <XMIEditor/>
       </TabsContent>
     </div>
   )
