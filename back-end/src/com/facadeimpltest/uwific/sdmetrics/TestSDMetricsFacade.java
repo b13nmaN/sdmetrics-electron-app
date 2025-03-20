@@ -14,11 +14,11 @@ public class TestSDMetricsFacade {
             String xmiTransURL = "C:\\Users\\shond\\OneDrive\\Desktop\\UWI\\Year 3 - Semester 2\\Major Research Project\\sdmetrics-electron-app\\back-end\\src\\com\\sdmetrics\\resources\\xmiTrans2_0.xml";
             String metricsURL = "C:\\Users\\shond\\OneDrive\\Desktop\\UWI\\Year 3 - Semester 2\\Major Research Project\\sdmetrics-electron-app\\back-end\\src\\com\\sdmetrics\\resources\\metrics2_1.xml";
 
-            // Initialize facade with the three core files
+            // Initialize facade with the three core files and HTTP port
             facade = new SDMetricFacade(metaModelURL, xmiTransURL, metricsURL, 8080);
-            System.out.println("SDMetricFacade initialized. Processing XMI file...");
+            System.out.println("Facade initialized: starting server...");
 
-            // Keep the application running to handle WebSocket connections
+            // Keep the application running to handle HTTP requests
             Thread.currentThread().join();
 
         } catch (Exception e) {

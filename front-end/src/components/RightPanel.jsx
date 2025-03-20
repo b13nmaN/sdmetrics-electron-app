@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ZoomIn, ZoomOut, Move } from "lucide-react"
 import GraphVisualization from "@/components/graph-visualization"
 import XMIEditor from "@/components/xmi-editor"
+import MetricsDisplay from "@/components/MetricsDisplay"
 
 export function RightPanel({ 
   nodes, 
@@ -53,7 +54,7 @@ export function RightPanel({
       </TabsContent>
 
       <TabsContent value="metrics" className="flex-1 m-0 p-6">
-        {/* Metrics content remains the same */}
+        <MetricsDisplay />
       </TabsContent>
 
       <TabsContent value="editor" >

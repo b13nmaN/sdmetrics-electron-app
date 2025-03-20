@@ -1,6 +1,5 @@
 package com.facadeimpl.sdmetrics;
 
-
 import com.facadeimpl.sdmetrics.model.DiagramElement;
 import com.sdmetrics.metrics.Metric;
 import com.sdmetrics.metrics.MetricStore;
@@ -22,7 +21,6 @@ public class SDMetricsParser {
     private final String metaModelURL;
     private final String xmiTransURL;
     private final String metricsURL;
-    
 
     public SDMetricsParser(DiagramDAO diagramDAO, String metaModelURL, String xmiTransURL, String metricsURL) {
         this.diagramDAO = diagramDAO;
@@ -62,7 +60,6 @@ public class SDMetricsParser {
             diagramDAO.saveFile(fileName, xmiContent, new java.util.Date().toString());
 
             // Step 5: Convert and save model elements
-            int x = 0, y = 0;
             for (ModelElement element : model) {
                 DiagramElement diagramElement = new DiagramElement(
                         element.getXMIID(),
@@ -75,13 +72,11 @@ public class SDMetricsParser {
                 Collection<String> attrNames = element.getType().getAttributeNames();
                 for (String attrName : attrNames) {
                     if (element.getType().isSetAttribute(attrName)) {
-                        // Multi-valued attribute (e.g., ownedAttribute)
                         Collection<?> attrValues = element.getSetAttribute(attrName);
                         if (attrValues != null && !attrValues.isEmpty()) {
                             attributes.put(attrName, attrValues);
                         }
                     } else if (!"id".equals(attrName) && !"context".equals(attrName)) {
-                        // Single-valued attribute (e.g., name, visibility)
                         String value = element.getPlainAttribute(attrName);
                         if (value != null && !value.isEmpty()) {
                             attributes.put(attrName, value);
@@ -98,7 +93,6 @@ public class SDMetricsParser {
                             .map(ModelElement::getXMIID)
                             .toArray());
                 }
-                // Add incoming relations if needed
                 Collection<ModelElement> incoming = element.getRelations("context");
                 if (incoming != null && !incoming.isEmpty()) {
                     relations.put("context", incoming.stream()
@@ -120,8 +114,9 @@ public class SDMetricsParser {
                 diagramDAO.saveElement(diagramElement);
             }
         } catch (Exception e) {
-                MetricsWebSocketEndpoint.sendError("Invalid XMI: " + e.getMessage());
-                throw e;
+            // Use MetricsDataStore or a logging mechanism instead of MetricsRESTEndpoint
+            System.err.println("Invalid XMI: " + e.getMessage());
+            throw e;
         } finally {
             tempFile.delete(); // Clean up temporary file
         }

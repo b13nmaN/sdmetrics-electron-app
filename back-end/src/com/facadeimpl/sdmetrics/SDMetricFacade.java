@@ -1,36 +1,22 @@
 package com.facadeimpl.sdmetrics;
 
-import com.sdmetrics.model.MetaModel;
 import com.sdmetrics.model.Model;
 import com.sdmetrics.model.ModelElement;
-import com.sdmetrics.model.XMIReader;
-import com.sdmetrics.model.XMITransformations;
-import com.sdmetrics.util.XMLParser;
+import com.sdmetrics.metrics.Metric;
 import com.sdmetrics.metrics.MetricStore;
 import com.sdmetrics.metrics.MetricsEngine;
-import com.sdmetrics.metrics.Metric;
-import com.facadeimpl.sdmetrics.db.DiagramElement;
 import com.sdmetrics.metrics.Matrix;
 import com.sdmetrics.metrics.MatrixData;
 import com.sdmetrics.metrics.MatrixEngine;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class SDMetricFacade {
-    private MetaModel metaModel;
     private Model model;
     private MetricStore metricStore;
     private MetricsEngine metricsEngine;
-    private Server jettyServer;
     private final SDMetricsParser sdMetricsParser;
+    private MetricsServer metricsServer;
     
     private final DiagramDAO diagramDAO = new DiagramDAO();
     private static final Set<String> METRICS_TO_INCLUDE = new HashSet<>();
@@ -51,27 +37,18 @@ public class SDMetricFacade {
         METRICS_TO_INCLUDE.add("PCI");
     }
 
-    public SDMetricFacade(String metaModelURL, String xmiTransURL, String metricsURL, int wsPort) throws Exception {
+    public SDMetricFacade(String metaModelURL, String xmiTransURL, String metricsURL, int httpPort) throws Exception {
         this.sdMetricsParser = new SDMetricsParser(diagramDAO, metaModelURL, xmiTransURL, metricsURL);
-        // Start Jetty server with WebSocket
-        jettyServer = new Server(wsPort);
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
-        jettyServer.setHandler(context);
-
-        JakartaWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) -> {
-            wsContainer.addEndpoint(MetricsWebSocketEndpoint.class);
-        });
-
-        jettyServer.start();
-        System.out.println("Jetty WebSocket server started on port: " + wsPort);
-
-        MetricsWebSocketEndpoint.setFacade(this);
+        
+        // Start REST server using MetricsServer
+        metricsServer = new MetricsServer(httpPort, this);
+        metricsServer.start();
+        System.out.println("REST server started on port: " + httpPort);
     }
 
     public void processXMI(String xmiContent, String fileName) throws Exception {
         sdMetricsParser.parseXMI(xmiContent, fileName);
-        calculateAndSendMetrics(); // Optional: Trigger metrics calculation after parsing
+        calculateAndSendMetrics(); // Trigger metrics calculation after parsing
     }
 
     public String getLatestXMIContent() {
@@ -95,7 +72,8 @@ public class SDMetricFacade {
             }
         }
 
-        MetricsWebSocketEndpoint.sendMetrics(metricsData);
+        // Store metrics data using MetricsDataStore
+        MetricsDataStore.setMetricsData(metricsData);
         calculateAndSendMatrices();
     }
 
@@ -139,21 +117,21 @@ public class SDMetricFacade {
         }
         matrixJson.put("rows", rows);
 
-        MetricsWebSocketEndpoint.sendMatrix(matrixData.getMatrixDefinition().getName(), matrixJson);
+        // Store matrix data using MetricsDataStore
+        MetricsDataStore.setMatrixData(matrixData.getMatrixDefinition().getName(), matrixJson);
     }
 
     public List<com.facadeimpl.sdmetrics.model.DiagramElement> getAllElements() {
         return diagramDAO.getAllElements();
     }
-    public DiagramDAO getDiagramDAO() { // New getter
+    
+    public DiagramDAO getDiagramDAO() {
         return diagramDAO;
     }
 
     public void stopServer() throws Exception {
-        if (jettyServer != null) {
-            jettyServer.stop();
+        if (metricsServer != null) {
+            metricsServer.stop();
         }
     }
-
- 
 }

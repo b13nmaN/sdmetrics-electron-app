@@ -3,13 +3,13 @@
 import { useState, useEffect, useRef } from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { EditorHeader } from "./Header"
 import { EditorPanel } from "./EditorPanel"
 import { GraphPanel } from "./GraphPanel"
 import { EditorFooter } from "./Footer"
-
-
+import apiService from "@/services/apiService"
 
 // Sample data for demonstration
 const sampleNodes = [
@@ -78,256 +78,211 @@ const parseXMI = (xmiString) => {
       y: Math.random() * 200 + 50,
     })
   }
+  
+  return { classes, relationships }
 }
-
 
 export default function XMIEditor() {
   const [xmiCode, setXmiCode] = useState(sampleXMI)
   const [graph, setGraph] = useState({ classes: [], relationships: [] })
   const [zoom, setZoom] = useState(1)
   const [elements, setElements] = useState([])
-  const [ws, setWs] = useState(null)
   const [error, setError] = useState(null)
-  const [isConnected, setIsConnected] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(null)
   const [fileName, setFileName] = useState("model.xmi")
-  const [isServerMode, setIsServerMode] = useState(true)
-  const [isReconnecting, setIsReconnecting] = useState(false)
+  const [diagramUpdating, setDiagramUpdating] = useState(false)
   const fileInputRef = useRef(null)
-  const reconnectTimeoutRef = useRef(null)
 
- // WebSocket setup with reconnection logic
- const setupWebSocket = () => {
-  if (!isServerMode) return null
+  // Fetch the latest XMI content on component mount
+  useEffect(() => {
+    fetchLatestXMI()
+    fetchAllElements()
+  }, [])
 
-  setIsReconnecting(true)
-
-  try {
-    const websocket = new WebSocket("ws://localhost:8080/metrics")
-
-    websocket.onopen = () => {
-      console.log("Connected to WebSocket server")
-      setIsConnected(true)
-      setError(null)
-      setIsReconnecting(false)
-    }
-
-    websocket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        if (data.elements && data.xmiContent) {
-          setElements(data.elements)
-          setXmiCode(data.xmiContent)
-          setError(null)
-        } else if (data.type === "error") {
-          setError(data.message)
-        } else if (data.type === "metrics") {
-          // Handle metrics updates if needed
-        }
-      } catch (err) {
-        console.error("Error parsing WebSocket message:", err)
-        setError("Failed to parse server response. Using local mode.")
-      }
-    }
-
-    websocket.onerror = (err) => {
-      console.error("WebSocket error:", err)
-      setError("Cannot connect to server. Using local mode.")
-      setIsConnected(false)
-      setIsServerMode(false)
-      setIsReconnecting(false)
-    }
-
-    websocket.onclose = (event) => {
-      console.log("WebSocket connection closed", event)
-      setIsConnected(false)
-      setIsReconnecting(false)
-
-      // Only attempt to reconnect if we're still in server mode
-      if (isServerMode && !event.wasClean) {
-        // Clear any existing timeout
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current)
-        }
-
-        // Set a timeout to reconnect
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (isServerMode) {
-            console.log("Attempting to reconnect...")
-            setupWebSocket()
-          }
-        }, 5000) // Try to reconnect after 5 seconds
-      }
-    }
-
-    setWs(websocket)
-    return websocket
-  } catch (err) {
-    console.error("Failed to establish WebSocket connection:", err)
-    setError("Failed to connect to server. Using local mode.")
-    setIsConnected(false)
-    setIsServerMode(false)
-    setIsReconnecting(false)
-    return null
-  }
-}
-
-// Initialize WebSocket connection
-useEffect(() => {
-  const websocket = setupWebSocket()
-
-  // Cleanup function
-  return () => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current)
-    }
-
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.close()
-    }
-  }
-}, [isServerMode])
-
-// Parse XMI when code changes
-useEffect(() => {
-  try {
-    const parsedGraph = parseXMI(xmiCode)
-    setGraph(parsedGraph)
-  } catch (error) {
-    console.error("Error parsing XMI:", error)
-  }
-}, [xmiCode])
-
-const handleCodeChange = (e) => {
-  const newCode = e.target.value
-  setXmiCode(newCode)
-
-  // If connected to WebSocket, send the updated code
-  if (isServerMode && ws && ws.readyState === WebSocket.OPEN) {
-    try {
-      ws.send(
-        JSON.stringify({
-          type: "update_xmi",
-          content: newCode,
-          fileName: fileName,
-        }),
-      )
-    } catch (err) {
-      console.error("Error sending data to server:", err)
-    }
-  }
-}
-
-// File upload handler
-const handleFileUpload = (e) => {
-  const file = e.target.files[0]
-  if (!file) return
-
-  setFileName(file.name)
-  const reader = new FileReader()
-
-  reader.onload = (event) => {
-    const content = event.target.result
-    setXmiCode(content)
-
-    // If connected to WebSocket, send the file content
-    if (isServerMode && ws && ws.readyState === WebSocket.OPEN) {
-      try {
-        ws.send(
-          JSON.stringify({
-            type: "upload_xmi",
-            content: content,
-            fileName: file.name,
-          }),
-        )
-      } catch (err) {
-        console.error("Error sending file to server:", err)
-      }
-    }
-  }
-
-  reader.onerror = () => {
-    setError("Failed to read the file")
-  }
-
-  reader.readAsText(file)
-}
-
-// Removed duplicate handleFileUpload function definition.
-
-const triggerFileUpload = () => {
-  if (fileInputRef.current) {
-    fileInputRef.current.click()
-  } else {
-    console.error("File input ref is not assigned")
-    setError("File upload is not available. Please try again.")
-  }
-}
-
-const handleZoomIn = () => {
-  setZoom((prev) => Math.min(prev + 0.1, 2))
-}
-
-const handleZoomOut = () => {
-  setZoom((prev) => Math.max(prev - 0.1, 0.5))
-}
-
-const handleSave = () => {
-  const blob = new Blob([xmiCode], { type: "application/xml" })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = fileName
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
-
-const toggleServerMode = () => {
-  const newMode = !isServerMode
-  setIsServerMode(newMode)
-
-  if (newMode) {
-    // If switching to server mode, try to connect
-    setupWebSocket()
-  } else {
-    // If switching to local mode, close any existing connection
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.close()
-    }
-    setIsConnected(false)
+  const fetchLatestXMI = async () => {
+    setLoading(true)
     setError(null)
+    try {
+      const response = await apiService.getLatestXMI()
+      if (response && response.xmiContent) {
+        setXmiCode(response.xmiContent)
+      }
+    } catch (err) {
+      console.error("Error fetching XMI content:", err)
+      // Don't set error state here, as there might not be any XMI content yet
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
-const handleReconnect = () => {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.close()
+  const fetchAllElements = async () => {
+    setDiagramUpdating(true)
+    try {
+      const elementsData = await apiService.getAllElements()
+      if (elementsData) {
+        setElements(elementsData)
+        // If we want to update the graph based on the elements
+        // We could process the elements here and update the graph state
+      }
+    } catch (err) {
+      console.error("Error fetching diagram elements:", err)
+      setError("Failed to load diagram elements")
+    } finally {
+      setDiagramUpdating(false)
+    }
   }
-  setupWebSocket()
-}
 
+  const updateDiagram = async () => {
+    setDiagramUpdating(true)
+    setError(null)
+    try {
+      // First, save the current XMI content
+      await apiService.updateXMI(xmiCode)
+      
+      // Then, calculate metrics (if needed)
+      await apiService.calculateMetrics()
+      
+      // Finally, fetch the updated elements
+      await fetchAllElements()
+      
+      setSuccess("Diagram updated successfully")
+    } catch (err) {
+      console.error("Error updating diagram:", err)
+      setError(`Failed to update diagram: ${err.message}`)
+    } finally {
+      setDiagramUpdating(false)
+    }
+  }
+
+  // Parse XMI when code changes
+  useEffect(() => {
+    try {
+      const parsedGraph = parseXMI(xmiCode)
+      setGraph(parsedGraph)
+    } catch (error) {
+      console.error("Error parsing XMI:", error)
+    }
+  }, [xmiCode])
+
+  const handleCodeChange = (e) => {
+    const newCode = e.target.value
+    setXmiCode(newCode)
+    setSuccess(null)
+  }
+
+  // File upload handler
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    setFileName(file.name)
+    const reader = new FileReader()
+
+    reader.onload = async (event) => {
+      const content = event.target.result
+      setXmiCode(content)
+      setSuccess(null)
+    }
+
+    reader.onerror = () => {
+      setError("Failed to read the file")
+    }
+
+    reader.readAsText(file)
+  }
+
+  const triggerFileUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    } else {
+      console.error("File input ref is not assigned")
+      setError("File upload is not available. Please try again.")
+    }
+  }
+
+  const handleSave = async () => {
+    if (!xmiCode) {
+      setError("No XMI content to save")
+      return
+    }
+    
+    setLoading(true)
+    setError(null)
+    setSuccess(null)
+    
+    try {
+      await apiService.uploadXMI(xmiCode, fileName)
+      setSuccess("XMI content saved successfully")
+    } catch (err) {
+      setError(`Save failed: ${err.message}`)
+      console.error("Error saving XMI:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDownload = () => {
+    const blob = new Blob([xmiCode], { type: "application/xml" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.1, 2))
+  }
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.1, 0.5))
+  }
 
   return (
     <div className="flex flex-col h-screen"> 
-        {/* <EditorHeader
-        fileName={fileName}
-        isServerMode={isServerMode}
-        isConnected={isConnected}
-        isReconnecting={isReconnecting}
-        onFileUpload={triggerFileUpload}
-        onSave={handleSave}
-        onModeToggle={toggleServerMode}
-        onReconnect={handleReconnect}
-        fileInputRef={fileInputRef}
-      /> */}
-      {/* {error && (
+      {error && (
         <Alert variant="destructive" className="m-2">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Notice</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )} */}
+      )}
+      
+      {success && (
+        <Alert variant="default" className="m-2 bg-green-50 border-green-200">
+          <Check className="h-4 w-4 text-green-500" />
+          <AlertTitle>Success</AlertTitle>
+          <AlertDescription>{success}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex justify-end p-2 bg-gray-50 border-b">
+        <Button 
+          onClick={updateDiagram} 
+          disabled={diagramUpdating}
+          className="mr-2"
+        >
+          {diagramUpdating ? "Updating..." : "Update Diagram"}
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          disabled={loading}
+          variant="outline" 
+          className="mr-2"
+        >
+          {loading ? "Saving..." : "Save"}
+        </Button>
+        <Button 
+          onClick={handleDownload} 
+          variant="outline"
+        >
+          Download
+        </Button>
+      </div>
 
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         <ResizablePanel defaultSize={50} minSize={30}>
@@ -338,6 +293,7 @@ const handleReconnect = () => {
             onFileUpload={triggerFileUpload}
             fileInputRef={fileInputRef}
             handleFileUpload={handleFileUpload}
+            loading={loading}
           />
         </ResizablePanel>
         <ResizableHandle />
@@ -345,16 +301,18 @@ const handleReconnect = () => {
           <GraphPanel
             graph={graph}
             zoom={zoom}
-            isServerMode={isServerMode}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
-            nodes={sampleNodes}
+            nodes={elements.length > 0 ? elements : sampleNodes}
             edges={sampleEdges}
+            loading={loading || diagramUpdating}
           />
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      <EditorFooter isServerMode={isServerMode} isConnected={isConnected} />
+      <EditorFooter 
+        fileName={fileName}
+      />
     </div>
   )
 }

@@ -10,7 +10,7 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\XMITrigger.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\util\VersionInfo.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\Set.java
-C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\MetricsWebSocketEndpoint.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\CalculateMetricsHandler.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureConnectedComponents.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\RuleProcedureSet.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\SetProcedureCache.java
@@ -25,6 +25,8 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\XMITransformations.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\SetProcedure.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureSubelements.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\MetricsHandler.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\DiagramHandler.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricStore.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\Metric.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\RuleFilter.java
@@ -54,6 +56,7 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\math\ExpressionNode.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricsEngine.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\SetSummationHelper.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\ResponseUtils.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\Model.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\SetOperation.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\XMIReader.java
@@ -63,15 +66,19 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureSetOperation.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureAttributeValue.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureProjection.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\MetricsRESTEndpoint.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\RuleProcedureCache.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\MetricsDataStore.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\util\XMLParser.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\model\DiagramElement.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\DiagramDAO.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\XMIHandler.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\util\SAXHandler.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\math\MappedCollectionsIterator.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\Rule.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\MetaModelElement.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureCompare.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\MetricsServer.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\ScalarOperation.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\ElementFilters.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedure.java
