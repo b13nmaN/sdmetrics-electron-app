@@ -14,7 +14,13 @@ export function RightPanel({
   perspective, 
   zoomLevel, 
   handleZoomIn, 
-  handleZoomOut 
+  handleZoomOut,
+  // file upload props
+  xmiContent,
+  fileName,
+  fileInputRef,
+  handleFileUpload,
+  triggerFileUpload,
 }) {
   return (
     <div className="w-4/5 flex flex-col">
@@ -54,11 +60,23 @@ export function RightPanel({
       </TabsContent>
 
       <TabsContent value="metrics" className="flex-1 m-0 p-6">
-        <MetricsDisplay />
+        <MetricsDisplay
+          xmiContent={xmiContent}
+          fileName={fileName}
+          fileInputRef={fileInputRef}
+          handleFileUpload={handleFileUpload}
+          triggerFileUpload={triggerFileUpload}
+         />
       </TabsContent>
 
       <TabsContent value="editor" >
-        <XMIEditor/>
+        <XMIEditor 
+          xmiContent={xmiContent}
+          fileName={fileName}
+          fileInputRef={fileInputRef}
+          handleFileUpload={handleFileUpload}
+          triggerFileUpload={triggerFileUpload}
+        />
       </TabsContent>
     </div>
   )

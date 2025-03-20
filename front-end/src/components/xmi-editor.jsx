@@ -58,181 +58,162 @@ const sampleXMI = `<?xml version="1.0" encoding="UTF-8"?>
   </uml:Model>
 </xmi:XMI>`
 
-// Simple XMI parser (this would be more complex in a real implementation)
-const parseXMI = (xmiString) => {
-  // This is a simplified parser for demonstration
-  // A real implementation would use a proper XML parser and traverse the DOM
+export default function XMIEditor({
+  // props
+  xmiContent,
+  fileName,
+}) {
 
-  const classes = []
-  const relationships = []
-
-  // Extract class names with regex (simplified)
-  const classRegex = /<uml:Class.*?xmi:id="(.*?)".*?name="(.*?)"/g
-  let match
-
-  while ((match = classRegex.exec(xmiString)) !== null) {
-    classes.push({
-      id: match[1],
-      name: match[2],
-      x: Math.random() * 400 + 50,
-      y: Math.random() * 200 + 50,
-    })
-  }
-  
-  return { classes, relationships }
-}
-
-export default function XMIEditor() {
-  const [xmiCode, setXmiCode] = useState(sampleXMI)
-  const [graph, setGraph] = useState({ classes: [], relationships: [] })
+  console.log("XMIEditor: ", xmiContent, fileName)
+  // const [xmiCode, setXmiCode] = useState(xmiContent)
   const [zoom, setZoom] = useState(1)
-  const [elements, setElements] = useState([])
+  // const [elements, setElements] = useState([])
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
-  const [fileName, setFileName] = useState("model.xmi")
-  const [diagramUpdating, setDiagramUpdating] = useState(false)
-  const fileInputRef = useRef(null)
+  // const [fileName, setFileName] = useState(fileName)
+  // const [diagramUpdating, setDiagramUpdating] = useState(false)
+  // const fileInputRef = useRef(null)
 
   // Fetch the latest XMI content on component mount
-  useEffect(() => {
-    fetchLatestXMI()
-    fetchAllElements()
-  }, [])
+  // useEffect(() => {
+  //   fetchLatestXMI()
+  //   fetchAllElements()
+  // }, [])
 
-  const fetchLatestXMI = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await apiService.getLatestXMI()
-      if (response && response.xmiContent) {
-        setXmiCode(response.xmiContent)
-      }
-    } catch (err) {
-      console.error("Error fetching XMI content:", err)
-      // Don't set error state here, as there might not be any XMI content yet
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const fetchLatestXMI = async () => {
+  //   setLoading(true)
+  //   setError(null)
+  //   try {
+  //     const response = await apiService.getLatestXMI()
+  //     if (response && response.xmiContent) {
+  //       setXmiCode(response.xmiContent)
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching XMI content:", err)
+  //     // Don't set error state here, as there might not be any XMI content yet
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
-  const fetchAllElements = async () => {
-    setDiagramUpdating(true)
-    try {
-      const elementsData = await apiService.getAllElements()
-      if (elementsData) {
-        setElements(elementsData)
-        // If we want to update the graph based on the elements
-        // We could process the elements here and update the graph state
-      }
-    } catch (err) {
-      console.error("Error fetching diagram elements:", err)
-      setError("Failed to load diagram elements")
-    } finally {
-      setDiagramUpdating(false)
-    }
-  }
+  // const fetchAllElements = async () => {
+  //   setDiagramUpdating(true)
+  //   try {
+  //     const elementsData = await apiService.getAllElements()
+  //     if (elementsData) {
+  //       setElements(elementsData)
+  //       // If we want to update the graph based on the elements
+  //       // We could process the elements here and update the graph state
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching diagram elements:", err)
+  //     setError("Failed to load diagram elements")
+  //   } finally {
+  //     setDiagramUpdating(false)
+  //   }
+  // }
 
-  const updateDiagram = async () => {
-    setDiagramUpdating(true)
-    setError(null)
-    try {
-      // First, save the current XMI content
-      await apiService.updateXMI(xmiCode)
+  // const updateDiagram = async () => {
+  //   setDiagramUpdating(true)
+  //   setError(null)
+  //   try {
+  //     // First, save the current XMI content
+  //     await apiService.updateXMI(xmiCode)
       
-      // Then, calculate metrics (if needed)
-      await apiService.calculateMetrics()
+  //     // Then, calculate metrics (if needed)
+  //     await apiService.calculateMetrics()
       
-      // Finally, fetch the updated elements
-      await fetchAllElements()
+  //     // Finally, fetch the updated elements
+  //     await fetchAllElements()
       
-      setSuccess("Diagram updated successfully")
-    } catch (err) {
-      console.error("Error updating diagram:", err)
-      setError(`Failed to update diagram: ${err.message}`)
-    } finally {
-      setDiagramUpdating(false)
-    }
-  }
+  //     setSuccess("Diagram updated successfully")
+  //   } catch (err) {
+  //     console.error("Error updating diagram:", err)
+  //     setError(`Failed to update diagram: ${err.message}`)
+  //   } finally {
+  //     setDiagramUpdating(false)
+  //   }
+  // }
 
   // Parse XMI when code changes
-  useEffect(() => {
-    try {
-      const parsedGraph = parseXMI(xmiCode)
-      setGraph(parsedGraph)
-    } catch (error) {
-      console.error("Error parsing XMI:", error)
-    }
-  }, [xmiCode])
+  // useEffect(() => {
+  //   try {
+  //     const parsedGraph = parseXMI(xmiCode)
+  //     setGraph(parsedGraph)
+  //   } catch (error) {
+  //     console.error("Error parsing XMI:", error)
+  //   }
+  // }, [xmiCode])
 
-  const handleCodeChange = (e) => {
-    const newCode = e.target.value
-    setXmiCode(newCode)
-    setSuccess(null)
-  }
+  // const handleCodeChange = (e) => {
+  //   const newCode = e.target.value
+  //   setXmiCode(newCode)
+  //   setSuccess(null)
+  // }
 
   // File upload handler
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+  // const handleFileUpload = (e) => {
+  //   const file = e.target.files[0]
+  //   if (!file) return
 
-    setFileName(file.name)
-    const reader = new FileReader()
+  //   setFileName(file.name)
+  //   const reader = new FileReader()
 
-    reader.onload = async (event) => {
-      const content = event.target.result
-      setXmiCode(content)
-      setSuccess(null)
-    }
+  //   reader.onload = async (event) => {
+  //     const content = event.target.result
+  //     setXmiCode(content)
+  //     setSuccess(null)
+  //   }
 
-    reader.onerror = () => {
-      setError("Failed to read the file")
-    }
+  //   reader.onerror = () => {
+  //     setError("Failed to read the file")
+  //   }
 
-    reader.readAsText(file)
-  }
+  //   reader.readAsText(file)
+  // }
 
-  const triggerFileUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    } else {
-      console.error("File input ref is not assigned")
-      setError("File upload is not available. Please try again.")
-    }
-  }
+  // const triggerFileUpload = () => {
+  //   if (fileInputRef.current) {
+  //     fileInputRef.current.click()
+  //   } else {
+  //     console.error("File input ref is not assigned")
+  //     setError("File upload is not available. Please try again.")
+  //   }
+  // }
 
-  const handleSave = async () => {
-    if (!xmiCode) {
-      setError("No XMI content to save")
-      return
-    }
+  // const handleSave = async () => {
+  //   if (!xmiCode) {
+  //     setError("No XMI content to save")
+  //     return
+  //   }
     
-    setLoading(true)
-    setError(null)
-    setSuccess(null)
+  //   setLoading(true)
+  //   setError(null)
+  //   setSuccess(null)
     
-    try {
-      await apiService.uploadXMI(xmiCode, fileName)
-      setSuccess("XMI content saved successfully")
-    } catch (err) {
-      setError(`Save failed: ${err.message}`)
-      console.error("Error saving XMI:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
+  //   try {
+  //     await apiService.uploadXMI(xmiCode, fileName)
+  //     setSuccess("XMI content saved successfully")
+  //   } catch (err) {
+  //     setError(`Save failed: ${err.message}`)
+  //     console.error("Error saving XMI:", err)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
-  const handleDownload = () => {
-    const blob = new Blob([xmiCode], { type: "application/xml" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = fileName
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
+  // const handleDownload = () => {
+  //   const blob = new Blob([xmiCode], { type: "application/xml" })
+  //   const url = URL.createObjectURL(blob)
+  //   const a = document.createElement("a")
+  //   a.href = url
+  //   a.download = fileName
+  //   document.body.appendChild(a)
+  //   a.click()
+  //   document.body.removeChild(a)
+  //   URL.revokeObjectURL(url)
+  // }
 
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 0.1, 2))
@@ -260,7 +241,7 @@ export default function XMIEditor() {
         </Alert>
       )}
 
-      <div className="flex justify-end p-2 bg-gray-50 border-b">
+      {/* <div className="flex justify-end p-2 bg-gray-50 border-b">
         <Button 
           onClick={updateDiagram} 
           disabled={diagramUpdating}
@@ -282,30 +263,30 @@ export default function XMIEditor() {
         >
           Download
         </Button>
-      </div>
+      </div> */}
 
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         <ResizablePanel defaultSize={50} minSize={30}>
           <EditorPanel
             fileName={fileName}
-            xmiCode={xmiCode}
-            onCodeChange={handleCodeChange}
-            onFileUpload={triggerFileUpload}
-            fileInputRef={fileInputRef}
-            handleFileUpload={handleFileUpload}
-            loading={loading}
+            xmiCode={xmiContent}
+            // onCodeChange={handleCodeChange}
+            // onFileUpload={triggerFileUpload}
+            // fileInputRef={fileInputRef}
+            // handleFileUpload={handleFileUpload}
+            // loading={loading}
           />
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={50} minSize={30}>
           <GraphPanel
-            graph={graph}
+            // graph={graph}
             zoom={zoom}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
-            nodes={elements.length > 0 ? elements : sampleNodes}
+            nodes={sampleNodes}
             edges={sampleEdges}
-            loading={loading || diagramUpdating}
+            // loading={loading || diagramUpdating}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

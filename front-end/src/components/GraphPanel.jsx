@@ -16,7 +16,7 @@ export function GraphPanel({
 }) {
   return (
     <div className="h-full flex flex-col">
-      <div className="border-b p-2 bg-muted/30 flex items-center justify-between">
+      {/* <div className="border-b p-2 bg-muted/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Graph View</span>
           {!isServerMode && <span className="text-xs text-muted-foreground">(Local Rendering)</span>}
@@ -33,7 +33,7 @@ export function GraphPanel({
             <Maximize2 className="h-4 w-4" />
           </Button>
         </div>
-      </div>
+      </div> */}
       <div className="flex-1 overflow-auto bg-[#f8f9fa] dark:bg-slate-900">
         <GraphVisualization
           nodes={nodes}

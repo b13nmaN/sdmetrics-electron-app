@@ -1,0 +1,4 @@
+Changes Made:
+1. the parent page/jsx now handles uploaded file logic 
+and all props are begin passed to child components.
+2. Updated the XMIEditor to use the props from page page
