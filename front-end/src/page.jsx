@@ -83,15 +83,18 @@ export default function Home() {
     try {
       setIsLoading(true);
       setError(null);
-      
+     
       const result = await fileOps.readXMIFile();
       if (!result) return; // User canceled or error occurred
+     
+      // Escape the backslashes in the filepath
+      const escapedFilePath = result.filepath.replace(/\\/g, '\\\\');
       
-      setFilePath(result.filepath);
+      setFilePath(escapedFilePath);
       setXmiContent(result.content);
-      
-      // Process on backend
-      await apiService.processXMI(result.filepath);
+     
+      // Process on backend with escaped filepath
+      await apiService.processXMI(escapedFilePath);
     } catch (err) {
       console.error("Error opening file:", err);
       setError("Failed to open file: " + err.message);

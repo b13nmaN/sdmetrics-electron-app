@@ -15,8 +15,6 @@ const handleResponse = async (response) => {
 const apiService = {
   getInitialData: async () => {
     const response = await fetch(`${API_BASE_URL}/xmi`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
     });
     return handleResponse(response);
   },

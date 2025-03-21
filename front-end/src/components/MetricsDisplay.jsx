@@ -18,7 +18,9 @@ const MetricsDisplay = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Fetching metrics data...");
       const data = await apiService.getInitialData(); // Use getInitialData for consistency
+      console.log("Metrics data:", data);
       if (data.metrics) setMetrics(data.metrics);
       if (data.matrices) {
         setMatrices(data.matrices);

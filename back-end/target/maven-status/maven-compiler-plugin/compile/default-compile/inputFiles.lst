@@ -6,7 +6,6 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\BooleanOperation.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MetricProcedureCount.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\ElementGraph.java
-C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\db\DiagramElement.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\model\XMITrigger.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\util\VersionInfo.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\Set.java
@@ -69,8 +68,6 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\RuleProcedureCache.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\MetricsDataStore.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\util\XMLParser.java
-C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\model\DiagramElement.java
-C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\DiagramDAO.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\XMIHandler.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\util\SAXHandler.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\math\MappedCollectionsIterator.java
@@ -87,4 +84,5 @@ C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\s
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\MatrixEngine.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\metrics\Reference.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\math\ExpressionParser.java
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\facadeimpl\sdmetrics\XmiFileProcessor.java
 C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\math\HashMultiSet.java

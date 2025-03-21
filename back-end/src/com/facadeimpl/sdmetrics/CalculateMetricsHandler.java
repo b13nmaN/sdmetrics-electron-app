@@ -37,7 +37,7 @@ public class CalculateMetricsHandler implements HttpHandler {
                     System.out.println("Facade is not null, calculating metrics...");
                     String lastFilePath = facade.getLastFilePath();
                     if (lastFilePath != null && !lastFilePath.isEmpty()) {
-                        facade.calculateAndSendMetrics();
+                        facade.processXMI(lastFilePath);
                         System.out.println("Metrics calculated, sending success response...");
                         
                         Map<String, Object> response = new HashMap<>();
