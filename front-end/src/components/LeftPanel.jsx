@@ -14,10 +14,35 @@ export function LeftPanel({
   setFilter, 
   perspective, 
   setPerspective, 
-  selectedNode, 
-  nodes, 
-  edges 
+  selectedNode,
+  matrices,
+  activeMatrixTab
 }) {
+  // Get unique node categories based on the active matrix
+  const getNodeCategories = () => {
+    const categories = new Set(["all"]);
+    
+    if (matrices && activeMatrixTab && matrices[activeMatrixTab]) {
+      // Add categories based on node naming conventions in the active matrix
+      const matrix = matrices[activeMatrixTab];
+      const allNodes = [...matrix.columns, ...Object.keys(matrix.rows)];
+      
+      allNodes.forEach(nodeName => {
+        if (nodeName.startsWith("I") && nodeName.length > 1 && nodeName[1].toUpperCase() === nodeName[1]) {
+          categories.add("interface");
+        } else if (nodeName.includes("Package") || nodeName.includes("Module")) {
+          categories.add("package");
+        } else {
+          categories.add("class");
+        }
+      });
+    }
+    
+    return Array.from(categories);
+  };
+
+  const nodeCategories = getNodeCategories();
+
   return (
     <div className="w-1/5 border-r bg-muted/20 flex flex-col">
       <div className="p-4 border-b">
@@ -37,10 +62,11 @@ export function LeftPanel({
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="entity">Entity</SelectItem>
-            <SelectItem value="association">Association</SelectItem>
-            <SelectItem value="value object">Value Object</SelectItem>
+            {nodeCategories.map(category => (
+              <SelectItem key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -68,7 +94,11 @@ export function LeftPanel({
       </div>
 
       <ScrollArea className="flex-1">
-        <PropertiesPanel selectedNode={selectedNode} nodes={nodes} edges={edges} />
+        <PropertiesPanel 
+          selectedNode={selectedNode} 
+          matrices={matrices}
+          activeMatrixTab={activeMatrixTab}
+        />
       </ScrollArea>
     </div>
   )

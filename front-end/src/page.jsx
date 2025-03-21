@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Tabs } from "@/components/ui/tabs";
 import { NavBar } from "@/components/NavBar";
 import { LeftPanel } from "@/components/LeftPanel";
@@ -6,32 +6,9 @@ import { RightPanel } from "@/components/RightPanel";
 import { StatusBar } from "@/components/StatusBar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { FolderOpen, Save, Download, Share2, RefreshCw, Upload, Code } from "lucide-react";
+import { FolderOpen, Save, Download, RefreshCw, Upload } from "lucide-react";
 import apiService from "@/services/apiService";
 import { fileOps } from "@/services/apiService";
-
-// Sample data for demonstration
-const sampleNodes = [
-  { id: "student", label: "Student", category: "Entity" },
-  { id: "person", label: "Person", category: "Entity" },
-  { id: "course", label: "Course", category: "Entity" },
-  { id: "enrollment", label: "Enrollment", category: "Association" },
-  { id: "department", label: "Department", category: "Entity" },
-  { id: "faculty", label: "Faculty", category: "Entity" },
-  { id: "address", label: "Address", category: "Value Object" },
-  { id: "grade", label: "Grade", category: "Value Object" },
-];
-
-const sampleEdges = [
-  { source: "student", target: "person", type: "inheritance" },
-  { source: "student", target: "enrollment", type: "association" },
-  { source: "enrollment", target: "course", type: "association" },
-  { source: "course", target: "department", type: "dependency" },
-  { source: "faculty", target: "person", type: "inheritance" },
-  { source: "faculty", target: "department", type: "association" },
-  { source: "person", target: "address", type: "association" },
-  { source: "enrollment", target: "grade", type: "dependency" },
-];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("visualizations");
@@ -39,41 +16,122 @@ export default function Home() {
   const [perspective, setPerspective] = useState("software-engineer");
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [nodes, setNodes] = useState(sampleNodes);
-  const [edges, setEdges] = useState(sampleEdges);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [xmiContent, setXmiContent] = useState("");
   const [filePath, setFilePath] = useState("");
+  const [matrices, setMatrices] = useState(null);
+  const [activeMatrixTab, setActiveMatrixTab] = useState("");
+  const [metrics, setMetrics] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Load initial data on mount
   useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        setIsLoading(true);
-        const { filepath, metrics, matrices } = await apiService.getInitialData();
-        if (filepath) {
-          const result = await fileOps.readXMIFile(filepath);
-          if (result) {
-            setFilePath(result.filepath);
-            setXmiContent(result.content);
-            // Optionally parse XMI to update nodes/edges if you have a parser
-          }
-        }
-      } catch (err) {
-        console.error("Error loading initial data:", err);
-        setError("Failed to load initial data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadInitialData();
+    fetchInitialData();
   }, []);
 
+  // Fetch matrices data from the server
+  const fetchInitialData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const data = await apiService.getInitialData();
+      
+      // Process file path and XMI content if available
+      if (data.filepath) {
+        const result = await fileOps.readXMIFile(data.filepath);
+        if (result) {
+          setFilePath(result.filepath);
+          setXmiContent(result.content);
+        }
+      }
+      
+      // Set matrices data if available
+      if (data.matrices) {
+        setMatrices(data.matrices);
+        if (Object.keys(data.matrices).length > 0) {
+          setActiveMatrixTab(Object.keys(data.matrices)[0]);
+        }
+      }
+      
+      // Set metrics if available
+      if (data.metrics) {
+        setMetrics(data.metrics);
+      }
+    } catch (err) {
+      console.error("Error loading initial data:", err);
+      setError("Failed to load initial data: " + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleNodeSelect = (nodeId) => {
-    const node = nodes.find((n) => n.id === nodeId);
+    // Find the node in our data
+    if (!matrices || !activeMatrixTab) {
+      setSelectedNode(null);
+      return;
+    }
+    
+    // If nodeId is null (deselect) or not found
+    if (!nodeId) {
+      setSelectedNode(null);
+      return;
+    }
+    
+    // Create a node object with information from the matrices
+    const node = {
+      id: nodeId,
+      label: nodeId,
+      // Find relationships for this node
+      relationships: findNodeRelationships(nodeId),
+    };
+    
     setSelectedNode(node);
+  };
+
+  // Helper function to find relationships for a node from all matrices
+  const findNodeRelationships = (nodeId) => {
+    if (!matrices) return [];
+    
+    const relationships = [];
+    
+    // Check each matrix for relationships involving this node
+    Object.entries(matrices).forEach(([matrixName, matrix]) => {
+      // Check if node is a source (row)
+      if (matrix.rows[nodeId]) {
+        matrix.rows[nodeId].forEach((value, colIndex) => {
+          if (value > 0) {
+            const targetName = matrix.columns[colIndex];
+            relationships.push({
+              type: matrixName.replace(/_/g, " "),
+              direction: "outgoing",
+              target: targetName,
+              value
+            });
+          }
+        });
+      }
+      
+      // Check if node is a target (column)
+      const colIndex = matrix.columns.indexOf(nodeId);
+      if (colIndex >= 0) {
+        Object.entries(matrix.rows).forEach(([rowName, rowValues]) => {
+          const value = rowValues[colIndex];
+          if (value > 0) {
+            relationships.push({
+              type: matrixName.replace(/_/g, " "),
+              direction: "incoming",
+              source: rowName,
+              value
+            });
+          }
+        });
+      }
+    });
+    
+    return relationships;
   };
 
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.1, 2));
@@ -91,7 +149,19 @@ export default function Home() {
       setXmiContent(result.content);
       
       // Process on backend
-      await apiService.processXMI(result.filepath);
+      const processResult = await apiService.processXMI(result.filepath);
+      
+      // Update matrices and metrics with new data
+      if (processResult.matrices) {
+        setMatrices(processResult.matrices);
+        if (Object.keys(processResult.matrices).length > 0) {
+          setActiveMatrixTab(Object.keys(processResult.matrices)[0]);
+        }
+      }
+      
+      if (processResult.metrics) {
+        setMetrics(processResult.metrics);
+      }
     } catch (err) {
       console.error("Error opening file:", err);
       setError("Failed to open file: " + err.message);
@@ -121,6 +191,13 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle changing the active matrix tab
+  const handleMatrixTabChange = (tabName) => {
+    setActiveMatrixTab(tabName);
+    // Reset selected node when changing matrices
+    setSelectedNode(null);
   };
 
   return (
@@ -161,9 +238,42 @@ export default function Home() {
             </Tooltip>
           </TooltipProvider>
           
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={fetchInitialData}
+                  disabled={isLoading}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh Data</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
           {error && <p className="text-red-500 text-sm ml-2">{error}</p>}
           {isLoading && <p className="text-blue-500 text-sm ml-2">Loading...</p>}
           {filePath && <p className="text-gray-500 text-sm ml-2 truncate max-w-md">{filePath}</p>}
+          
+          {matrices && (
+            <div className="ml-4 flex items-center gap-2">
+              <span className="text-sm text-gray-500">Matrix:</span>
+              <select 
+                value={activeMatrixTab}
+                onChange={(e) => handleMatrixTabChange(e.target.value)}
+                className="text-sm border rounded p-1"
+              >
+                {Object.keys(matrices).map((matrixName) => (
+                  <option key={matrixName} value={matrixName}>
+                    {matrixName.replace(/_/g, " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
         
         <div className="flex-1 flex overflow-hidden">
@@ -175,12 +285,10 @@ export default function Home() {
             perspective={perspective}
             setPerspective={setPerspective}
             selectedNode={selectedNode}
-            nodes={nodes}
-            edges={edges}
+            matrices={matrices}
+            activeMatrixTab={activeMatrixTab}
           />
           <RightPanel
-            nodes={nodes}
-            edges={edges}
             onNodeSelect={handleNodeSelect}
             perspective={perspective}
             zoomLevel={zoomLevel}
@@ -188,11 +296,17 @@ export default function Home() {
             handleZoomOut={handleZoomOut}
             xmiContent={xmiContent}
             filePath={filePath}
-            setXmiContent={setXmiContent} // Pass setter for editing
+            setXmiContent={setXmiContent}
+            matrices={matrices}
+            activeMatrixTab={activeMatrixTab}
           />
         </div>
       </Tabs>
-      <StatusBar nodes={nodes} edges={edges} />
+      <StatusBar 
+        matrices={matrices} 
+        activeMatrixTab={activeMatrixTab}
+        metrics={metrics}
+      />
     </main>
   );
 }

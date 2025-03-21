@@ -15,8 +15,8 @@ export function RightPanel({
   xmiContent,
   filePath,
   setXmiContent,
-  nodes,
-  edges
+  matrices,
+  activeMatrixTab
 }) {
   return (
     <div className="w-4/5 flex flex-col">
@@ -33,8 +33,8 @@ export function RightPanel({
           </Button>
         </div>
         <GraphVisualization
-          nodes={nodes}
-          edges={edges}
+          matrices={matrices}
+          activeMatrixTab={activeMatrixTab}
           onNodeSelect={onNodeSelect}
           perspective={perspective}
           zoomLevel={zoomLevel}
@@ -50,11 +50,17 @@ export function RightPanel({
           </CardHeader>
           <CardContent>
             <p>Use the Visualizations tab to explore the class relationships and metrics.</p>
+            {matrices && activeMatrixTab && (
+              <div className="mt-4">
+                <h3 className="font-medium mb-2">Current Matrix: {activeMatrixTab.replace(/_/g, " ")}</h3>
+                <p>This matrix represents relationships between software elements.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </TabsContent>
       <TabsContent value="metrics" className="flex-1 m-0 p-6">
-        <MetricsDisplay />
+        <MetricsDisplay matrices={matrices} activeMatrixTab={activeMatrixTab} />
       </TabsContent>
       <TabsContent value="editor" className="flex-1 m-0">
         <XMIEditor xmiContent={xmiContent} filePath={filePath} setXmiContent={setXmiContent} />

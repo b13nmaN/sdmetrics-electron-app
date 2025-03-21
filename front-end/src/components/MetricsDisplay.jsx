@@ -20,7 +20,7 @@ const MetricsDisplay = () => {
     setError(null);
     try {
       const data = await apiService.getInitialData(); // Use getInitialData for consistency
-      console.log("Metrics data:", data);
+      console.log("Metrics data:", data.matrices);
       if (data.metrics) setMetrics(data.metrics);
       if (data.matrices) {
         setMatrices(data.matrices);
