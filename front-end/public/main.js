@@ -1,0 +1,112 @@
+// main.js - This is the main entry point for Electron
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+import isDev from 'electron-is-dev';
+
+// ES Module equivalent for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+let mainWindow;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'), // Updated to use the CommonJS version
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+  });
+
+  // Load the app
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+  }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+// IPC Handlers for file operations
+function setupIPCHandlers() {
+  ipcMain.handle('dialog:openFile', async () => {
+    if (!mainWindow) return null;
+    
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openFile'],
+      filters: [{ name: 'XMI Files', extensions: ['xmi', 'xml'] }]
+    });
+    
+    if (canceled || filePaths.length === 0) {
+      return null;
+    }
+    
+    return filePaths[0];
+  });
+
+  ipcMain.handle('dialog:getFilePath', async () => {
+    if (!mainWindow) return null;
+    
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      filters: [{ name: 'XMI Files', extensions: ['xmi', 'xml'] }]
+    });
+    
+    if (canceled) {
+      return null;
+    }
+    
+    return filePath;
+  });
+
+  ipcMain.handle('file:read', async (_, filepath) => {
+    try {
+      const content = await fs.readFile(filepath, 'utf8');
+      return content;
+    } catch (error) {
+      console.error('Error reading file:', error);
+      throw new Error(`Could not read file: ${error.message}`);
+    }
+  });
+
+  ipcMain.handle('file:write', async (_, filepath, content) => {
+    try {
+      await fs.writeFile(filepath, content, 'utf8');
+      return true;
+    } catch (error) {
+      console.error('Error writing file:', error);
+      throw new Error(`Could not write file: ${error.message}`);
+    }
+  });
+}
+
+// Setup handlers first, then create window
+app.whenReady().then(() => {
+  setupIPCHandlers();
+  createWindow();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+// Handle any errors
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});

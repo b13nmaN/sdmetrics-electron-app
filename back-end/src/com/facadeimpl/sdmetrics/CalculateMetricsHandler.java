@@ -35,10 +35,24 @@ public class CalculateMetricsHandler implements HttpHandler {
                 System.out.println("Processing POST request...");
                 if (facade != null) {
                     System.out.println("Facade is not null, calculating metrics...");
-                    facade.calculateAndSendMetrics();
-                    System.out.println("Metrics calculated, sending success response...");
-                    sendSuccessResponse(exchange, "Metrics calculated successfully");
-                    System.out.println("Success response sent");
+                    String lastFilePath = facade.getLastFilePath();
+                    if (lastFilePath != null && !lastFilePath.isEmpty()) {
+                        facade.calculateAndSendMetrics();
+                        System.out.println("Metrics calculated, sending success response...");
+                        
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("status", "success");
+                        response.put("message", "Metrics calculated successfully");
+                        response.put("metrics", MetricsDataStore.getMetricsData());
+                        response.put("matrices", MetricsDataStore.getMatrixData());
+                        ResponseUtils.sendJsonResponse(exchange, 200, response);
+                        
+                        System.out.println("Success response sent");
+                    } else {
+                        System.out.println("No file path set, sending error response...");
+                        ResponseUtils.sendErrorResponse(exchange, "No file has been processed yet");
+                        System.out.println("Error response sent: No file path");
+                    }
                 } else {
                     System.out.println("Facade is null, sending error response...");
                     ResponseUtils.sendErrorResponse(exchange, "Facade not initialized");
@@ -51,7 +65,7 @@ public class CalculateMetricsHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println("Exception occurred while handling request: " + e.getMessage());
-            e.printStackTrace(); // Print stack trace for detailed debugging
+            e.printStackTrace();
             System.out.println("Sending error response due to exception...");
             ResponseUtils.sendErrorResponse(exchange, e.getMessage());
             System.out.println("Error response sent with message: " + e.getMessage());
@@ -60,15 +74,5 @@ public class CalculateMetricsHandler implements HttpHandler {
             exchange.close();
             System.out.println("Exchange closed");
         }
-    }
-
-    private void sendSuccessResponse(HttpExchange exchange, String message) throws IOException {
-        System.out.println("Preparing success response with message: " + message);
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", message);
-        System.out.println("Response map: " + response);
-        ResponseUtils.sendJsonResponse(exchange, 200, response);
-        System.out.println("Success response sent with status 200");
     }
 }

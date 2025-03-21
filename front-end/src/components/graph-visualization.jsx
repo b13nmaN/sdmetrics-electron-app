@@ -3,7 +3,33 @@
 import { useEffect, useRef } from "react"
 import cytoscape from "cytoscape"
 
-export default function GraphVisualization({ nodes, edges, onNodeSelect, perspective, zoomLevel = 1 }) {
+export default function GraphVisualization({
+  //  nodes, edges, 
+   onNodeSelect, perspective, zoomLevel = 1
+   }) {
+
+  // Sample data for demonstration
+  const nodes = [
+    { id: "student", label: "Student", category: "Entity" },
+    { id: "person", label: "Person", category: "Entity" },
+    { id: "course", label: "Course", category: "Entity" },
+    { id: "enrollment", label: "Enrollment", category: "Association" },
+    { id: "department", label: "Department", category: "Entity" },
+    { id: "faculty", label: "Faculty", category: "Entity" },
+    { id: "address", label: "Address", category: "Value Object" },
+    { id: "grade", label: "Grade", category: "Value Object" },
+  ]
+
+  const edges = [
+    { source: "student", target: "person", type: "inheritance" },
+    { source: "student", target: "enrollment", type: "association" },
+    { source: "enrollment", target: "course", type: "association" },
+    { source: "course", target: "department", type: "dependency" },
+    { source: "faculty", target: "person", type: "inheritance" },
+    { source: "faculty", target: "department", type: "association" },
+    { source: "person", target: "address", type: "association" },
+    { source: "enrollment", target: "grade", type: "dependency" },
+  ]
   const containerRef = useRef(null)
   const cyRef = useRef(null)
 

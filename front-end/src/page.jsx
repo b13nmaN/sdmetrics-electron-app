@@ -1,15 +1,14 @@
-
-import { useState, useEffect, useRef } from "react"
-import { Tabs } from "@/components/ui/tabs"
-import { NavBar } from "@/components/NavBar"
-import { LeftPanel } from "@/components/LeftPanel"
-import { RightPanel } from "@/components/RightPanel"
-import { StatusBar } from "@/components/StatusBar"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import { 
-  FolderOpen, Save, Download, Share2, RefreshCw, Upload, Code 
-} from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import { Tabs } from "@/components/ui/tabs";
+import { NavBar } from "@/components/NavBar";
+import { LeftPanel } from "@/components/LeftPanel";
+import { RightPanel } from "@/components/RightPanel";
+import { StatusBar } from "@/components/StatusBar";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { FolderOpen, Save, Download, Share2, RefreshCw, Upload, Code } from "lucide-react";
+import apiService from "@/services/apiService";
+import { fileOps } from "@/services/apiService";
 
 // Sample data for demonstration
 const sampleNodes = [
@@ -21,7 +20,7 @@ const sampleNodes = [
   { id: "faculty", label: "Faculty", category: "Entity" },
   { id: "address", label: "Address", category: "Value Object" },
   { id: "grade", label: "Grade", category: "Value Object" },
-]
+];
 
 const sampleEdges = [
   { source: "student", target: "person", type: "inheritance" },
@@ -32,97 +31,141 @@ const sampleEdges = [
   { source: "faculty", target: "department", type: "association" },
   { source: "person", target: "address", type: "association" },
   { source: "enrollment", target: "grade", type: "dependency" },
-]
+];
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("visualizations")
-  const [selectedNode, setSelectedNode] = useState(null)
-  const [perspective, setPerspective] = useState("software-engineer")
-  const [filter, setFilter] = useState("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [nodes, setNodes] = useState(sampleNodes)
-  const [edges, setEdges] = useState(sampleEdges)
-  const [zoomLevel, setZoomLevel] = useState(1)
+  const [activeTab, setActiveTab] = useState("visualizations");
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [perspective, setPerspective] = useState("software-engineer");
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [nodes, setNodes] = useState(sampleNodes);
+  const [edges, setEdges] = useState(sampleEdges);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [xmiContent, setXmiContent] = useState("");
+  const [filePath, setFilePath] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // xmi upload states
-  const [xmiContent, setXmiCode] = useState("")
-  const [fileName, setFileName] = useState("")
-  const fileInputRef = useRef(null)
+  // Load initial data on mount
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setIsLoading(true);
+        const { filepath, metrics, matrices } = await apiService.getInitialData();
+        if (filepath) {
+          const result = await fileOps.readXMIFile(filepath);
+          if (result) {
+            setFilePath(result.filepath);
+            setXmiContent(result.content);
+            // Optionally parse XMI to update nodes/edges if you have a parser
+          }
+        }
+      } catch (err) {
+        console.error("Error loading initial data:", err);
+        setError("Failed to load initial data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitialData();
+  }, []);
 
   const handleNodeSelect = (nodeId) => {
-    const node = nodes.find((n) => n.id === nodeId)
-    setSelectedNode(node)
-  }
+    const node = nodes.find((n) => n.id === nodeId);
+    setSelectedNode(node);
+  };
 
-  useEffect(() => {
-    // Filter logic remains the same
-  }, [searchTerm, filter])
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.1, 2));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.1, 0.5));
 
-  const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.1, 2))
-  }
-
-  const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 0.1, 0.5))
-  }
-
-
-   // File upload handler
-   const handleFileUpload = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    setFileName(file.name)
-    const reader = new FileReader()
-
-    reader.onload = async (event) => {
-      const content = event.target.result
-      setXmiCode(content)
-      setSuccess(null)
+  const handleFileOpen = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const result = await fileOps.readXMIFile();
+      if (!result) return; // User canceled or error occurred
+      
+      setFilePath(result.filepath);
+      setXmiContent(result.content);
+      
+      // Process on backend
+      await apiService.processXMI(result.filepath);
+    } catch (err) {
+      console.error("Error opening file:", err);
+      setError("Failed to open file: " + err.message);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    reader.onerror = () => {
-      setError("Failed to read the file")
+  const handleFileSave = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      if (!xmiContent) {
+        setError("No content to save");
+        return;
+      }
+      
+      const savedPath = await fileOps.writeXMIFile(filePath, xmiContent);
+      if (savedPath) {
+        setFilePath(savedPath);
+        // Show success notification if needed
+      }
+    } catch (err) {
+      console.error("Error saving file:", err);
+      setError("Failed to save file: " + err.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    reader.readAsText(file)
-  }
-
-  const triggerFileUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    } else {
-      console.error("File input ref is not assigned")
-      setError("File upload is not available. Please try again.")
-    }
-  }
+  };
 
   return (
     <main className="flex flex-col h-screen bg-background">
-      <Tabs
-        defaultValue="visualizations"
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="w-full flex flex-col h-full"
-      >
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col h-full">
         <NavBar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={triggerFileUpload} >
-                <FolderOpen className="h-4 w-4" />
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept=".xmi,.xml"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Open File</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        
+        <div className="px-4 py-2 flex items-center gap-2 border-b">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={handleFileOpen}
+                  disabled={isLoading}
+                >
+                  <FolderOpen className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Open File</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={handleFileSave}
+                  disabled={isLoading || !xmiContent}
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Save File</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          {error && <p className="text-red-500 text-sm ml-2">{error}</p>}
+          {isLoading && <p className="text-blue-500 text-sm ml-2">Loading...</p>}
+          {filePath && <p className="text-gray-500 text-sm ml-2 truncate max-w-md">{filePath}</p>}
+        </div>
+        
         <div className="flex-1 flex overflow-hidden">
           <LeftPanel
             searchTerm={searchTerm}
@@ -143,17 +186,13 @@ export default function Home() {
             zoomLevel={zoomLevel}
             handleZoomIn={handleZoomIn}
             handleZoomOut={handleZoomOut}
-            // file upload props
             xmiContent={xmiContent}
-            fileName={fileName}
-            fileInputRef={fileInputRef}
-            handleFileUpload={handleFileUpload}
-            triggerFileUpload={triggerFileUpload}
+            filePath={filePath}
+            setXmiContent={setXmiContent} // Pass setter for editing
           />
         </div>
       </Tabs>
       <StatusBar nodes={nodes} edges={edges} />
-      
     </main>
-  )
+  );
 }

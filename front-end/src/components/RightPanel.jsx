@@ -1,26 +1,22 @@
-// components/RightPanel.jsx
-import { TabsContent } from "@/components/ui/tabs"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ZoomIn, ZoomOut, Move } from "lucide-react"
-import GraphVisualization from "@/components/graph-visualization"
-import XMIEditor from "@/components/xmi-editor"
-import MetricsDisplay from "@/components/MetricsDisplay"
+import { TabsContent } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ZoomIn, ZoomOut, Move } from "lucide-react";
+import GraphVisualization from "@/components/graph-visualization";
+import XMIEditor from "@/components/xmi-editor";
+import MetricsDisplay from "@/components/MetricsDisplay";
 
-export function RightPanel({ 
-  nodes, 
-  edges, 
-  onNodeSelect, 
-  perspective, 
-  zoomLevel, 
-  handleZoomIn, 
+export function RightPanel({
+  onNodeSelect,
+  perspective,
+  zoomLevel,
+  handleZoomIn,
   handleZoomOut,
-  // file upload props
   xmiContent,
-  fileName,
-  fileInputRef,
-  handleFileUpload,
-  triggerFileUpload,
+  filePath,
+  setXmiContent,
+  nodes,
+  edges
 }) {
   return (
     <div className="w-4/5 flex flex-col">
@@ -44,7 +40,6 @@ export function RightPanel({
           zoomLevel={zoomLevel}
         />
       </TabsContent>
-
       <TabsContent value="overview" className="flex-1 m-0 p-6">
         <Card>
           <CardHeader>
@@ -58,26 +53,12 @@ export function RightPanel({
           </CardContent>
         </Card>
       </TabsContent>
-
       <TabsContent value="metrics" className="flex-1 m-0 p-6">
-        <MetricsDisplay
-          xmiContent={xmiContent}
-          fileName={fileName}
-          fileInputRef={fileInputRef}
-          handleFileUpload={handleFileUpload}
-          triggerFileUpload={triggerFileUpload}
-         />
+        <MetricsDisplay />
       </TabsContent>
-
-      <TabsContent value="editor" >
-        <XMIEditor 
-          xmiContent={xmiContent}
-          fileName={fileName}
-          fileInputRef={fileInputRef}
-          handleFileUpload={handleFileUpload}
-          triggerFileUpload={triggerFileUpload}
-        />
+      <TabsContent value="editor" className="flex-1 m-0">
+        <XMIEditor xmiContent={xmiContent} filePath={filePath} setXmiContent={setXmiContent} />
       </TabsContent>
     </div>
-  )
+  );
 }

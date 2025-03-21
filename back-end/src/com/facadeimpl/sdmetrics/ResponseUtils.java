@@ -36,7 +36,7 @@ public class ResponseUtils {
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
         exchange.getResponseHeaders().add("Access-Control-Max-Age", "3600");
-    }
+      }
 
     public static String readRequestBody(HttpExchange exchange) throws IOException {
         try (InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);

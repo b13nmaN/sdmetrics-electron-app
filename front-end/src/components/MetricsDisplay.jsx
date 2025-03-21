@@ -14,37 +14,15 @@ const MetricsDisplay = () => {
   const [error, setError] = useState(null);
   const [activeMatrixTab, setActiveMatrixTab] = useState(null);
 
-  // Function to fetch metrics data
   const fetchMetrics = async () => {
     setLoading(true);
     setError(null);
-    
     try {
-      // First trigger calculation of metrics
-      await apiService.calculateMetrics();
-      
-      // Then fetch the metrics data
-      const metricsData = await apiService.getMetrics();
-      
-      // Extract metrics and matrices from the response
-      // This depends on your exact API response structure
-      if (metricsData) {
-        // Check if the response has a data property that contains metrics
-        if (metricsData.data) {
-          setMetrics(metricsData.data);
-        } else {
-          // If not, assume the entire response is the metrics data
-          setMetrics(metricsData);
-        }
-        
-        // Extract matrix data if it exists
-        // Note: This depends on how matrices are returned in your API
-        if (metricsData.matrices) {
-          setMatrices(metricsData.matrices);
-          if (Object.keys(metricsData.matrices).length > 0) {
-            setActiveMatrixTab(Object.keys(metricsData.matrices)[0]);
-          }
-        }
+      const data = await apiService.getInitialData(); // Use getInitialData for consistency
+      if (data.metrics) setMetrics(data.metrics);
+      if (data.matrices) {
+        setMatrices(data.matrices);
+        if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
       }
     } catch (err) {
       setError(err.message);
@@ -54,37 +32,41 @@ const MetricsDisplay = () => {
     }
   };
 
-  // Fetch metrics on initial load
+  const handleRefresh = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await apiService.calculateMetrics();
+      const data = await apiService.getInitialData();
+      if (data.metrics) setMetrics(data.metrics);
+      if (data.matrices) {
+        setMatrices(data.matrices);
+        if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error("Error refreshing metrics:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMetrics();
   }, []);
 
-  // Handle refresh button click
-  const handleRefresh = () => {
-    fetchMetrics();
-  };
-
-  // Check if we have any metrics data
   const hasMetricsData = Object.keys(metrics).length > 0;
-  
-  // Check if we have any matrix data
   const hasMatrixData = Object.keys(matrices).length > 0;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Software Metrics Analysis</h2>
-        <Button 
-          onClick={handleRefresh} 
-          variant="outline" 
-          className="flex items-center gap-2"
-          disabled={loading}
-        >
+        <Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2" disabled={loading}>
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh Metrics
         </Button>
       </div>
-
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -92,9 +74,7 @@ const MetricsDisplay = () => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-
       {loading && <p className="text-muted-foreground">Loading metrics data...</p>}
-
       {!loading && !error && !hasMetricsData && (
         <Card>
           <CardContent className="pt-6">
@@ -104,14 +84,11 @@ const MetricsDisplay = () => {
           </CardContent>
         </Card>
       )}
-
       {hasMetricsData && (
         <Card>
           <CardHeader>
             <CardTitle>Element Metrics</CardTitle>
-            <CardDescription>
-              Calculated metrics for each element in the model
-            </CardDescription>
+            <CardDescription>Calculated metrics for each element in the model</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-auto max-h-[400px]">
@@ -119,8 +96,7 @@ const MetricsDisplay = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[200px]">Element</TableHead>
-                    {Object.keys(metrics).length > 0 && 
-                      Object.values(metrics)[0] && 
+                    {Object.values(metrics)[0] &&
                       Object.keys(Object.values(metrics)[0]).map((metricName) => (
                         <TableHead key={metricName}>{metricName}</TableHead>
                       ))}
@@ -141,14 +117,11 @@ const MetricsDisplay = () => {
           </CardContent>
         </Card>
       )}
-
       {hasMatrixData && (
         <Card>
           <CardHeader>
             <CardTitle>Dependency Matrices</CardTitle>
-            <CardDescription>
-              Relationship matrices between model elements
-            </CardDescription>
+            <CardDescription>Relationship matrices between model elements</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={activeMatrixTab} onValueChange={setActiveMatrixTab}>
@@ -159,7 +132,6 @@ const MetricsDisplay = () => {
                   </TabsTrigger>
                 ))}
               </TabsList>
-              
               {Object.entries(matrices).map(([matrixName, matrixData]) => (
                 <TabsContent key={matrixName} value={matrixName}>
                   {matrixData && matrixData.columns && matrixData.rows ? (
@@ -178,9 +150,7 @@ const MetricsDisplay = () => {
                             <TableRow key={rowName}>
                               <TableCell className="font-medium">{rowName}</TableCell>
                               {values.map((value, colIndex) => (
-                                <TableCell key={colIndex}>
-                                  {value > 0 ? value : "-"}
-                                </TableCell>
+                                <TableCell key={colIndex}>{value > 0 ? value : "-"}</TableCell>
                               ))}
                             </TableRow>
                           ))}

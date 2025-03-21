@@ -1,6 +1,5 @@
 package com.facadeimpl.sdmetrics;
 
-import com.facadeimpl.sdmetrics.model.DiagramElement;
 import com.sdmetrics.metrics.Metric;
 import com.sdmetrics.metrics.MetricStore;
 import com.sdmetrics.metrics.MetricsEngine;
@@ -17,13 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SDMetricsParser {
-    private final DiagramDAO diagramDAO;
     private final String metaModelURL;
     private final String xmiTransURL;
     private final String metricsURL;
 
-    public SDMetricsParser(DiagramDAO diagramDAO, String metaModelURL, String xmiTransURL, String metricsURL) {
-        this.diagramDAO = diagramDAO;
+    public SDMetricsParser(String metaModelURL, String xmiTransURL, String metricsURL) {
         this.metaModelURL = metaModelURL;
         this.xmiTransURL = xmiTransURL;
         this.metricsURL = metricsURL;
@@ -56,65 +53,8 @@ public class SDMetricsParser {
             parser.parse(metricsURL, metricStore.getSAXParserHandler());
             MetricsEngine metricsEngine = new MetricsEngine(metricStore, model);
 
-            // Step 4: Save XMI content and metadata
-            diagramDAO.saveFile(fileName, xmiContent, new java.util.Date().toString());
-
-            // Step 5: Convert and save model elements
-            for (ModelElement element : model) {
-                DiagramElement diagramElement = new DiagramElement(
-                        element.getXMIID(),
-                        element.getName(),
-                        element.getType().getName()
-                );
-
-                // Attributes: Use getSetAttribute for multi-valued attributes
-                Map<String, Object> attributes = new HashMap<>();
-                Collection<String> attrNames = element.getType().getAttributeNames();
-                for (String attrName : attrNames) {
-                    if (element.getType().isSetAttribute(attrName)) {
-                        Collection<?> attrValues = element.getSetAttribute(attrName);
-                        if (attrValues != null && !attrValues.isEmpty()) {
-                            attributes.put(attrName, attrValues);
-                        }
-                    } else if (!"id".equals(attrName) && !"context".equals(attrName)) {
-                        String value = element.getPlainAttribute(attrName);
-                        if (value != null && !value.isEmpty()) {
-                            attributes.put(attrName, value);
-                        }
-                    }
-                }
-                diagramElement.setAttributes(attributes);
-
-                // Relationships: Use getOwnedElements or getRelations for containment/relations
-                Map<String, Object> relations = new HashMap<>();
-                Collection<ModelElement> ownedElements = element.getOwnedElements();
-                if (ownedElements != null && !ownedElements.isEmpty()) {
-                    relations.put("ownedElements", ownedElements.stream()
-                            .map(ModelElement::getXMIID)
-                            .toArray());
-                }
-                Collection<ModelElement> incoming = element.getRelations("context");
-                if (incoming != null && !incoming.isEmpty()) {
-                    relations.put("context", incoming.stream()
-                            .map(ModelElement::getXMIID)
-                            .toArray());
-                }
-
-                // Metrics
-                Map<String, Object> metrics = new HashMap<>();
-                Collection<Metric> metricDefs = metricStore.getMetrics(element.getType());
-                for (Metric metric : metricDefs) {
-                    if (!metric.isInternal()) {
-                        Object value = metricsEngine.getMetricValue(element, metric);
-                        metrics.put(metric.getName(), value != null ? value : "N/A");
-                    }
-                }
-                diagramElement.setMetrics(metrics);
-
-                diagramDAO.saveElement(diagramElement);
-            }
+            // No longer saving elements to SQLite; metrics are stored in MetricsDataStore instead
         } catch (Exception e) {
-            // Use MetricsDataStore or a logging mechanism instead of MetricsRESTEndpoint
             System.err.println("Invalid XMI: " + e.getMessage());
             throw e;
         } finally {

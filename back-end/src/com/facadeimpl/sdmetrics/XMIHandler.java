@@ -19,26 +19,36 @@ public class XMIHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            if ("POST".equals(exchange.getRequestMethod())) {
+            ResponseUtils.addCorsHeaders(exchange);
+            
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1); // No content
+                return;
+            }
+            
+            if ("GET".equals(exchange.getRequestMethod())) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("filepath", facade.getLastFilePath());
+                response.put("metrics", MetricsDataStore.getMetricsData());
+                response.put("matrices", MetricsDataStore.getMatrixData());
+                ResponseUtils.sendJsonResponse(exchange, 200, response);
+            } else if ("POST".equals(exchange.getRequestMethod())) {
                 String requestBody = ResponseUtils.readRequestBody(exchange);
                 JsonNode jsonNode = MAPPER.readTree(requestBody);
 
-                if (jsonNode.has("content") && jsonNode.has("fileName")) {
-                    String xmiContent = jsonNode.get("content").asText();
-                    String fileName = jsonNode.get("fileName").asText();
-                    facade.processXMI(xmiContent, fileName);
-                    sendSuccessResponse(exchange, "XMI processed successfully");
-                } else if (jsonNode.has("content") && jsonNode.has("type") && "update_xmi".equals(jsonNode.get("type").asText())) {
-                    String newXmiContent = jsonNode.get("content").asText();
-                    facade.processXMI(newXmiContent, "edited.xmi");
-                    sendSuccessResponse(exchange, "XMI updated successfully");
+                if (jsonNode.has("filepath")) {
+                    String filepath = jsonNode.get("filepath").asText();
+                    facade.processXMI(filepath);
+                    
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("status", "success");
+                    response.put("message", "XMI processed successfully");
+                    response.put("metrics", MetricsDataStore.getMetricsData());
+                    response.put("matrices", MetricsDataStore.getMatrixData());
+                    ResponseUtils.sendJsonResponse(exchange, 200, response);
                 } else {
-                    ResponseUtils.sendErrorResponse(exchange, "Invalid request body");
+                    ResponseUtils.sendErrorResponse(exchange, "Invalid request. Expected 'filepath' parameter.");
                 }
-            } else if ("GET".equals(exchange.getRequestMethod())) {
-                Map<String, String> response = new HashMap<>();
-                response.put("xmiContent", facade.getLatestXMIContent());
-                ResponseUtils.sendJsonResponse(exchange, 200, response);
             } else {
                 exchange.sendResponseHeaders(405, 0); // Method Not Allowed
             }
@@ -47,12 +57,5 @@ public class XMIHandler implements HttpHandler {
         } finally {
             exchange.close();
         }
-    }
-
-    private void sendSuccessResponse(HttpExchange exchange, String message) throws IOException {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", message);
-        ResponseUtils.sendJsonResponse(exchange, 200, response);
     }
 }

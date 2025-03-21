@@ -18,7 +18,7 @@ public class MetricsServer {
     private void configureRoutes() {
         server.createContext("/api/metrics", new MetricsHandler(facade));
         server.createContext("/api/xmi", new XMIHandler(facade));
-        server.createContext("/api/diagram", new DiagramHandler(facade));
+        server.createContext("/api/diagram", new DiagramHandler(facade)); // Optional
         server.createContext("/api/calculate", new CalculateMetricsHandler(facade));
     }
 
