@@ -19,7 +19,7 @@ public class ResponseUtils {
         addCorsHeaders(exchange);
         exchange.sendResponseHeaders(statusCode, responseBytes.length);
 
-        try (OutputStream os = exchange.getResponseBody()) {  // Changed from getRequestBody to getResponseBody
+        try (OutputStream os = exchange.getResponseBody()) {
             os.write(responseBytes);
         }
     }
@@ -32,11 +32,16 @@ public class ResponseUtils {
     }
 
     public static void addCorsHeaders(HttpExchange exchange) {
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
+        // First check if the header is already present to avoid duplication
+        if (exchange.getResponseHeaders().containsKey("Access-Control-Allow-Origin")) {
+            return; // Headers already added, skip adding them again
+        }
+        
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://localhost:5173");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
         exchange.getResponseHeaders().add("Access-Control-Max-Age", "3600");
-      }
+    }
 
     public static String readRequestBody(HttpExchange exchange) throws IOException {
         try (InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
