@@ -1,5 +1,8 @@
-package com.facadeimpl.sdmetrics;
+package com.facadeimpl.sdmetrics.handlers;
 
+import com.facadeimpl.sdmetrics.MetricsDataStore;
+import com.facadeimpl.sdmetrics.ResponseUtils;
+import com.facadeimpl.sdmetrics.SDMetricFacade;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
@@ -37,12 +40,15 @@ public class CalculateMetricsHandler implements HttpHandler {
                     System.out.println("Facade is not null, calculating metrics...");
                     String lastFilePath = facade.getLastFilePath();
                     if (lastFilePath != null && !lastFilePath.isEmpty()) {
+                        // Process the XMI file and calculate metrics
                         facade.processXMI(lastFilePath);
                         System.out.println("Metrics calculated, sending success response...");
                         
                         Map<String, Object> response = new HashMap<>();
                         response.put("status", "success");
                         response.put("message", "Metrics calculated successfully");
+
+                        // Add metrics and matrices to the response
                         response.put("metrics", MetricsDataStore.getMetricsData());
                         response.put("matrices", MetricsDataStore.getMatrixData());
                         ResponseUtils.sendJsonResponse(exchange, 200, response);

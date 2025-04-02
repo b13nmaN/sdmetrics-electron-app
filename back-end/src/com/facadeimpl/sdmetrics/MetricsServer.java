@@ -1,8 +1,12 @@
 package com.facadeimpl.sdmetrics;
 
+import com.facadeimpl.sdmetrics.handlers.CalculateMetricsHandler;
+import com.facadeimpl.sdmetrics.handlers.MetricsHandler;
+import com.facadeimpl.sdmetrics.handlers.XMIHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import com.facadeimpl.sdmetrics.handlers.XMIToJSONHandler;
 
 public class MetricsServer {
     private final HttpServer server;
@@ -18,8 +22,14 @@ public class MetricsServer {
     private void configureRoutes() {
         server.createContext("/api/metrics", new MetricsHandler(facade));
         server.createContext("/api/xmi", new XMIHandler(facade));
-        server.createContext("/api/diagram", new DiagramHandler(facade)); // Optional
         server.createContext("/api/calculate", new CalculateMetricsHandler(facade));
+        // Add the new JSON endpoint
+    try {
+        System.out.println("Adding JSON endpoint...");
+        server.createContext("/api/json", new XMIToJSONHandler(facade));
+    } catch (Exception e) {
+        System.err.println("Error setting up JSON handler: " + e.getMessage());
+    }
     }
 
     public void start() {

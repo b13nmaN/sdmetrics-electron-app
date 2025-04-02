@@ -41,6 +41,10 @@ const apiService = {
     const response = await fetch(`${API_BASE_URL}/diagram`);
     return handleResponse(response);
   },
+  getParsedXMI: async () => {
+    const response = await fetch(`${API_BASE_URL}/json`);
+    return handleResponse(response);
+  },
   updateElementAttribute: async () => {
     throw new Error('Element updates are not supported in this version');
   },

@@ -12,7 +12,7 @@ const MetricsDisplay = () => {
   const [matrices, setMatrices] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeMatrixTab, setActiveMatrixTab] = useState(null);
+  // const [activeMatrixTab, setActiveMatrixTab] = useState(null);
   const [viewMode, setViewMode] = useState("table");
 
   const fetchMetrics = async () => {
@@ -24,7 +24,7 @@ const MetricsDisplay = () => {
       if (data.metrics) setMetrics(data.metrics);
       if (data.matrices) {
         setMatrices(data.matrices);
-        if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
+        // if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
       }
     } catch (err) {
       setError(err.message);
@@ -43,7 +43,7 @@ const MetricsDisplay = () => {
       if (data.metrics) setMetrics(data.metrics);
       if (data.matrices) {
         setMatrices(data.matrices);
-        if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
+        // if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
       }
     } catch (err) {
       setError(err.message);
@@ -152,7 +152,7 @@ const MetricsDisplay = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs value={activeMatrixTab} onValueChange={setActiveMatrixTab}>
+              <Tabs>
                 <TabsList className="mb-4">
                   {Object.keys(matrices).map((matrixName) => (
                     <TabsTrigger key={matrixName} value={matrixName}>

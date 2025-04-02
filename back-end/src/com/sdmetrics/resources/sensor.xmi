@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML">
+<uml:Model xmi:id="_readWorldSystem" name="ReadWorldSystem">
+  <packagedElement xmi:type="uml:Package" xmi:id="_dataSourcesPackage" name="DataSources">
+    <packagedElement xmi:type="uml:Class" xmi:id="_dataSource" name="DataSource" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_dataSourceID" name="sourceID" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_dataSourceType" name="sourceType" visibility="public" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_dataSourceGetData" name="getData" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_dataSourceGetDataResult" name="result" type="_dataPacket" direction="return"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_sensor" name="Sensor">
+      <generalization xmi:type="uml:Generalization" xmi:id="_sensorDataSource" general="_dataSource"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_sensorType" name="sensorType" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_sensorLocation" name="location" visibility="public" type="_location"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_database" name="Database">
+      <generalization xmi:type="uml:Generalization" xmi:id="_databaseDataSource" general="_dataSource"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_databaseConnectionString" name="connectionString" visibility="private" type="_string"/>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_dbQuery" name="queryData" visibility="public">
+           <ownedParameter xmi:type="uml:Parameter" xmi:id="_dbQueryResult" name="result" type="_dataSet" direction="return"/>
+            <ownedParameter xmi:type="uml:Parameter" xmi:id="_querystring" name="querystring" type="_string" direction="in"/>
+        </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_apiSource" name="APISource">
+      <generalization xmi:type="uml:Generalization" xmi:id="_apiSourceDataSource" general="_dataSource"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_apiEndpoint" name="apiEndpoint" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_apiKey" name="apiKey" visibility="private" type="_string"/>
+    </packagedElement>
+      
+    <packagedElement xmi:type="uml:Class" xmi:id="_fileSource" name="FileSource">
+        <generalization xmi:type="uml:Generalization" xmi:id="_fileDatasource" general="_dataSource"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_filePath" name="filePath" visibility="public" type="_string"/>
+    </packagedElement>
+
+    <!-- More data source types can be added here -->
+
+  </packagedElement>
+
+  <packagedElement xmi:type="uml:Package" xmi:id="_dataProcessingPackage" name="DataProcessing">
+    <packagedElement xmi:type="uml:Class" xmi:id="_dataProcessor" name="DataProcessor" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_processorID" name="processorID" visibility="private" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_processorProcessData" name="processData" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_processorProcessDataInput" name="input" type="_dataPacket" direction="in"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_processorProcessDataResult" name="result" type="_processedData" direction="return"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_filterProcessor" name="FilterProcessor">
+      <generalization xmi:type="uml:Generalization" xmi:id="_filterProcessorDataProcessor" general="_dataProcessor"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_filterCriteria" name="filterCriteria" visibility="public" type="_string"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_aggregationProcessor" name="AggregationProcessor">
+      <generalization xmi:type="uml:Generalization" xmi:id="_aggregationProcessorDataProcessor" general="_dataProcessor"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_aggregationFunction" name="aggregationFunction" visibility="public" type="_string"/>
+    </packagedElement>
+      
+    <packagedElement xmi:type="uml:Class" xmi:id="_transformation" name="TransformationProcessor">
+         <generalization xmi:type="uml:Generalization" xmi:id="_transDataprocessor" general="_dataProcessor"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_transfunction" name="transFunction" visibility="public" type="_string"/>
+    </packagedElement>
+      
+    <packagedElement xmi:type="uml:Class" xmi:id="_enrichment" name="EnrichmentProcessor">
+        <generalization xmi:type="uml:Generalization" xmi:id="_enrichDataprocessor" general="_dataProcessor"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_enrichSource" name="enrichmentSource" visibility="public" type="_dataSource"/>
+    </packagedElement>
+
+
+    <!-- More processor types can be added here -->
+
+  </packagedElement>
+
+  <packagedElement xmi:type="uml:Package" xmi:id="_dataStoragePackage" name="DataStorage">
+    <packagedElement xmi:type="uml:Class" xmi:id="_dataStore" name="DataStore" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_storeID" name="storeID" visibility="private" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_storeData" name="storeData" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_storeDataInput" name="data" type="_processedData" direction="in"/>
+      </ownedOperation>
+    </packagedElement>
+      
+    <packagedElement xmi:type="uml:Class" xmi:id="_timeseries" name="TimeSeriesDB">
+        <generalization xmi:type="uml:Generalization" xmi:id="_tsDatastore" general="_dataStore"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_retention" name="retentionPeriod" visibility="public" type="_string"/>
+    </packagedElement>
+      
+    <packagedElement xmi:type="uml:Class" xmi:id="_relationaldb" name="RelationalDB">
+      <generalization xmi:type="uml:Generalization" xmi:id="_relationalDatastore" general="_dataStore"/>
+       <ownedAttribute xmi:type="uml:Property" xmi:id="_schema" name="schema" visibility="public" type="_string"/>
+    </packagedElement>
+    
+      <packagedElement xmi:type="uml:Class" xmi:id="_docdb" name="DocumentDB">
+      <generalization xmi:type="uml:Generalization" xmi:id="_docDatastore" general="_dataStore"/>
+       <ownedAttribute xmi:type="uml:Property" xmi:id="_collection" name="collection" visibility="public" type="_string"/>
+    </packagedElement>
+
+    <!-- Add specific data store types like TimeSeriesDB, RelationalDB, etc. -->
+  </packagedElement>
+
+  <packagedElement xmi:type="uml:Package" xmi:id="_analyticsPackage" name="Analytics">
+    <packagedElement xmi:type="uml:Class" xmi:id="_analyticsEngine" name="AnalyticsEngine" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_engineID" name="engineID" visibility="private" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_engineAnalyzeData" name="analyzeData" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_engineAnalyzeDataInput" name="data" type="_processedData" direction="in"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_engineAnalyzeDataResult" name="result" type="_analyticsResult" direction="return"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_statisticalAnalysis" name="StatisticalAnalysis">
+      <generalization xmi:type="uml:Generalization" xmi:id="_statisticalAnalysisAnalyticsEngine" general="_analyticsEngine"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_statisticalMethods" name="statisticalMethods" visibility="public" type="_string"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_machineLearningEngine" name="MachineLearningEngine">
+      <generalization xmi:type="uml:Generalization" xmi:id="_machineLearningEngineAnalyticsEngine" general="_analyticsEngine"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_mlModel" name="mlModel" visibility="public" type="_mlModel"/>
+    </packagedElement>
+      
+     <packagedElement xmi:type="uml:Class" xmi:id="_reporting" name="ReportingEngine">
+      <generalization xmi:type="uml:Generalization" xmi:id="_reportAnalyticsengine" general="_analyticsEngine"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_reportTemplate" name="reportTemplates" visibility="public" type="_reportTemp"/>
+    </packagedElement>
+
+    <!-- More analytics engine types -->
+  </packagedElement>
+
+  <packagedElement xmi:type="uml:Package" xmi:id="_actionTriggerPackage" name="ActionTrigger">
+    <packagedElement xmi:type="uml:Class" xmi:id="_actionTrigger" name="ActionTrigger" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_triggerID" name="triggerID" visibility="private" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_triggerCheckCondition" name="checkCondition" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_triggerCheckConditionInput" name="data" type="_analyticsResult" direction="in"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_triggerCheckConditionResult" name="result" type="_boolean" direction="return"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_triggerExecuteAction" name="executeAction" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_triggerExecuteActionAction" name="action" type="_action" direction="in"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_thresholdTrigger" name="ThresholdTrigger">
+      <generalization xmi:type="uml:Generalization" xmi:id="_thresholdTriggerActionTrigger" general="_actionTrigger"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_thresholdValue" name="thresholdValue" visibility="public" type="_double"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_ruleBasedTrigger" name="RuleBasedTrigger">
+      <generalization xmi:type="uml:Generalization" xmi:id="_ruleBasedTriggerActionTrigger" general="_actionTrigger"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_rules" name="rules" visibility="public" type="_ruleSet"/>
+    </packagedElement>
+      
+      <packagedElement xmi:type="uml:Class" xmi:id="_anomaly" name="AnomalyTrigger">
+        <generalization xmi:type="uml:Generalization" xmi:id="_anomalyTrigger" general="_actionTrigger"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_anomModel" name="model" visibility="public" type="_mlModel"/>
+      </packagedElement>
+
+    <!-- More trigger types -->
+  </packagedElement>
+
+  <packagedElement xmi:type="uml:Package" xmi:id="_actionPackage" name="Actions">
+     <packagedElement xmi:type="uml:Class" xmi:id="_action" name="Action" isAbstract="true">
+       <ownedAttribute xmi:type="uml:Property" xmi:id="_actionID" name="actionID" visibility="private" type="_string"/>
+          <ownedOperation xmi:type="uml:Operation" xmi:id="_execute" name="execute" visibility="public"/>
+     </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="_notification" name="NotificationAction">
+          <generalization xmi:type="uml:Generalization" xmi:id="_notifAction" general="_action"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_notRec" name="recipient" visibility="private" type="_string"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_notMessage" name="message" visibility="private" type="_string"/>
+      </packagedElement>
+      
+      <packagedElement xmi:type="uml:Class" xmi:id="_control" name="ControlAction">
+            <generalization xmi:type="uml:Generalization" xmi:id="_controlAction" general="_action"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_conDevice" name="deviceID" visibility="private" type="_string"/>
+      </packagedElement>
+      
+      <packagedElement xmi:type="uml:Class" xmi:id="_logAction" name="LogAction">
+            <generalization xmi:type="uml:Generalization" xmi:id="_logAction" general="_action"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_logMessage" name="message" visibility="private" type="_string"/>
+      </packagedElement>
+      
+  </packagedElement>
+
+    <packagedElement xmi:type="uml:Package" xmi:id="_userInterfacePackage" name="UserInterface">
+        <packagedElement xmi:type="uml:Class" xmi:id="_dashboard" name="Dashboard">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_dashID" name="dashboardID" visibility="private" type="_string"/>
+             <ownedOperation xmi:type="uml:Operation" xmi:id="_displayData" name="displayData" visibility="public">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_displayDataInput" name="data" type="_processedData" direction="in"/>
+            </ownedOperation>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_reportViewer" name="ReportViewer">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_reportViewerID" name="reportViewerID" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_viewReport" name="viewReport" visibility="public">
+              <ownedParameter xmi:type="uml:Parameter" xmi:id="_viewreport" name="report" type="_analyticsResult" direction="in"/>
+            </ownedOperation>
+        </packagedElement>
+    </packagedElement>
+
+     <packagedElement xmi:type="uml:Package" xmi:id="_securityAuthenPackage" name="SecurityAuthentication">
+        
+         <packagedElement xmi:type="uml:Class" xmi:id="_user" name="User">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_userID" name="userID" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_password" name="password" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_role" name="role" visibility="public" type="_role"/>
+        </packagedElement>
+         
+          <packagedElement xmi:type="uml:Class" xmi:id="_role" name="Role">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_roleID" name="roleID" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_permissions" name="permissions" visibility="public" type="_permission" isComposite="true" aggregation="composite"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_permission" name="Permission">
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_permID" name="permissionID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_resource" name="resource" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_actionType" name="actionType" visibility="public" type="_string"/>
+        </packagedElement>
+         
+          <packagedElement xmi:type="uml:Class" xmi:id="_auth" name="AuthenticationManager">
+             <ownedOperation xmi:type="uml:Operation" xmi:id="_authenticate" name="authenticate" visibility="public">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_authUser" name="user" type="_user" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_authResult" name="result" type="_boolean" direction="return"/>
+            </ownedOperation>
+               <ownedOperation xmi:type="uml:Operation" xmi:id="_authorize" name="authorize" visibility="public">
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_authRole" name="role" type="_role" direction="in"/>
+                  <ownedParameter xmi:type="uml:Parameter" xmi:id="_authPerm" name="permission" type="_permission" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_authorizeResult" name="result" type="_boolean" direction="return"/>
+            </ownedOperation>
+        </packagedElement>
+         
+    </packagedElement>
+    
+     <packagedElement xmi:type="uml:Package" xmi:id="_configPackage" name="Configuration">
+        
+         <packagedElement xmi:type="uml:Class" xmi:id="_config" name="Configuration">
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_configID" name="configID" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_settings" name="settings" visibility="public" type="_setting" isComposite="true" aggregation="composite"/>
+        </packagedElement>
+         
+          <packagedElement xmi:type="uml:Class" xmi:id="_setting" name="Setting">
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_settingKey" name="key" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_settingValue" name="value" visibility="public" type="_string"/>
+        </packagedElement>
+     </packagedElement>
+
+
+  <!-- Data Types -->
+  <packagedElement xmi:type="uml:DataType" xmi:id="_string" name="String"/>
+  <packagedElement xmi:type="uml:DataType" xmi:id="_integer" name="Integer"/>
+  <packagedElement xmi:type="uml:DataType" xmi:id="_double" name="Double"/>
+  <packagedElement xmi:type="uml:DataType" xmi:id="_boolean" name="Boolean"/>
+  <packagedElement xmi:type="uml:DataType" xmi:id="_location" name="Location"/>  <!--  Could be further defined -->
+  <packagedElement xmi:type="uml:DataType" xmi:id="_dataPacket" name="DataPacket"/> <!--  Could be further defined -->
+  <packagedElement xmi:type="uml:DataType" xmi:id="_processedData" name="ProcessedData"/> <!-- Could be further defined -->
+  <packagedElement xmi:type="uml:DataType" xmi:id="_analyticsResult" name="AnalyticsResult"/> <!--  Could be further defined-->
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dataSet" name="DataSet"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_ruleSet" name="RuleSet"/>
+     <packagedElement xmi:type="uml:DataType" xmi:id="_reportTemp" name="ReportTemplate"/>
+     <packagedElement xmi:type="uml:DataType" xmi:id="_mlModel" name="MLModel"/>
+
+    <!-- Associations -->
+      <packagedElement xmi:type="uml:Association" xmi:id="_dataSourceProcessor" name="ProvidesDataTo" memberEnd="_dataSrc _procData">
+    </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_dataSrc" name="dataSource" association="_dataSourceProcessor" type="_dataSource">
+         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_dsLower" value="1"/>
+         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_dsUpper" value="*"/>
+     </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_procData" name="dataProcessor" association="_dataSourceProcessor" type="_dataProcessor">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_dpLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_dpUpper" value="*"/>
+     </packagedElement>
+      
+    <packagedElement xmi:type="uml:Association" xmi:id="_processor_datastore" name="StoresDataIn" memberEnd="_procStore _storeProc">
+    </packagedElement>
+
+      <packagedElement xmi:type="uml:Property" xmi:id="_procStore" name="dataProcessor" association="_processor_datastore" type="_dataProcessor">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_psLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_psUpper" value="*"/>
+      </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_storeProc" name="dataStore" association="_processor_datastore" type="_dataStore">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_spLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_spUpper" value="*"/>
+     </packagedElement>
+
+    <packagedElement xmi:type="uml:Association" xmi:id="_datastore_analytics" name="AnalyzesDataFrom" memberEnd="_storeAnalytics _analyticsStore">
+    </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_storeAnalytics" name="dataStore" association="_datastore_analytics" type="_dataStore">
+         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_saLower"/>
+         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_saUpper" value="*"/>
+     </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_analyticsStore" name="analyticsEngine" association="_datastore_analytics" type="_analyticsEngine">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_asLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_asUpper" value="*"/>
+     </packagedElement>
+
+    <packagedElement xmi:type="uml:Association" xmi:id="_analytics_trigger" name="TriggersActionsBasedOn" memberEnd="_analyticsAction _actionAnalytics">
+    </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_analyticsAction" name="analyticsEngine" association="_analytics_trigger" type="_analyticsEngine">
+         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_aaLower"/>
+         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_aaUpper" value="*"/>
+     </packagedElement>
+
+      <packagedElement xmi:type="uml:Property" xmi:id="_actionAnalytics" name="actionTrigger" association="_analytics_trigger" type="_actionTrigger">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_atLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_atUpper" value="*"/>
+      </packagedElement>
+      
+      <packagedElement xmi:type="uml:Association" xmi:id="_user_dashboard" name="Uses" memberEnd="_userDash _dashUser">
+    </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_userDash" name="user" association="_user_dashboard" type="_user">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_udLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_udUpper" value="*"/>
+     </packagedElement>
+    
+     <packagedElement xmi:type="uml:Property" xmi:id="_dashUser" name="dashboard" association="_user_dashboard" type="_dashboard">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_duLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_duUpper" value="*"/>
+     </packagedElement>
+     
+     <packagedElement xmi:type="uml:Association" xmi:id="_role_permission" name="has" memberEnd="_rolePerm _permRole">
+    </packagedElement>
+    
+      <packagedElement xmi:type="uml:Property" xmi:id="_rolePerm" name="role" association="_role_permission" type="_role">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_rpLower" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_rpUpper" value="*"/>
+     </packagedElement>
+     
+     <packagedElement xmi:type="uml:Property" xmi:id="_permRole" name="permission" association="_role_permission" type="_permission">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_prLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_prUpper" value="*"/>
+     </packagedElement>
+     
+     
+      <packagedElement xmi:type="uml:Association" xmi:id="_trigger_action" name="Performs" memberEnd="_triggerActionEnd _actionTriggerEnd">
+        </packagedElement>
+      
+        <packagedElement xmi:type="uml:Property" xmi:id="_triggerActionEnd" name="actionTrigger" association="_trigger_action" type="_actionTrigger">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_taLower"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_taUpper" value="*"/>
+         </packagedElement>
+         
+          <packagedElement xmi:type="uml:Property" xmi:id="_actionTriggerEnd" name="action" association="_trigger_action" type="_action">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_at2Lower"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_at2Upper" value="*"/>
+        </packagedElement>
+
+
+</uml:Model>
+</XMI>

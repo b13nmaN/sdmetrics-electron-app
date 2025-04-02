@@ -1,0 +1,608 @@
+package com.facadeimpl.sdmetrics;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.InputSource;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.sdmetrics.metrics.MetricStore;
+import com.sdmetrics.metrics.MetricsEngine;
+import com.sdmetrics.model.MetaModel;
+import com.sdmetrics.model.Model;
+
+import com.sdmetrics.model.ModelElement;
+import com.sdmetrics.model.XMIReader;
+import com.sdmetrics.model.XMITransformations;
+import com.sdmetrics.util.XMLParser;
+
+/**
+ * Parser that processes XMI files and outputs a JSON representation of UML elements
+ * with their metrics.
+ */
+public class XMIToJSONParser {
+    private final SDMetricsParser sdMetricsParser;
+    private final ObjectMapper jsonMapper;
+    
+    /**
+     * Constructs a new XMI to JSON parser.
+     * 
+     * @param metaModelURL URL of the meta model file
+     * @param xmiTransURL URL of the XMI transformations file
+     * @param metricsURL URL of the metrics definition file
+     * @throws Exception If initialization fails
+     */
+    public XMIToJSONParser(String metaModelURL, String xmiTransURL, String metricsURL) throws Exception {
+        System.out.println("Line 47: Initializing XMIToJSONParser constructor");
+        this.sdMetricsParser = new SDMetricsParser(metaModelURL, xmiTransURL, metricsURL);
+        this.jsonMapper = new ObjectMapper();
+        this.jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        System.out.println("Line 51: XMIToJSONParser constructor completed");
+    }
+    
+    /**
+     * Parses an XMI string and converts it to a JSON representation.
+     * 
+     * @param xmiContent The XMI content as a string
+     * @param fileName The name of the file (for reference)
+     * @return A JSON string representing the model with metrics
+     * @throws Exception If parsing fails
+     */
+    public String parseToJson(String xmiContent, String fileName) throws Exception {
+        System.out.println("Line 63: Starting parseToJson method");
+        System.out.println("Line 64: Parsing XMI content to XMI model...");
+        // Parse the XMI content
+        sdMetricsParser.parseXMI(xmiContent, fileName);
+        
+        System.out.println("Line 68: retrieving components from parser...");
+        
+        // Get components from parser
+        Model model = sdMetricsParser.getModel();
+        MetricStore metricStore = sdMetricsParser.getMetricStore();
+        MetricsEngine metricsEngine = sdMetricsParser.getMetricsEngine();
+        
+        System.out.println("Line 74: model: " + model);
+        System.out.println("Line 75: metricStore: " + metricStore);
+        System.out.println("Line 76: metricsEngine: " + metricsEngine);
+        
+        if (model == null) {
+            System.err.println("Line 79: Model is null, cannot convert to JSON");
+            throw new IllegalStateException("Model is null, cannot convert to JSON");
+        }
+        
+        // Build the JSON structure
+        Map<String, Object> rootJson = new HashMap<>();
+        System.out.println("Line 85: Created root JSON map");
+
+        System.out.println("Line 87: Extracting model name...");
+        
+        // Process packages
+        List<Map<String, Object>> packagesJson = extractPackages(model, metricStore, metricsEngine);
+        rootJson.put("packages", packagesJson);
+        System.out.println("Line 92: Extracted packages: " + packagesJson.size() + " packages found.");
+        
+        // Process interfaces (top-level)
+        List<Map<String, Object>> interfacesJson = extractInterfaces(model, metricStore, metricsEngine);
+        rootJson.put("interfaces", interfacesJson);
+        System.out.println("Line 97: Extracted interfaces: " + interfacesJson.size() + " interfaces found.");
+
+        // Process parent classes
+        List<Map<String, Object>> parentClassesJson = extractParentClasses(model, metricStore, metricsEngine);
+        rootJson.put("parentClasses", parentClassesJson);
+        System.out.println("Line 102: Extracted parent classes: " + parentClassesJson.size() + " parent classes found.");
+        
+        // Convert to JSON string
+        System.out.println("Line 106: Converting model to JSON string...");
+        String jsonResult = jsonMapper.writeValueAsString(rootJson);
+        System.out.println("Line 108: JSON conversion completed");
+        return jsonResult;
+    }
+    
+    /**
+     * Extracts packages from the model.
+     */
+    private List<Map<String, Object>> extractPackages(Model model, MetricStore metricStore, MetricsEngine metricsEngine) {
+        System.out.println("Line 116: Starting extractPackages method");
+        List<Map<String, Object>> packages = new ArrayList<>();
+        
+        // Get package type from metamodel
+        MetaModel metaModel = model.getMetaModel();
+        System.out.println("Line 121: metaModel: " + metaModel);
+        
+        // Find package elements
+        for (ModelElement element : model) {
+            System.out.println("Line 125: Processing element: " + element);
+            if (element.getType().getName().equalsIgnoreCase("package")) {
+                System.out.println("Line 127: Found package: " + element.getName());
+                Map<String, Object> packageJson = new HashMap<>();
+                packageJson.put("name", element.getName());
+                
+                // Extract classes in this package
+                List<Map<String, Object>> classesJson = extractClassesForPackage(element, model, metricStore, metricsEngine);
+                packageJson.put("classes", classesJson);
+                
+                // Extract interfaces in this package
+                List<Map<String, Object>> interfacesJson = extractInterfacesForPackage(element, model, metricStore, metricsEngine);
+                packageJson.put("interfaces", interfacesJson);
+                
+                // Extract package metrics
+                Map<String, Object> metricsJson = extractMetrics(element, metricsEngine, metricStore);
+                packageJson.put("metrics", metricsJson);
+                
+                packages.add(packageJson);
+                System.out.println("Line 142: Extracted package: " + element.getName() + " with " + 
+                    classesJson.size() + " classes and " + interfacesJson.size() + " interfaces.");
+            }
+        }
+        
+        System.out.println("Line 147: Finished extractPackages method");
+        return packages;
+    }
+    
+    /**
+     * Extracts classes for a specific package.
+     */
+    private List<Map<String, Object>> extractClassesForPackage(ModelElement packageElement, Model model, 
+            MetricStore metricStore, MetricsEngine metricsEngine) {
+        System.out.println("Line 156: Starting extractClassesForPackage for package: " + packageElement.getName());
+        List<Map<String, Object>> classes = new ArrayList<>();
+        
+        // Get owned elements of the package
+        Collection<ModelElement> ownedElements = packageElement.getOwnedElements();
+        if (ownedElements != null) {
+            System.out.println("Line 162: Found " + ownedElements.size() + " owned elements");
+            for (ModelElement element : ownedElements) {
+                if (element.getType().getName().equalsIgnoreCase("class")) {
+                    System.out.println("Line 165: Processing class: " + element.getName());
+                    Map<String, Object> classJson = extractClassDetails(element, metricsEngine, metricStore);
+                    classes.add(classJson);
+                }
+            }
+        }
+        
+        System.out.println("Line 172: Finished extractClassesForPackage with " + classes.size() + " classes");
+        return classes;
+    }
+    
+    /**
+     * Extracts interfaces for a specific package.
+     */
+    private List<Map<String, Object>> extractInterfacesForPackage(ModelElement packageElement, Model model, 
+            MetricStore metricStore, MetricsEngine metricsEngine) {
+        System.out.println("Line 181: Starting extractInterfacesForPackage for package: " + packageElement.getName());
+        List<Map<String, Object>> interfaces = new ArrayList<>();
+        
+        // Get owned elements of the package
+        Collection<ModelElement> ownedElements = packageElement.getOwnedElements();
+        if (ownedElements != null) {
+            System.out.println("Line 187: Found " + ownedElements.size() + " owned elements");
+            for (ModelElement element : ownedElements) {
+                if (element.getType().getName().equalsIgnoreCase("interface")) {
+                    System.out.println("Line 190: Processing interface: " + element.getName());
+                    Map<String, Object> interfaceJson = extractInterfaceDetails(element, metricsEngine, metricStore);
+                    interfaces.add(interfaceJson);
+                }
+            }
+        }
+        
+        System.out.println("Line 197: Finished extractInterfacesForPackage with " + interfaces.size() + " interfaces");
+        return interfaces;
+    }
+    
+    /**
+     * Extracts all interfaces from the model.
+     */
+    private List<Map<String, Object>> extractInterfaces(Model model, MetricStore metricStore, MetricsEngine metricsEngine) {
+        System.out.println("Line 206: Starting extractInterfaces method");
+        List<Map<String, Object>> interfaces = new ArrayList<>();
+        
+        for (ModelElement element : model) {
+            if (element.getType().getName().equalsIgnoreCase("interface")) {
+                System.out.println("Line 211: Processing interface: " + element.getName());
+                Map<String, Object> interfaceJson = extractInterfaceDetails(element, metricsEngine, metricStore);
+                
+                // Add package information
+                ModelElement owner = element.getOwner();
+                if (owner != null && owner.getType().getName().equalsIgnoreCase("package")) {
+                    interfaceJson.put("package", owner.getName());
+                    System.out.println("Line 217: Added package info: " + owner.getName());
+                }
+                
+                interfaces.add(interfaceJson);
+            }
+        }
+        
+        System.out.println("Line 223: Finished extractInterfaces with " + interfaces.size() + " interfaces");
+        return interfaces;
+    }
+    
+    /**
+     * Extracts parent classes from the model.
+     */
+    private List<Map<String, Object>> extractParentClasses(Model model, MetricStore metricStore, MetricsEngine metricsEngine) {
+        System.out.println("Line 232: Starting extractParentClasses method");
+        List<Map<String, Object>> parentClasses = new ArrayList<>();
+        
+        for (ModelElement element : model) {
+            if (element.getType().getName().equalsIgnoreCase("class")) {
+                // Check if this class has children (subclasses)
+                Collection<ModelElement> childRelations = element.getRelations("subclass");
+                if (childRelations != null && !childRelations.isEmpty()) {
+                    System.out.println("Line 240: Found parent class: " + element.getName() + 
+                        " with " + childRelations.size() + " children");
+                    Map<String, Object> parentJson = new HashMap<>();
+                    parentJson.put("name", element.getName());
+                    
+                    // Add package information
+                    ModelElement owner = element.getOwner();
+                    if (owner != null && owner.getType().getName().equalsIgnoreCase("package")) {
+                        parentJson.put("package", owner.getName());
+                    }
+                    
+                    // Check if abstract - FIXED: use safe attribute retrieval
+                    boolean isAbstract = false;
+                    try {
+                        String isAbstractStr = element.getPlainAttribute("isabstract");
+                        isAbstract = "true".equalsIgnoreCase(isAbstractStr);
+                    } catch (Exception e) {
+                        System.out.println("Warning: isabstract attribute not found for class: " + element.getName());
+                    }
+                    parentJson.put("isAbstract", isAbstract);
+                    
+                    // Add children
+                    List<String> children = new ArrayList<>();
+                    for (ModelElement child : childRelations) {
+                        children.add(child.getName());
+                    }
+                    parentJson.put("children", children);
+                    
+                    // Extract parent class metrics
+                    Map<String, Object> metricsJson = extractInheritanceMetrics(element, metricsEngine, metricStore);
+                    parentJson.put("metrics", metricsJson);
+                    
+                    parentClasses.add(parentJson);
+                }
+            }
+        }
+        
+        System.out.println("Line 269: Finished extractParentClasses with " + parentClasses.size() + " parent classes");
+        return parentClasses;
+    }
+    
+    /**
+     * Extracts details for a class.
+     */
+    private Map<String, Object> extractClassDetails(ModelElement classElement, MetricsEngine metricsEngine, MetricStore metricStore) {
+        System.out.println("Line 278: Starting extractClassDetails for class: " + classElement.getName());
+        Map<String, Object> classJson = new HashMap<>();
+        
+        // Basic properties
+        classJson.put("name", classElement.getName());
+        
+        // Check if abstract - FIXED: use safe attribute retrieval
+        boolean isAbstract = false;
+        try {
+            String isAbstractStr = classElement.getPlainAttribute("isabstract");
+            isAbstract = "true".equalsIgnoreCase(isAbstractStr);
+        } catch (Exception e) {
+            System.out.println("Warning: isabstract attribute not found for class: " + classElement.getName());
+        }
+        classJson.put("isAbstract", isAbstract);
+        
+        // Extract attributes
+        List<Map<String, Object>> attributes = extractAttributes(classElement);
+        classJson.put("attributes", attributes);
+        System.out.println("Line 291: Extracted " + attributes.size() + " attributes");
+        
+        // Extract methods
+        List<Map<String, Object>> methods = extractMethods(classElement);
+        classJson.put("methods", methods);
+        System.out.println("Line 295: Extracted " + methods.size() + " methods");
+        
+        // Extract parent classes - FIXED: use safer approach to find parents
+        List<String> parents = new ArrayList<>();
+        try {
+            ModelElement parentElement = null;
+            // Try different possible attribute names for parent relation
+            try {
+                parentElement = classElement.getRefAttribute("parent");
+            } catch (Exception e) {
+                // Try alternative approaches
+                Collection<ModelElement> superclasses = classElement.getRelations("superclass");
+                if (superclasses != null && !superclasses.isEmpty()) {
+                    for (ModelElement superclass : superclasses) {
+                        parents.add(superclass.getName());
+                    }
+                }
+            }
+            
+            if (parentElement != null) {
+                parents.add(parentElement.getName());
+                System.out.println("Line 301: Found parent: " + parentElement.getName());
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: error finding parent for class: " + classElement.getName() + ", " + e.getMessage());
+        }
+        classJson.put("parents", parents);
+        
+        // Extract implemented interfaces
+        List<String> implementedInterfaces = new ArrayList<>();
+        try {
+            Collection<?> interfaces = classElement.getSetAttribute("implements");
+            if (interfaces != null) {
+                for (Object interfaceObj : interfaces) {
+                    if (interfaceObj instanceof ModelElement) {
+                        implementedInterfaces.add(((ModelElement) interfaceObj).getName());
+                    }
+                }
+                System.out.println("Line 313: Found " + implementedInterfaces.size() + " implemented interfaces");
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: error finding implemented interfaces for class: " + classElement.getName() + ", " + e.getMessage());
+        }
+        classJson.put("implements", implementedInterfaces);
+        
+        // Extract metrics
+        Map<String, Object> metrics = extractAllMetrics(classElement, metricsEngine, metricStore);
+        classJson.put("metrics", metrics);
+        
+        System.out.println("Line 320: Finished extractClassDetails");
+        return classJson;
+    }
+    
+    /**
+     * Extracts details for an interface.
+     */
+    private Map<String, Object> extractInterfaceDetails(ModelElement interfaceElement, MetricsEngine metricsEngine, MetricStore metricStore) {
+        System.out.println("Line 329: Starting extractInterfaceDetails for interface: " + interfaceElement.getName());
+        Map<String, Object> interfaceJson = new HashMap<>();
+        
+        // Basic properties
+        interfaceJson.put("name", interfaceElement.getName());
+        
+        // Extract methods
+        List<Map<String, Object>> methods = extractMethods(interfaceElement);
+        interfaceJson.put("methods", methods);
+        System.out.println("Line 337: Extracted " + methods.size() + " methods");
+        
+        // Extract metrics
+        Map<String, Object> metrics = extractInterfaceMetrics(interfaceElement, metricsEngine, metricStore);
+        interfaceJson.put("metrics", metrics);
+        
+        System.out.println("Line 342: Finished extractInterfaceDetails");
+        return interfaceJson;
+    }
+    
+    /**
+     * Extracts attributes for a class.
+     */
+    private List<Map<String, Object>> extractAttributes(ModelElement classElement) {
+        System.out.println("Line 351: Starting extractAttributes for class: " + classElement.getName());
+        List<Map<String, Object>> attributes = new ArrayList<>();
+        
+        Collection<ModelElement> attributeElements = classElement.getOwnedElements();
+        if (attributeElements != null) {
+            for (ModelElement attribute : attributeElements) {
+                if (attribute.getType().getName().equalsIgnoreCase("attribute")) {
+                    System.out.println("Line 358: Processing attribute: " + attribute.getName());
+                    Map<String, Object> attributeJson = new HashMap<>();
+                    attributeJson.put("name", attribute.getName());
+                    
+                    // Extract type
+                    String type = attribute.getPlainAttribute("type");
+                    attributeJson.put("type", type != null ? type : "");
+                    
+                    // Extract visibility
+                    String visibility = attribute.getPlainAttribute("visibility");
+                    attributeJson.put("visibility", visibility != null ? visibility : "");
+                    
+                    attributes.add(attributeJson);
+                }
+            }
+        }
+        
+        System.out.println("Line 373: Finished extractAttributes with " + attributes.size() + " attributes");
+        return attributes;
+    }
+    
+    /**
+     * Extracts methods for a class or interface.
+     */
+    private List<Map<String, Object>> extractMethods(ModelElement element) {
+        System.out.println("Line 382: Starting extractMethods for element: " + element.getName());
+        List<Map<String, Object>> methods = new ArrayList<>();
+        
+        Collection<ModelElement> methodElements = element.getOwnedElements();
+        if (methodElements != null) {
+            for (ModelElement method : methodElements) {
+                if (method.getType().getName().equalsIgnoreCase("operation")) {
+                    System.out.println("Line 389: Processing method: " + method.getName());
+                    Map<String, Object> methodJson = new HashMap<>();
+                    methodJson.put("name", method.getName());
+                    
+                    // Extract return type - FIXED: use safe attribute retrieval 
+                    String returnType = "void";
+                    try {
+                        returnType = method.getPlainAttribute("returntype");
+                    } catch (Exception e) {
+                        System.out.println("Warning: returntype attribute not found for operation: " + method.getName());
+                        // Try alternative attribute names
+                        try {
+                            returnType = method.getPlainAttribute("return");
+                        } catch (Exception e2) {
+                            // Try to get the return type from ownedParameter with direction="return"
+                            try {
+                                Collection<ModelElement> parameters = method.getOwnedElements();
+                                if (parameters != null) {
+                                    for (ModelElement param : parameters) {
+                                        if (param.getType().getName().equalsIgnoreCase("parameter")) {
+                                            String direction = param.getPlainAttribute("direction");
+                                            if ("return".equalsIgnoreCase(direction)) {
+                                                ModelElement typeElem = param.getRefAttribute("type");
+                                                if (typeElem != null) {
+                                                    returnType = typeElem.getName();
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (Exception e3) {
+                                // Ignore if not found
+                            }
+                        }
+                    }
+                    methodJson.put("returnType", returnType);
+                    
+                    // Extract visibility
+                    String visibility = method.getPlainAttribute("visibility");
+                    methodJson.put("visibility", visibility != null ? visibility : "");
+                    
+                    // Check if abstract - FIXED: use safe attribute retrieval
+                    boolean isAbstract = false;
+                    try {
+                        String isAbstractStr = method.getPlainAttribute("isabstract");
+                        isAbstract = "true".equalsIgnoreCase(isAbstractStr);
+                    } catch (Exception e) {
+                        // Ignore if attribute not found
+                    }
+                    methodJson.put("isAbstract", isAbstract);
+                    
+                    methods.add(methodJson);
+                }
+            }
+        }
+        
+        System.out.println("Line 409: Finished extractMethods with " + methods.size() + " methods");
+        return methods;
+    }
+    
+    /**
+     * Extracts metrics for a model element.
+     */
+    private Map<String, Object> extractMetrics(ModelElement element, MetricsEngine metricsEngine, MetricStore metricStore) {
+        System.out.println("Line 418: Starting extractMetrics for element: " + element.getName());
+        Map<String, Object> metricsJson = new HashMap<>();
+        
+        // Get metrics for package elements
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "R", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Ca", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Ce", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Dep_Out", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Dep_In", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "DepPack", metricsJson);
+        
+        System.out.println("Line 428: Finished extractMetrics");
+        return metricsJson;
+    }
+    
+    /**
+     * Extracts all metrics for a class.
+     */
+    private Map<String, Object> extractAllMetrics(ModelElement element, MetricsEngine metricsEngine, MetricStore metricStore) {
+        System.out.println("Line 437: Starting extractAllMetrics for element: " + element.getName());
+        Map<String, Object> metricsJson = new HashMap<>();
+        
+        // Inheritance metrics
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "IFImpl", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NOC", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumDesc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumAnc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "DIT", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "CLD", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "OpsInh", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "AttrInh", metricsJson);
+        
+        // Coupling metrics
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Dep_Out", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Dep_In", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumAssEl_ssc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumAssEl_sb", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumAssEl_nsb", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "EC_Attr", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "IC_Attr", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "EC_Par", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "IC_Par", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Connectors", metricsJson);
+        
+        // Size metrics
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "TC_Attr", metricsJson);
+        
+        System.out.println("Line 461: Finished extractAllMetrics");
+        return metricsJson;
+    }
+    
+    /**
+     * Extracts interface-specific metrics.
+     */
+    private Map<String, Object> extractInterfaceMetrics(ModelElement element, MetricsEngine metricsEngine, MetricStore metricStore) {
+        System.out.println("Line 470: Starting extractInterfaceMetrics for element: " + element.getName());
+        Map<String, Object> metricsJson = new HashMap<>();
+        
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumAnc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumDesc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "EC_Attr", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "EC_Par", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "IC_Par", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "Assoc", metricsJson);
+        
+        System.out.println("Line 479: Finished extractInterfaceMetrics");
+        return metricsJson;
+    }
+    
+    /**
+     * Extracts inheritance-specific metrics for parent classes.
+     */
+    private Map<String, Object> extractInheritanceMetrics(ModelElement element, MetricsEngine metricsEngine, MetricStore metricStore) {
+        System.out.println("Line 488: Starting extractInheritanceMetrics for element: " + element.getName());
+        Map<String, Object> metricsJson = new HashMap<>();
+        
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "IFImpl", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NOC", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumDesc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NumAnc", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "DIT", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "CLD", metricsJson);
+        
+        System.out.println("Line 498: Finished extractInheritanceMetrics");
+        return metricsJson;
+    }
+    
+    /**
+     * Helper method to extract a metric value if it exists.
+     */
+    private void extractBasicMetricsForType(ModelElement element, MetricsEngine metricsEngine, 
+            MetricStore metricStore, String metricName, Map<String, Object> metricsJson) {
+        System.out.println("Line 507: Extracting metric " + metricName + " for element: " + element.getName());
+        try {
+            com.sdmetrics.metrics.Metric metric = metricStore.getMetric(element.getType(), metricName);
+            if (metric != null) {
+                Object value = metricsEngine.getMetricValue(element, metric);
+                if (value != null) {
+                    metricsJson.put(metricName, value);
+                    System.out.println("Line 513: Metric " + metricName + " value: " + value);
+                } else {
+                    metricsJson.put(metricName, 0);
+                    System.out.println("Line 516: Metric " + metricName + " set to 0 (null value)");
+                }
+            } else {
+                // Metric not applicable for this element type
+                metricsJson.put(metricName, 0);
+                System.out.println("Line 521: Metric " + metricName + " not applicable, set to 0");
+            }
+        } catch (Exception e) {
+            // If metric doesn't exist or error occurs, set to 0
+            metricsJson.put(metricName, 0);
+            System.out.println("Line 526: Metric " + metricName + " extraction failed, set to 0: " + e.getMessage());
+        }
+    }
+}

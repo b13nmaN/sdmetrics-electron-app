@@ -241,8 +241,6 @@ export default function GraphVisualization({
   // --- useMemo for Processing Data ---
   const { nodes, edges } = useMemo(() => {
     const result = { nodes: [], edges: [] };
-    const jsonData_ = JSON.parse(jsonData);
-    
     if (!jsonData) {
         console.warn("jsonData is missing, cannot build graph.");
          return { nodes: [{ data: { id: 'error', label: 'No Data Provided' }, classes: 'error' }], edges: [] };
@@ -250,21 +248,11 @@ export default function GraphVisualization({
 
     const entityToPackageMap = new Map();
     const allNodeData = new Map(); // Use a Map to easily add/update node info
-    const parentClassNames = new Set(jsonData_.parentClasses?.map(p => p.name) || []);
-
-    // log the variables inuseMemo
-    console.log("entityToPackageMap:", entityToPackageMap);
-    console.log("allNodeData:", allNodeData);
-    console.log("parentClassNames:", parentClassNames);
-    
+    const parentClassNames = new Set(jsonData.parentClasses?.map(p => p.name) || []);
 
     // Function to determine classes for a node
     const getNodeClasses = (nodeData) => {
         const classes = [];
-        // log the nodeData
-        console.log("nodeData:", nodeData);
-        //log classes
-        console.log("classes:", classes);
         if (nodeData.type === 'package') {
             classes.push('package');
         } else if (nodeData.category === 'Class') {
@@ -282,12 +270,8 @@ export default function GraphVisualization({
     }
 
     // 1. Process Packages from JSON - Create Parent Nodes
-    if (jsonData_.packages && Array.isArray(jsonData_.packages)) {
-
-      //log the packages
-      console.log("jsonData.packages:", jsonData_.packages);
-
-      jsonData_.packages.forEach(pkg => {
+    if (jsonData.packages && Array.isArray(jsonData.packages)) {
+      jsonData.packages.forEach(pkg => {
         if (pkg?.name) {
           // Add package node
           const pkgData = {
@@ -295,17 +279,7 @@ export default function GraphVisualization({
             label: pkg.name,
             type: "package" // Keep type in data for potential logic, but use classes for styling
           };
-          // add a log to check if the package already exists
-          if (allNodeData.has(pkg.name)) {
-            console.warn(`Package ${pkg.name} already exists, skipping.`);
-          } else {
-            console.log(`Adding package node: ${pkg.name}`);
-          }
           allNodeData.set(pkg.name, pkgData);
-          //log the package data
-          console.log("pkgData:", pkgData);
-          // log allNodeData
-          console.log("allNodeData after adding package:", allNodeData);
 
           // Process classes within package - Create Child Nodes
           if (pkg.classes && Array.isArray(pkg.classes)) {
@@ -323,10 +297,6 @@ export default function GraphVisualization({
                 };
                 allNodeData.set(cls.name, classData);
               }
-              // log the class data
-              console.log("classData:", cls.name);
-              // log allNodeData after adding class
-              console.log("allNodeData after adding class:", allNodeData);
             });
           }
 
@@ -345,10 +315,6 @@ export default function GraphVisualization({
                  };
                  allNodeData.set(intf.name, intfData);
               }
-              // log the interface data
-              console.log("intfData:", intf.name);
-              // log allNodeData after adding interface
-              console.log("allNodeData after adding interface:", allNodeData);
             });
           }
         }
@@ -359,8 +325,8 @@ export default function GraphVisualization({
 
     // 2. Process Parent Classes from JSON again to ensure flags are set correctly
     // and potentially add parents if they weren't inside a package structure (edge case)
-    if (jsonData_.parentClasses && Array.isArray(jsonData_.parentClasses)) {
-      jsonData_.parentClasses.forEach(parentInfo => {
+    if (jsonData.parentClasses && Array.isArray(jsonData.parentClasses)) {
+        jsonData.parentClasses.forEach(parentInfo => {
             if (parentInfo?.name) {
                 if (allNodeData.has(parentInfo.name)) {
                     // Update existing node
@@ -398,46 +364,40 @@ export default function GraphVisualization({
                          isAbstract: parentInfo.isAbstract || false,
                          isParent: true,
                      };
-                    allNodeData.set(parentInfo.name, parentData);
-                     // log the parent data
-                    console.log("parentData:", parentInfo.name);
-                    // log allNodeData after adding parent
-                    console.log("allNodeData after adding parent:", allNodeData);
+                     allNodeData.set(parentInfo.name, parentData);
                 }
-                
             }
         });
     }
 
     
-    // // 3. Add nodes that might only exist in matrices
-    // const matrixNodeNames = new Set();
-    // const processMatrixForNodeNames = (matrix) => {
-    //   if (matrix?.columns) matrix.columns.forEach(name => name && matrixNodeNames.add(name));
-    //   if (matrix?.rows) Object.keys(matrix.rows).forEach(name => name && matrixNodeNames.add(name));
-    // };
-    // processMatrixForNodeNames(matrices?.Class_Dependencies);
-    // processMatrixForNodeNames(matrices?.Class_Inheritance);
-    // processMatrixForNodeNames(matrices?.Interface_Realizations);
-    // // Add missing nodes found only in matrices
-    // matrixNodeNames.forEach(name => {
-    //      if (!allNodeData.has(name)) {
-    //          console.warn(`Node ${name} found only in matrices, adding without package info.`);
-    //          const missingData = {
-    //            id: name,
-    //            label: name,
-    //            category: "Class", // Assume Class
-    //            isAbstract: false,
-    //            isParent: false,
-    //           };
-    //           allNodeData.set(name, missingData);
-    //           entityToPackageMap.set(name, null);
-    //         }
-    //       });
+    // 3. Add nodes that might only exist in matrices
+    const matrixNodeNames = new Set();
+    const processMatrixForNodeNames = (matrix) => {
+      if (matrix?.columns) matrix.columns.forEach(name => name && matrixNodeNames.add(name));
+      if (matrix?.rows) Object.keys(matrix.rows).forEach(name => name && matrixNodeNames.add(name));
+    };
+    processMatrixForNodeNames(matrices?.Class_Dependencies);
+    processMatrixForNodeNames(matrices?.Class_Inheritance);
+    processMatrixForNodeNames(matrices?.Interface_Realizations);
+    // Add missing nodes found only in matrices
+    matrixNodeNames.forEach(name => {
+         if (!allNodeData.has(name)) {
+             console.warn(`Node ${name} found only in matrices, adding without package info.`);
+             const missingData = {
+               id: name,
+               label: name,
+               category: "Class", // Assume Class
+               isAbstract: false,
+               isParent: false,
+              };
+              allNodeData.set(name, missingData);
+              entityToPackageMap.set(name, null);
+            }
+          });
           
           // 4. Convert node data Map to the final nodes array, adding classes
           result.nodes = Array.from(allNodeData.values()).map(nodeData => {
-            console.log("nodeData:", nodeData);
             return {
               data: nodeData, // Keep all collected data
               classes: getNodeClasses(nodeData) // Assign classes for styling
@@ -456,7 +416,7 @@ export default function GraphVisualization({
             ...assocDepEdges,
           ];
           // log allNodeData
-          // console.log("allNodeData:", allNodeData);
+          console.log("allNodeData:", allNodeData);
 
     // 6. Filter out edges pointing to/from non-existent nodes
     const existingNodeIds = new Set(result.nodes.map(n => n.data.id));
@@ -796,103 +756,103 @@ export default function GraphVisualization({
   }, []); // Empty dependency array: Run only once on mount
 
   // --- useEffect for Updating Elements and Running Layout ---
-useEffect(() => {
-  if (!cyRef.current || !nodes || !edges) {
-    return;
-  }
-  if (nodes.length === 0 && edges.length === 0 && cyRef.current.elements().length > 0) {
-    cyRef.current.elements().remove();
-    // Clear legend if graph is cleared
-    const existingLegend = document.getElementById('uml-legend');
-    if (existingLegend) existingLegend.remove();
-    return;
-  }
+  useEffect(() => {
+    if (!cyRef.current || !nodes || !edges) {
+      return;
+    }
+    if (nodes.length === 0 && edges.length === 0 && cyRef.current.elements().length > 0) {
+      cyRef.current.elements().remove();
+      // Clear legend if graph is cleared
+      const existingLegend = document.getElementById('uml-legend');
+      if (existingLegend) existingLegend.remove();
+      return;
+    }
 
-  try {
-    // Map nodes and edges to the format Cytoscape expects, including classes
-    const elementsToAdd = [
-      ...nodes.map(node => ({ group: 'nodes', data: node.data, classes: node.classes })),
-      ...edges.map(edge => ({ group: 'edges', data: edge.data, classes: edge.classes }))
-    ];
-
-    // console.log("Updating Cytoscape elements:", elementsToAdd);
-
-    cyRef.current.batch(() => {
-      cyRef.current.elements().remove(); // Clear existing elements
-      cyRef.current.add(elementsToAdd);  // Add new/updated elements
-      cyRef.current.elements().removeClass('highlighted').removeClass('unselected'); // Reset states
-    });
-
-    // --- Run Layout with proper error handling ---
     try {
-      const layout = cyRef.current.layout({
-        name: 'fcose',
-        animate: true,
-        animationDuration: 500, // Shorter duration for updates
-        fit: true, // Re-fit the view after layout
-        padding: 60 // Ensure padding is applied
+      // Map nodes and edges to the format Cytoscape expects, including classes
+      const elementsToAdd = [
+        ...nodes.map(node => ({ group: 'nodes', data: node.data, classes: node.classes })),
+        ...edges.map(edge => ({ group: 'edges', data: edge.data, classes: edge.classes }))
+      ];
+
+      console.log("Updating Cytoscape elements:", elementsToAdd);
+
+      cyRef.current.batch(() => {
+        cyRef.current.elements().remove(); // Clear existing elements
+        cyRef.current.add(elementsToAdd);  // Add new/updated elements
+        cyRef.current.elements().removeClass('highlighted').removeClass('unselected'); // Reset states
       });
-      
-      // Run the layout
-      const layoutRun = layout.run();
-      
-      // Check if the layout returns a promise (not all layouts do)
-      if (layoutRun && typeof layoutRun.promise === 'function') {
-        // If there's a promise, use it
-        layoutRun.promise().then(() => {
-          // Add legend after layout is complete
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }).catch(err => {
-          console.warn("Layout promise error:", err);
+
+      // --- Run Layout with proper error handling ---
+      try {
+        const layout = cyRef.current.layout({
+          name: 'fcose',
+          animate: true,
+          animationDuration: 500, // Shorter duration for updates
+          fit: true, // Re-fit the view after layout
+          padding: 60 // Ensure padding is applied
+        });
+        
+        // Run the layout
+        const layoutRun = layout.run();
+        
+        // Check if the layout returns a promise (not all layouts do)
+        if (layoutRun && typeof layoutRun.promise === 'function') {
+          // If there's a promise, use it
+          layoutRun.promise().then(() => {
+            // Add legend after layout is complete
+            const existingLegend = document.getElementById('uml-legend');
+            if (existingLegend) existingLegend.remove();
+            addLegend();
+          }).catch(err => {
+            console.warn("Layout promise error:", err);
+            // Add legend anyway
+            const existingLegend = document.getElementById('uml-legend');
+            if (existingLegend) existingLegend.remove();
+            addLegend();
+          });
+        } else if (layoutRun && layoutRun.promise) {
+          // Handle case where promise is a property not a function
+          layoutRun.promise.then(() => {
+            const existingLegend = document.getElementById('uml-legend');
+            if (existingLegend) existingLegend.remove();
+            addLegend();
+          }).catch(err => {
+            console.warn("Layout promise error:", err);
+            const existingLegend = document.getElementById('uml-legend');
+            if (existingLegend) existingLegend.remove();
+            addLegend();
+          });
+        } else {
+          // If no promise, just add the legend after a timeout
+          setTimeout(() => {
+            const existingLegend = document.getElementById('uml-legend');
+            if (existingLegend) existingLegend.remove();
+            addLegend();
+          }, 600); // Wait slightly longer than animation duration
+        }
+      } catch (layoutError) {
+        console.error("Layout error:", layoutError);
+        // Fallback to a simpler layout
+        try {
+          cyRef.current.layout({ name: 'grid', fit: true }).run();
+          setTimeout(() => {
+            const existingLegend = document.getElementById('uml-legend');
+            if (existingLegend) existingLegend.remove();
+            addLegend();
+          }, 300);
+        } catch (fallbackError) {
+          console.error("Fallback layout error:", fallbackError);
           // Add legend anyway
           const existingLegend = document.getElementById('uml-legend');
           if (existingLegend) existingLegend.remove();
           addLegend();
-        });
-      } else if (layoutRun && layoutRun.promise) {
-        // Handle case where promise is a property not a function
-        layoutRun.promise.then(() => {
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }).catch(err => {
-          console.warn("Layout promise error:", err);
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        });
-      } else {
-        // If no promise, just add the legend after a timeout
-        setTimeout(() => {
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }, 600); // Wait slightly longer than animation duration
+        }
       }
-    } catch (layoutError) {
-      console.error("Layout error:", layoutError);
-      // Fallback to a simpler layout
-      try {
-        cyRef.current.layout({ name: 'grid', fit: true }).run();
-        setTimeout(() => {
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }, 300);
-      } catch (fallbackError) {
-        console.error("Fallback layout error:", fallbackError);
-        // Add legend anyway
-        const existingLegend = document.getElementById('uml-legend');
-        if (existingLegend) existingLegend.remove();
-        addLegend();
-      }
+    } catch (error) {
+      console.error("Error updating Cytoscape elements or running layout:", error);
     }
-  } catch (error) {
-    console.error("Error updating Cytoscape elements or running layout:", error);
-  }
-}, [nodes, edges]); // Re-run when node or edge data changes
+  }, [nodes, edges]); // Re-run when node or edge data changes
 
   // --- useEffect for Zoom Level ---
   useEffect(() => {

@@ -1,0 +1,1318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML">
+<uml:Model xmi:id="_crmSystem" name="CRMSystem">
+  <packagedElement xmi:type="uml:Package" xmi:id="_coreEntities" name="CoreEntities">
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_customer" name="Customer">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_customerId" name="customerID" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_customerName" name="name" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_customerEmail" name="email" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_customerPhone" name="phone" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_customerAddress" name="address" visibility="public" type="_address"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_customerStatus" name="status" visibility="public" type="_customerStatus"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_customerPort" name="customerPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorCust" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endCust" role="_customerId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Cust" role="_customerPort"/>
+         </ownedConnector>
+        <!-- More customer attributes (e.g., company, industry, etc.) -->
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_lead" name="Lead">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_leadId" name="leadID" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_leadName" name="name" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_leadEmail" name="email" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_leadPhone" name="phone" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_leadSource" name="source" visibility="public" type="_leadSource"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_leadStatus" name="status" visibility="public" type="_leadStatus"/>
+      <!-- More lead attributes (e.g., company, title, etc.) -->
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_leadPort" name="leadPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorLead" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endLead" role="_leadId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Lead" role="_leadPort"/>
+         </ownedConnector>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_opportunity" name="Opportunity">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_opportunityId" name="opportunityID" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_opportunityName" name="name" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_opportunityAmount" name="amount" visibility="public" type="_integer"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_opportunityStage" name="stage" visibility="public" type="_opportunityStage"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_opportunityCloseDate" name="closeDate" visibility="public" type="_date"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_opportunityPort" name="opportunityPort" visibility="public" type="_string"/>
+      <!-- More opportunity attributes (e.g., probability, relatedContact, etc.) -->
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorOpp" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endOpp" role="_opportunityId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Opp" role="_opportunityPort"/>
+         </ownedConnector>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_contact" name="Contact">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_contactId" name="contactID" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_contactName" name="name" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_contactEmail" name="email" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_contactPhone" name="phone" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_contactTitle" name="title" visibility="public" type="_string"/>
+       <ownedAttribute xmi:type="uml:Property" xmi:id="_contactPort" name="contactPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorCont" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endCont" role="_contactId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Cont" role="_contactPort"/>
+         </ownedConnector>
+      <!-- More contact attributes -->
+    </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="_task" name="Task">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_taskId" name="taskID" visibility="private" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_taskSubject" name="subject" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_taskDueDate" name="dueDate" visibility="public" type="_date"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_taskStatus" name="status" visibility="public" type="_taskStatus"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_taskPriority" name="priority" visibility="public" type="_taskPriority"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_taskPort" name="taskPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorTask" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endTask" role="_taskId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Task" role="_taskPort"/>
+         </ownedConnector>
+        <!-- More task attributes -->
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_event" name="Event">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_eventId" name="eventID" visibility="private" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_eventSubject" name="subject" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_eventStartDate" name="startDate" visibility="public" type="_date"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_eventEndDate" name="endDate" visibility="public" type="_date"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_eventLocation" name="location" visibility="public" type="_string"/>
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_eventPort" name="eventPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorEvent" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endEvent" role="_eventId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Event" role="_eventPort"/>
+         </ownedConnector>
+        <!-- More event attributes -->
+    </packagedElement>
+    <!-- Data Types -->
+    <packagedElement xmi:type="uml:DataType" xmi:id="_string" name="String"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_integer" name="Integer"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_date" name="Date"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_address" name="Address"/>
+
+    <!-- Enumerations for Statuses -->
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="_customerStatus" name="CustomerStatus">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_customerStatusActive" name="Active"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_customerStatusInactive" name="Inactive"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_customerStatusOnHold" name="OnHold"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_leadSource" name="LeadSource">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadSourceWeb" name="Web"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadSourceReferral" name="Referral"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadSourcePartner" name="Partner"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadSourceTradeShow" name="TradeShow"/>
+        <!-- Add more lead sources as needed -->
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_leadStatus" name="LeadStatus">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadStatusNew" name="New"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadStatusContacted" name="Contacted"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadStatusQualified" name="Qualified"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_leadStatusDisqualified" name="Disqualified"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_opportunityStage" name="OpportunityStage">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_opportunityStageProspecting" name="Prospecting"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_opportunityStageNeedsAnalysis" name="NeedsAnalysis"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_opportunityStageProposal" name="Proposal"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_opportunityStageNegotiation" name="Negotiation"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_opportunityStageClosedWon" name="ClosedWon"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_opportunityStageClosedLost" name="ClosedLost"/>
+    </packagedElement>
+
+     <packagedElement xmi:type="uml:Enumeration" xmi:id="_taskStatus" name="TaskStatus">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskStatusNotStarted" name="NotStarted"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskStatusInProgress" name="InProgress"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskStatusCompleted" name="Completed"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskStatusDeferred" name="Deferred"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskStatusWaiting" name="Waiting"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_taskPriority" name="TaskPriority">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskPriorityHigh" name="High"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskPriorityMedium" name="Medium"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_taskPriorityLow" name="Low"/>
+    </packagedElement>
+  </packagedElement>
+
+  <!--  Business Logic Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_businessLogic" name="BusinessLogic">
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_reportGenerator" name="ReportGenerator">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_reportType" name="reportType" visibility="public" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_generateReport" name="generateReport">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_reportData" name="reportData" type="_reportData" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_generatedReport" name="generatedReport" type="_report" direction="return"/>
+            </ownedOperation>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_reportPort" name="reportPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorReport" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endReport" role="_reportType"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Report" role="_reportPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_emailService" name="EmailService">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_emailTemplate" name="emailTemplate" visibility="public" type="_emailTemplate"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_sendEmail" name="sendEmail">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_recipient" name="recipient" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_subject" name="subject" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_body" name="body" type="_string" direction="in"/>
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_sent" name="sent" type="_boolean" direction="return"/>
+            </ownedOperation>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_emailPort" name="emailPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorEmail" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endEmail" role="_emailTemplate"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Email" role="_emailPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <!-- Supporting Classes for Business Logic -->
+        <packagedElement xmi:type="uml:DataType" xmi:id="_reportData" name="ReportData"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_report" name="Report"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_emailTemplate" name="EmailTemplate">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_templateId" name="templateID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_templateName" name="templateName" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_templateSub" name="subject" visibility="public" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_templateBody" name="body" visibility="public" type="_string"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:DataType" xmi:id="_boolean" name="Boolean"/>
+
+        <!--  More Business Logic Classes (Examples) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="_leadScoringService" name="LeadScoringService">
+            <!-- Methods and attributes for lead scoring -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_leadScoreID" name="LeadScoreID" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_calculateLeadScore" name="calculateLeadScore">
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_leadIDpar" name="leadID" type="_string" direction="in"/>
+                  <ownedParameter xmi:type="uml:Parameter" xmi:id="_scorePar" name="score" type="_integer" direction="return"/>
+            </ownedOperation>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_scorePort" name="scorePort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorScore" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endScore" role="_leadScoreID"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Score" role="_scorePort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_workflowEngine" name="WorkflowEngine">
+            <!-- Methods and attributes for managing workflows -->
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_workFlowID" name="workFlowID" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_executeWorkflow" name="executeWorkflow">
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_workFlowNamepar" name="workFlowName" type="_string" direction="in"/>
+            </ownedOperation>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_notificationService" name="NotificationService">
+            <!-- Methods and attributes for sending notifications (e.g., SMS, push) -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_notificationID" name="notificationID" visibility="private" type="_string"/>
+               <ownedOperation xmi:type="uml:Operation" xmi:id="_sendNotification" name="sendNotification">
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_userIDpar" name="userID" type="_string" direction="in"/>
+                  <ownedParameter xmi:type="uml:Parameter" xmi:id="_messagePar" name="message" type="_string" direction="in"/>
+            </ownedOperation>
+        </packagedElement>
+    </packagedElement>
+      <!-- UI Elements Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_uiElements" name="UIElements">
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_dashboard" name="Dashboard">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_dashboardId" name="dashboardID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_dashboardLayout" name="layout" visibility="public" type="_layout"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_dashboardWidgets" name="widgets" visibility="public" type="_widget" isComposite="true"/>
+           
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_tableView" name="TableView">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_tableViewId" name="tableViewID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_tableViewColumns" name="columns" visibility="public" type="_column"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_tableViewData" name="data" visibility="public" type="_dataRow"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_tableViewPort" name="tableViewPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorTable" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endTable" role="_tableViewId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Table" role="_tableViewPort"/>
+         </ownedConnector>
+            <!-- Methods for filtering, sorting, pagination -->
+        </packagedElement>
+          <packagedElement xmi:type="uml:Class" xmi:id="_formView" name="FormView">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_formId" name="formID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_formFields" name="fields" visibility="public" type="_formField"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_formPort" name="formPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorForm" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endForm" role="_formId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Form" role="_formPort"/>
+         </ownedConnector>
+            <!-- Methods for validation, submission -->
+        </packagedElement>
+
+        <!-- Supporting Classes for UI -->
+        <packagedElement xmi:type="uml:Class" xmi:id="_layout" name="Layout"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_widget" name="Widget">
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_widgetId" name="widgetId" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_widgetName" name="widgetName" visibility="public" type="_string"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_column" name="Column"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_dataRow" name="DataRow"/>
+         <packagedElement xmi:type="uml:Class" xmi:id="_formField" name="FormField">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_fieldId" name="fieldId" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_fieldName" name="fieldName" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_fieldType" name="fieldType" visibility="public" type="_string"/>
+        </packagedElement>
+
+        <!--  More UI Element Classes (Examples) -->
+         <packagedElement xmi:type="uml:Class" xmi:id="_chartView" name="ChartView">
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_chartId" name="chartId" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_chartType" name="chartType" visibility="public" type="_string"/>
+         </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_calendarView" name="CalendarView">
+            <!-- Attributes and methods for displaying a calendar -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_calId" name="calId" visibility="private" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_mapView" name="MapView">
+            <!-- Attributes and methods for displaying geographical data -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_mapId" name="mapId" visibility="private" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_searchBar" name="SearchBar">
+            <!-- Attributes and methods for implementing search functionality -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_searchId" name="searchId" visibility="private" type="_string"/>
+        </packagedElement>
+        
+    </packagedElement>
+     <packagedElement xmi:type="uml:Package" xmi:id="_dataAccess" name="DataAccess">
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_databaseConnector" name="DatabaseConnector">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_databaseType" name="databaseType" visibility="public" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_connect" name="connect">
+            </ownedOperation>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_executeQuery" name="executeQuery">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_query" name="query" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_result" name="result" type="_resultSet" direction="return"/>
+            </ownedOperation>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_dbPort" name="dbPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorDB" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endDB" role="_databaseType"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2DB" role="_dbPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_apiHandler" name="APIHandler">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_apiEndpoint" name="apiEndpoint" visibility="public" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_sendRequest" name="sendRequest">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_requestData" name="requestData" type="_requestData" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_responseData" name="responseData" type="_responseData" direction="return"/>
+            </ownedOperation>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_apiPort" name="apiPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorAPI" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endAPI" role="_apiEndpoint"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2API" role="_apiPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <!-- Supporting Classes for Data Access -->
+        <packagedElement xmi:type="uml:DataType" xmi:id="_resultSet" name="ResultSet"/>
+        <packagedElement xmi:type="uml:DataType" xmi:id="_requestData" name="RequestData"/>
+        <packagedElement xmi:type="uml:DataType" xmi:id="_responseData" name="ResponseData"/>
+         <packagedElement xmi:type="uml:Class" xmi:id="_mySQLConnector" name="MySQLConnector">
+              <generalization xmi:type="uml:Generalization" xmi:id="_mySQLConnectorTODB" general="_databaseConnector"/>
+         </packagedElement>
+          <packagedElement xmi:type="uml:Class" xmi:id="_postGresConnector" name="PostGresConnector">
+              <generalization xmi:type="uml:Generalization" xmi:id="_postGresConnectorTODB" general="_databaseConnector"/>
+         </packagedElement>
+          <packagedElement xmi:type="uml:Class" xmi:id="_oracleConnector" name="OracleConnector">
+              <generalization xmi:type="uml:Generalization" xmi:id="_oracleConnectorTODB" general="_databaseConnector"/>
+         </packagedElement>
+          <packagedElement xmi:type="uml:Class" xmi:id="_restAPI" name="RestAPI">
+              <generalization xmi:type="uml:Generalization" xmi:id="_restAPITODB" general="_apiHandler"/>
+         </packagedElement>
+
+        <!--  More Data Access Classes (Examples) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="_dataMapper" name="DataMapper">
+            <!-- Methods for mapping data between objects and database/API -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_mapId" name="mapId" visibility="private" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_queryBuilder" name="QueryBuilder">
+            <!-- Methods for constructing database queries -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_queryId" name="queryId" visibility="private" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_cacheManager" name="CacheManager">
+            <!-- Methods for managing a data cache -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_cacheId" name="cacheId" visibility="private" type="_string"/>
+        </packagedElement>
+
+    </packagedElement>
+
+    <!-- Add more packages as needed (e.g., Security, Integrations, etc.) -->
+        <packagedElement xmi:type="uml:Package" xmi:id="_security" name="Security">
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_user" name="User">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_userId" name="userID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_username" name="username" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_passwordHash" name="passwordHash" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_userRole" name="role" visibility="public" type="_role"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_userPort" name="userPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorUser" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endUser" role="_userId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2User" role="_userPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_role" name="Role">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_roleId" name="roleID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_roleName" name="roleName" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_rolePermissions" name="permissions" visibility="public" type="_permission"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_rolePort" name="rolePort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorRole" >
+                        <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endRole" role="_roleId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Role" role="_rolePort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_permission" name="Permission">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_permissionId" name="permissionID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_permissionName" name="permissionName" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_permissionResource" name="resource" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_permissionAction" name="action" visibility="public" type="_string"/>  <!-- e.g., "read", "write", "delete" -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_permissionPort" name="permissionPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorPermission" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endPermission" role="_permissionId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Permission" role="_permissionPort"/>
+         </ownedConnector>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_authService" name="AuthenticationService">
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_authId" name="authId" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_authenticateUser" name="authenticateUser">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_usernameParam" name="username" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_passwordParam" name="password" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_userParam" name="user" type="_user" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_logoutUser" name="logoutUser">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_userLogoutParam" name="user" type="_user" direction="in"/>
+            </ownedOperation>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_authPort" name="authPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorAuth" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endAuth" role="_authId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2Auth" role="_authPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_accessControlService" name="AccessControlService">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_accessId" name="accessId" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_checkPermission" name="checkPermission">
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_userCheckParam" name="user" type="_user" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_resourceParam" name="resource" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_actionParam" name="action" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_allowedParam" name="allowed" type="_boolean" direction="return"/>
+            </ownedOperation>
+        </packagedElement>
+
+        <!--  More Security Classes (Examples) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="_encryptionService" name="EncryptionService">
+            <!-- Methods for encrypting and decrypting data -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_encryptId" name="encryptId" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_encryptData" name="encryptData">
+             <ownedParameter xmi:type="uml:Parameter" xmi:id="_dataEn" name="data" type="_string" direction="in"/>
+              <ownedParameter xmi:type="uml:Parameter" xmi:id="_dataOut" name="encryptedData" type="_string" direction="return"/>
+            </ownedOperation>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_auditLog" name="AuditLog">
+            <!-- Methods and attributes for logging user actions -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_auditId" name="auditId" visibility="private" type="_string"/>
+               <ownedOperation xmi:type="uml:Operation" xmi:id="_logAction" name="logAction">
+             <ownedParameter xmi:type="uml:Parameter" xmi:id="_userLog" name="user" type="_user" direction="in"/>
+              <ownedParameter xmi:type="uml:Parameter" xmi:id="_logData" name="action" type="_string" direction="in"/>
+                <ownedParameter xmi:type="uml:Parameter" xmi:id="_timeLog" name="timestamp" type="_date" direction="in"/>
+            </ownedOperation>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_sessionManager" name="SessionManager">
+            <!-- Methods and attributes for managing user sessions -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_sessionId" name="sessionId" visibility="private" type="_string"/>
+        </packagedElement>
+    </packagedElement>
+
+    <!-- Integrations Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_integrations" name="Integrations">
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_emailIntegration" name="EmailIntegration">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_emailIntegrationId" name="emailIntegrationID" visibility="private" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_emailIntPort" name="emailIntPort" visibility="public" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_syncEmails" name="syncEmails">
+               
+            </ownedOperation>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorEmailInt" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endEmailInt" role="_emailIntegrationId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2EmailInt" role="_emailIntPort"/>
+         </ownedConnector>
+            <!-- Methods for connecting to email providers (e.g., Gmail, Outlook) -->
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_calendarIntegration" name="CalendarIntegration">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_calendarIntegrationId" name="calendarIntegrationID" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_syncCalendarEvents" name="syncCalendarEvents">
+            </ownedOperation>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_calendarIntPort" name="calendarIntPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorCalendarInt" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endCalendarInt" role="_calendarIntegrationId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2CalendarInt" role="_calendarIntPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_socialMediaIntegration" name="SocialMediaIntegration">
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_socialIntegrationId" name="socialIntegrationId" visibility="private" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_getSocialMediaPosts" name="getSocialMediaPosts">
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_socialAcc" name="account" type="_string" direction="in"/>
+            </ownedOperation>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_socialIntPort" name="socialIntPort" visibility="public" type="_string"/>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorSocialInt" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endSocialInt" role="_socialIntegrationId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2SocialInt" role="_socialIntPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_paymentGatewayIntegration" name="PaymentGatewayIntegration">
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_payIntegrationId" name="payIntegrationID" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_payIntPort" name="payIntPort" visibility="public" type="_string"/>
+            <ownedOperation xmi:type="uml:Operation" xmi:id="_processPayment" name="processPayment">
+            </ownedOperation>
+         <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorPayInt" >
+            <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endPayInt" role="_payIntegrationId"/>
+             <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2PayInt" role="_payIntPort"/>
+         </ownedConnector>
+        </packagedElement>
+
+        <!--  More Integration Classes (Examples) -->
+        <packagedElement xmi:type="uml:Class" xmi:id="_thirdPartyAPIConnector" name="ThirdPartyAPIConnector">
+            <!-- Methods for connecting to various third-party APIs -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_thirdPartyId" name="thirdPartyId" visibility="private" type="_string"/>
+        </packagedElement>
+    </packagedElement>
+    
+    <!-- Reporting Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_reportsPackage" name="Reports">
+         <packagedElement xmi:type="uml:Class" xmi:id="_salesReport" name = "SalesReport">
+           <generalization xmi:type="uml:Generalization" xmi:id="_salesReportTOreport" general="_report"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_salesReportId" name="salesReportId" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_salesReportPort" name="salesReportPort" visibility="public" type="_string"/>
+             <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorSalesReport" >
+                <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endSalesReport" role="_salesReportId"/>
+                 <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2SalesReport" role="_salesReportPort"/>
+             </ownedConnector>
+        </packagedElement>
+         <packagedElement xmi:type="uml:Class" xmi:id="_customerReport" name = "CustomerReport">
+           <generalization xmi:type="uml:Generalization" xmi:id="_customerReportTOreport" general="_report"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_customerReportId" name="customerReportId" visibility="private" type="_string"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_customerReportPort" name="customerReportPort" visibility="public" type="_string"/>
+             <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorCustomerReport" >
+                <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endCustomerReport" role="_customerReportId"/>
+                 <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2CustomerReport" role="_customerReportPort"/>
+             </ownedConnector>
+        </packagedElement>
+        
+         <packagedElement xmi:type="uml:Class" xmi:id="_leadReport" name = "LeadReport">
+           <generalization xmi:type="uml:Generalization" xmi:id="_leadReportTOreport" general="_report"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_leadReportId" name="leadReportId" visibility="private" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_leadReportPort" name="leadReportPort" visibility="public" type="_string"/>
+             <ownedConnector xmi:type="uml:Connector" xmi:id="_connectorLeadReport" >
+                <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1endLeadReport" role="_leadReportId"/>
+                 <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2LeadReport" role="_leadReportPort"/>
+             </ownedConnector>
+        </packagedElement>
+
+          <packagedElement xmi:type="uml:Class" xmi:id="_customReport" name="CustomReport">
+           <generalization xmi:type="uml:Generalization" xmi:id="_customReportTOreport" general="_report"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_customReportId" name="customReportId" visibility="private" type="_string"/>
+              <ownedOperation xmi:type="uml:Operation" xmi:id="_defineReport" name="defineReport">
+                 <ownedParameter xmi:type="uml:Parameter" xmi:id="_fields" name="fields" type="_string" direction="in"/>
+            </ownedOperation>
+        </packagedElement>
+    </packagedElement>
+
+<!-- Activities Package-->
+ <packagedElement xmi:type="uml:Package" xmi:id="_activityPackage" name="Activities">
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_phoneCall" name="PhoneCall">
+            <generalization xmi:type="uml:Generalization" xmi:id="_phoneCallTOActivity" general="_task"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_phoneNumber" name="phoneNumber" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_callDuration" name="callDuration" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_callNotes" name="callNotes" visibility="public" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_meeting" name="Meeting">
+          <generalization xmi:type="uml:Generalization" xmi:id="_meetingTOActivity" general="_event"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_meetingAttendees" name="attendees" visibility="public" type="_contact" isComposite="true"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_meetingNotes" name="meetingNotes" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_meetingType" name="meetingType" visibility="public" type="_meetingType"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_emailActivity" name="EmailActivity">
+          <generalization xmi:type="uml:Generalization" xmi:id="_emailActivityToTask" general="_task"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_emailSender" name="sender" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_emailRecipient" name="recipient" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_emailSubject" name="subject" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_emailBody" name="body" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_emailSentTime" name="sentTime" visibility="public" type="_date"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_meetingType" name="MeetingType">
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_meetingTypeInternal" name="Internal"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_meetingTypeClient" name="Client"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_meetingTypeOnline" name="Online"/>
+        </packagedElement>
+    </packagedElement>
+    <!-- Products Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_productPackage" name="Products">
+      <packagedElement xmi:type="uml:Class" xmi:id="_product" name="Product">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_productId" name="productID" visibility="private" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_productName" name="productName" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_productDescription" name="description" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_productPrice" name="price" visibility="public" type="_integer"/>
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_productCategory" name="category" visibility="public" type="_productCategory"/>
+      </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_service" name="Service">
+             <generalization xmi:type="uml:Generalization" xmi:id="_serviceToProduct" general="_product"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_serviceDuration" name="duration" visibility="public" type="_integer"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_productBundle" name="ProductBundle">
+            <generalization xmi:type="uml:Generalization" xmi:id="_bundleToProduct" general="_product"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_bundledProducts" name="bundledProducts" visibility="public" type="_product" isComposite="true"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_productCategory" name="ProductCategory">
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_productCategorySoftware" name="Software"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_productCategoryHardware" name="Hardware"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_productCategoryService" name="Service"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_productCategoryConsulting" name="Consulting"/>
+        </packagedElement>
+
+    </packagedElement>
+     <!-- Quotes, Orders, Invoices Package -->
+      <packagedElement xmi:type="uml:Package" xmi:id="_salesOrders" name="SalesOrders">
+         <packagedElement xmi:type="uml:Class" xmi:id="_quote" name="Quote">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteId" name="quoteID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteCustomer" name="customer" visibility="public" type="_customer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteProducts" name="products" visibility="public" type="_product" isComposite="true"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteTotal" name="totalAmount" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteStatus" name="status" visibility="public" type="_quoteStatus"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteExpiry" name="expiryDate" visibility="public" type="_date"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_order" name="Order">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderId" name="orderID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderCustomer" name="customer" visibility="public" type="_customer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderProducts" name="products" visibility="public" type="_product" isComposite="true"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderTotal" name="totalAmount" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderStatus" name="status" visibility="public" type="_orderStatus"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_orderDate" name="orderDate" visibility="public" type="_date"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_invoice" name="Invoice">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_invoiceId" name="invoiceID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_invoiceCustomer" name="customer" visibility="public" type="_customer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_invoiceOrder" name="order" visibility="public" type="_order"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_invoiceTotal" name="totalAmount" visibility="public" type="_integer"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_invoiceStatus" name="status" visibility="public" type="_invoiceStatus"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_invoiceDueDate" name="dueDate" visibility="public" type="_date"/>
+        </packagedElement>
+           <packagedElement xmi:type="uml:Enumeration" xmi:id="_quoteStatus" name="QuoteStatus">
+              <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_quoteStatusDraft" name="Draft"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_quoteStatusSent" name="Sent"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_quoteStatusAccepted" name="Accepted"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_quoteStatusRejected" name="Rejected"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_orderStatus" name="OrderStatus">
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_orderStatusPending" name="Pending"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_orderStatusProcessing" name="Processing"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_orderStatusShipped" name="Shipped"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_orderStatusCompleted" name="Completed"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_orderStatusCancelled" name="Cancelled"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_invoiceStatus" name="InvoiceStatus">
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_invoiceStatusDraft" name="Draft"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_invoiceStatusSent" name="Sent"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_invoiceStatusPaid" name="Paid"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_invoiceStatusOverdue" name="Overdue"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_invoiceStatusPartial" name="PartialPayment"/>
+        </packagedElement>
+      </packagedElement>
+      <!-- Marketing Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_marketingPackage" name="Marketing">
+
+       <packagedElement xmi:type="uml:Class" xmi:id="_campaign" name="Campaign">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignId" name="campaignID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignName" name="name" visibility="public" type="_string"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignType" name="type" visibility="public" type="_campaignType"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignStartDate" name="startDate" visibility="public" type="_date"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignEndDate" name="endDate" visibility="public" type="_date"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignBudget" name="budget" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_campaignStatus" name="status" visibility="public" type="_campaignStatus"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_marketingList" name="MarketingList">
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_marketListId" name="marketingListID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_marketListName" name="listName" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_marketListMembers" name="members" visibility="public" type="_contact" isComposite="true"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_campaignResponse" name="CampaignResponse">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_responseId" name="responseID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_responseContact" name="contact" visibility="public" type="_contact"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_responseCampaign" name="campaign" visibility="public" type="_campaign"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_responseType" name="responseType" visibility="public" type="_responseType"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_responseDate" name="responseDate" visibility="public" type="_date"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_campaignType" name="CampaignType">
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignTypeEmail" name="Email"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignTypeSocialMedia" name="SocialMedia"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignTypeWebinar" name="Webinar"/>
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignTypePaidAds" name="PaidAds"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_campaignStatus" name="CampaignStatus">
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignStatusPlanning" name="Planning"/>
+           <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignStatusActive" name="Active"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignStatusCompleted" name="Completed"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_campaignStatusCancelled" name="Cancelled"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_responseType" name="ResponseType">
+           <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_responseTypeOpened" name="Opened"/>
+           <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_responseTypeClicked" name="Clicked"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_responseTypeAttended" name="Attended"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_responseTypeConverted" name="Converted"/>
+        </packagedElement>
+
+    </packagedElement>
+
+<!-- Support Package -->
+    <packagedElement xmi:type="uml:Package" xmi:id="_supportPackage" name="Support">
+          <packagedElement xmi:type="uml:Class" xmi:id="_ticket" name="Ticket">
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketId" name="ticketID" visibility="private" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketCustomer" name="customer" visibility="public" type="_customer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketSubject" name="subject" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketDescription" name="description" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketPriority" name="priority" visibility="public" type="_ticketPriority"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketStatus" name="status" visibility="public" type="_ticketStatus"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketAssignedTo" name="assignedTo" visibility="public" type="_user"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketCreatedDate" name="createdDate" visibility="public" type="_date"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketResolvedDate" name="resolvedDate" visibility="public" type="_date"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_ticketResponse" name="TicketResponse">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketResponseId" name="responseID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketResponseTicket" name="ticket" visibility="public" type="_ticket"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketResponseUser" name="user" visibility="public" type="_user"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketResponseBody" name="response" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_ticketResponseDate" name="responseDate" visibility="public" type="_date"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_knowledgeBaseArticle" name="KnowledgeBaseArticle">
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_kbArticleId" name="articleID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_kbArticleTitle" name="title" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_kbArticleContent" name="content" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_kbArticleCategory" name="category" visibility="public" type="_kbCategory"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_kbArticleKeywords" name="keywords" visibility="public" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_ticketPriority" name="TicketPriority">
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketPriorityLow" name="Low"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketPriorityMedium" name="Medium"/>
+                          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketPriorityUrgent" name="Urgent"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_ticketStatus" name="TicketStatus">
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketStatusOpen" name="Open"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketStatusInProgress" name="InProgress"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketStatusPendingCustomer" name="PendingCustomer"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketStatusResolved" name="Resolved"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_ticketStatusClosed" name="Closed"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Enumeration" xmi:id="_kbCategory" name="KBCategory">
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_kbCategoryFAQ" name="FAQ"/>
+             <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_kbCategoryTroubleshooting" name="Troubleshooting"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_kbCategoryHowTo" name="HowTo"/>
+            <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_kbCategoryInstallation" name="Installation"/>
+        </packagedElement>
+    </packagedElement>
+
+    <!-- Associations -->
+    <!-- Customer and Contact (One-to-Many) -->
+    <packagedElement xmi:type="uml:Association" xmi:id="_customerContacts" name="CustomerContacts" memberEnd="_customerContactRef _contactCustomerRef">
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_customerContactRef" name="contacts" association="_customerContacts" type="_contact" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customerContactRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customerContactRefUpper" value="*"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_contactCustomerRef" name="customer" association="_customerContacts" type="_customer">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_contactCustomerRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_contactCustomerRefUpper" value="1"/>
+    </packagedElement>
+
+    <!-- Opportunity and Contact (Many-to-Many) -->
+      <packagedElement xmi:type="uml:Association" xmi:id="_opportunityContacts" name="OpportunityContacts" memberEnd="_opportunityContact _contactOpportunity">
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_opportunityContact" name="contacts" association="_opportunityContacts" type="_contact">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_opContactLower" value="0"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_opContactUpper" value="*"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_contactOpportunity" name="opportunities" association="_opportunityContacts" type="_opportunity">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOppLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOppUpper" value="*"/>
+      </packagedElement>
+
+    <!-- Customer and Opportunity (One-to-Many) -->
+     <packagedElement xmi:type="uml:Association" xmi:id="_customerOpportunity" name="CustomerOpportunity" memberEnd="_customerOpp _oppCustomer">
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_customerOpp" name="opportunities" association="_customerOpportunity" type="_opportunity" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_custOppLower"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_custOppUpper" value="*"/>
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_oppCustomer" name="customer" association="_customerOpportunity" type="_customer">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_oCustLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_oCustUpper" value="1"/>
+      </packagedElement>
+
+    <!-- User and Task (One-to-Many - Assigned Tasks) -->
+    <packagedElement xmi:type="uml:Association" xmi:id="_userTasks" name="UserTasks" memberEnd="_userTaskRef _taskUserRef">
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_userTaskRef" name="assignedTasks" association="_userTasks" type="_task" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_userTaskRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_userTaskRefUpper" value="*"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_taskUserRef" name="assignedTo" association="_userTasks" type="_user">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_taskUserRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_taskUserRefUpper" value="1"/>
+    </packagedElement>
+
+    <!-- User and Event (One-to-Many - Created Events) -->
+    <packagedElement xmi:type="uml:Association" xmi:id="_userEvents" name="UserEvents" memberEnd="_userEventRef _eventUserRef">
+    </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_userEventRef" name="createdEvents" association="_userEvents" type="_event" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_userEventRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_userEventRefUpper" value="*"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_eventUserRef" name="createdBy" association="_userEvents" type="_user">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_eventUserRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_eventUserRefUpper" value="1"/>
+    </packagedElement>
+
+    <!-- User and Role (Many-to-One) -->
+       <packagedElement xmi:type="uml:Association" xmi:id="_userRoleAssociation" name="UserRole" memberEnd="_userRoleEnd _roleUserEnd">
+       </packagedElement>
+
+    <packagedElement xmi:type="uml:Property" xmi:id="_userRoleEnd" name="role" association="_userRoleAssociation" type="_role">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_userRoleLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_userRoleUpper" value="1"/>
+    </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_roleUserEnd" name="users" association="_userRoleAssociation" type="_user" aggregation = "composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_roleUserLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_roleUserUpper" value="*"/>
+    </packagedElement>
+
+    <!-- Role and Permission (Many-to-Many) -->
+       <packagedElement xmi:type="uml:Association" xmi:id="_rolePermissions" name="RolePermissions" memberEnd="_rolePermission _permissionRole">
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_rolePermission" name="permissions" association="_rolePermissions" type="_permission" aggregation="composite">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_rPermLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_rPermUpper" value="*"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_permissionRole" name="roles" association="_rolePermissions" type="_role">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_pRoleLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_pRoleUpper" value="*"/>
+      </packagedElement>
+
+     <!-- Lead and Campaign (Many-to-Many)-->
+       <packagedElement xmi:type="uml:Association" xmi:id="_leadCampaign" name="LeadCampaign" memberEnd="_leadCamp _campLead">
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_leadCamp" name="campaigns" association="_leadCampaign" type="_campaign">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lCampLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_lCampUpper" value="*"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_campLead" name="leads" association="_leadCampaign" type="_lead">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cLeadLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cLeadUpper" value="*"/>
+      </packagedElement>
+
+      <!-- Contact and MarketingList (Many-to-Many) -->
+       <packagedElement xmi:type="uml:Association" xmi:id="_contactMarketingList" name="ContactMarketingList" memberEnd="_contactList _listContact">
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_contactList" name="marketingLists" association="_contactMarketingList" type="_marketingList">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_contactListLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_contactListUpper" value="*"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_listContact" name="contacts" association="_contactMarketingList" type="_contact">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_listContactLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_listContactUpper" value="*"/>
+      </packagedElement>
+
+    <!-- Customer and Ticket (One-to-Many) -->
+        <packagedElement xmi:type="uml:Association" xmi:id="_customerTickets" name="CustomerTickets" memberEnd="_customerTicketRef _ticketCustomerRef">
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_customerTicketRef" name="tickets" association="_customerTickets" type="_ticket" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customerTicketRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customerTicketRefUpper" value="*"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_ticketCustomerRef" name="customer" association="_customerTickets" type="_customer">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ticketCustomerRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ticketCustomerRefUpper" value="1"/>
+        </packagedElement>
+
+      <!-- Ticket and User (Many-to-One - Assigned To) -->
+       <packagedElement xmi:type="uml:Association" xmi:id="_ticketAssignedTo" name="TicketAssignedTo" memberEnd="_ticketUser _userTicket">
+        </packagedElement>
+         <packagedElement xmi:type="uml:Property" xmi:id="_ticketUser" name="user" association="_ticketAssignedTo" type="_user">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_tUserLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_tUserUpper" value="1"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_userTicket" name="assignedTickets" association="_ticketAssignedTo" type="_ticket">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_uTicketLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uTicketUpper" value="*"/>
+      </packagedElement>
+
+       <!-- Ticket and TicketResponse (One-to-Many) -->
+        <packagedElement xmi:type="uml:Association" xmi:id="_ticketResponses" name="TicketResponses" memberEnd="_ticketResponseRef _responseTicketRef">
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_ticketResponseRef" name="responses" association="_ticketResponses" type="_ticketResponse" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ticketResponseRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ticketResponseRefUpper" value="*"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_responseTicketRef" name="ticket" association="_ticketResponses" type="_ticket">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_responseTicketRefLower" value="1"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_responseTicketRefUpper" value="1"/>
+        </packagedElement>
+
+        <!--  Add Generalizations -->
+        <!-- Example:  Specialized Customer Types -->
+      <packagedElement xmi:type="uml:Class" xmi:id="_businessCustomer" name="BusinessCustomer">
+        <generalization xmi:type="uml:Generalization" xmi:id="_businessCustomerToCustomer" general="_customer"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_businessId" name="businessID" visibility="private" type="_string"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_companyName" name="companyName" visibility="public" type="_string"/>
+        </packagedElement>
+
+       <packagedElement xmi:type="uml:Class" xmi:id="_individualCustomer" name="IndividualCustomer">
+        <generalization xmi:type="uml:Generalization" xmi:id="_individualCustomerToCustomer" general="_customer"/>
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_firstName" name="firstName" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_lastName" name="lastName" visibility="public" type="_string"/>
+       </packagedElement>
+
+    <!-- Example: Specialized Lead Types -->
+     <packagedElement xmi:type="uml:Class" xmi:id="_webLead" name="WebLead">
+        <generalization xmi:type="uml:Generalization" xmi:id="_webLeadToLead" general="_lead"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_website" name="website" visibility="public" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_referralLead" name="ReferralLead">
+            <generalization xmi:type="uml:Generalization" xmi:id="_referralLeadToLead" general="_lead"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_referredBy" name="referredBy" visibility="public" type="_contact"/>
+        </packagedElement>
+     <!-- Specialized Report Types -->
+         <packagedElement xmi:type="uml:Class" xmi:id="_financialReport" name="FinancialReport">
+            <generalization xmi:type="uml:Generalization" xmi:id="_financialReportToReport" general="_report"/>
+              <ownedAttribute xmi:type="uml:Property" xmi:id="_finId" name="finId" visibility="private" type="_string"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_activityReport" name="ActivityReport">
+              <generalization xmi:type="uml:Generalization" xmi:id="_activityReportToReport" general="_report"/>
+               <ownedAttribute xmi:type="uml:Property" xmi:id="_actId" name="actId" visibility="private" type="_string"/>
+        </packagedElement>
+          <packagedElement xmi:type="uml:Class" xmi:id="_marketingReport" name="MarketingReport">
+            <generalization xmi:type="uml:Generalization" xmi:id="_marketingReportToReport" general="_report"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_markId" name="markId" visibility="private" type="_string"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_supportReport" name="SupportReport">
+          <generalization xmi:type="uml:Generalization" xmi:id="_supportReportToReport" general="_report"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_supportId" name="supportId" visibility="private" type="_string"/>
+        </packagedElement>
+
+      <!-- Specialized User roles-->
+        <packagedElement xmi:type="uml:Class" xmi:id="_salesRep" name = "SalesRep">
+            <generalization xmi:type="uml:Generalization" xmi:id="_salesRepTouser" general="_user"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_salesRepId" name="salesRepId" visibility="private" type="_string"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_supportAgent" name = "SupportAgent">
+            <generalization xmi:type="uml:Generalization" xmi:id="_supportAgentTouser" general="_user"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_supportAgentId" name="supportAgentId" visibility="private" type="_string"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_marketingManager" name = "MarketingManager">
+            <generalization xmi:type="uml:Generalization" xmi:id="_marketingManagerTouser" general="_user"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_marketManagerId" name="marketingManagerId" visibility="private" type="_string"/>
+        </packagedElement>
+       
+        <packagedElement xmi:type="uml:Class" xmi:id="_systemAdmin" name = "SystemAdmin">
+            <generalization xmi:type="uml:Generalization" xmi:id="_systemAdminTouser" general="_user"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_sysAdminId" name="sysAdminId" visibility="private" type="_string"/>
+        </packagedElement>
+
+<!--More Classes-->
+        <packagedElement xmi:type="uml:Class" xmi:id="_document" name="Document">
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_documentID" name="documentId" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_documentName" name="documentName" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_documentType" name="documentType" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_documentCreatedDate" name="createdDate" visibility="public" type="_date"/>
+           
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Class" xmi:id="_documentVersion" name="DocumentVersion">
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_versionID" name="versionId" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_versionNumber" name="versionNumber" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_versionDocument" name="document" visibility="public" type="_document"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_versionCreatedDate" name="createdDate" visibility="public" type="_date"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_versionCreatedBy" name="createdBy" visibility="public" type="_user"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_versionContent" name="content" visibility="public" type="_string"/>
+        </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="_documentVersions" name="DocumentVersions" memberEnd="_documentVersionRef _versionDocumentRef">
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Property" xmi:id="_documentVersionRef" name="versions" association="_documentVersions" type="_documentVersion" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_documentVersionRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_documentVersionRefUpper" value="*"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_versionDocumentRef" name="document" association="_documentVersions" type="_document">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_versionDocumentRefLower" value="1"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_versionDocumentRefUpper" value="1"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Class" xmi:id="_note" name="Note">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_noteID" name="noteId" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_noteText" name="noteText" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_noteCreatedDate" name="createdDate" visibility="public" type="_date"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_noteCreatedBy" name="createdBy" visibility="public" type="_user"/>
+        </packagedElement>
+     <!-- Customer Notes (One-to-Many)-->
+          <packagedElement xmi:type="uml:Association" xmi:id="_customerNotes" name="CustomerNotes" memberEnd="_customerNoteRef _noteCustomerRef">
+           </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_customerNoteRef" name="notes" association="_customerNotes" type="_note" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customerNoteRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customerNoteRefUpper" value="*"/>
+        </packagedElement>
+         <packagedElement xmi:type="uml:Property" xmi:id="_noteCustomerRef" name="customer" association="_customerNotes" type="_customer">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_noteCustomerRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_noteCustomerRefUpper" value="1"/>
+        </packagedElement>
+    <!--Contact Notes-->
+         <packagedElement xmi:type="uml:Association" xmi:id="_contactNotes" name="ContactNotes" memberEnd="_contactNoteRef _noteContactRef">
+           </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_contactNoteRef" name="notes" association="_contactNotes" type="_note" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_contactNoteRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_contactNoteRefUpper" value="*"/>
+        </packagedElement>
+         <packagedElement xmi:type="uml:Property" xmi:id="_noteContactRef" name="contact" association="_contactNotes" type="_contact">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_noteContactRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_noteContactRefUpper" value="1"/>
+        </packagedElement>
+    <!--Opportunity Notes-->
+           <packagedElement xmi:type="uml:Association" xmi:id="_opportunityNotes" name="OpportunityNotes" memberEnd="_opportunityNoteRef _noteOpportunityRef">
+           </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_opportunityNoteRef" name="notes" association="_opportunityNotes" type="_note" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_opportunityNoteRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_opportunityNoteRefUpper" value="*"/>
+        </packagedElement>
+         <packagedElement xmi:type="uml:Property" xmi:id="_noteOpportunityRef" name="opportunity" association="_opportunityNotes" type="_opportunity">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_noteOpportunityRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_noteOpportunityRefUpper" value="1"/>
+        </packagedElement>
+    <!--Lead Notes-->
+         <packagedElement xmi:type="uml:Association" xmi:id="_leadNotes" name="LeadNotes" memberEnd="_leadNoteRef _noteLeadRef">
+           </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_leadNoteRef" name="notes" association="_leadNotes" type="_note" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_leadNoteRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_leadNoteRefUpper" value="*"/>
+        </packagedElement>
+         <packagedElement xmi:type="uml:Property" xmi:id="_noteLeadRef" name="lead" association="_leadNotes" type="_lead">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_noteLeadRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_noteLeadRefUpper" value="1"/>
+        </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_address" name="Address">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_addressId" name="addressId" visibility="private" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_street1" name="street1" visibility="public" type="_string"/>
+       <ownedAttribute xmi:type="uml:Property" xmi:id="_street2" name="street2" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_city" name="city" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_state" name="state" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_zipCode" name="zipCode" visibility="public" type="_string"/>
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_country" name="country" visibility="public" type="_string"/>
+    </packagedElement>
+
+      <!-- Customer Address (One-to-Many)-->
+         <packagedElement xmi:type="uml:Association" xmi:id="_customerAddresses" name="CustomerAddresses" memberEnd="_customerAddressRef _addressCustomerRef">
+        </packagedElement>
+          <packagedElement xmi:type="uml:Property" xmi:id="_customerAddressRef" name="addresses" association="_customerAddresses" type="_address" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customerAddressRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customerAddressRefUpper" value="*"/>
+        </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_addressCustomerRef" name="customer" association="_customerAddresses" type="_customer">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_addressCustomerRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_addressCustomerRefUpper" value="1"/>
+        </packagedElement>
+
+     <!-- Contact Address (One-to-Many)-->
+
+        <packagedElement xmi:type="uml:Association" xmi:id="_contactAddresses" name="ContactAddresses" memberEnd="_contactAddressRef _addressContactRef">
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_contactAddressRef" name="addresses" association="_contactAddresses" type="_address" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_contactAddressRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_contactAddressRefUpper" value="*"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_addressContactRef" name="contact" association="_contactAddresses" type="_contact">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_addressContactRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_addressContactRefUpper" value="1"/>
+        </packagedElement>
+     <packagedElement xmi:type="uml:Class" xmi:id="_attachment" name="Attachment">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_attachmentId" name="attachmentID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_attachmentName" name="attachmentName" visibility="public" type="_string"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_attachmentType" name="attachmentType" visibility="public" type="_string"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_attachmentSize" name="size" visibility="public" type="_integer"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_attachmentData" name="data" visibility="public" type="_string"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_attachmentUploadedDate" name="uploadedDate" visibility="public" type="_date"/>
+        </packagedElement>
+
+    <!-- Email Attachments -->
+      <packagedElement xmi:type="uml:Association" xmi:id="_emailAttachments" name="EmailAttachments" memberEnd="_emailAttachmentRef _attachmentEmailRef">
+        </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_emailAttachmentRef" name="attachments" association="_emailAttachments" type="_attachment" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_emailAttachmentRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_emailAttachmentRefUpper" value="*"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_attachmentEmailRef" name="emailActivity" association="_emailAttachments" type="_emailActivity">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_attachmentEmailRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_attachmentEmailRefUpper" value="1"/>
+        </packagedElement>
+
+      <!-- Ticket Attachments -->
+       <packagedElement xmi:type="uml:Association" xmi:id="_ticketAttachments" name="TicketAttachments" memberEnd="_ticketAttachmentRef _attachmentTicketRef">
+       </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_ticketAttachmentRef" name="attachments" association="_ticketAttachments" type="_attachment" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ticketAttachmentRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ticketAttachmentRefUpper" value="*"/>
+        </packagedElement>
+             <!-- Document Attachments -->
+     <packagedElement xmi:type="uml:Association" xmi:id="_documentAttachments" name="DocumentAttachments" memberEnd="_documentAttachmentRef _attachmentDocumentRef">
+        </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_documentAttachmentRef" name="attachments" association="_documentAttachments" type="_attachment" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_documentAttachmentRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_documentAttachmentRefUpper" value="*"/>
+        </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_attachmentDocumentRef" name="document" association="_documentAttachments" type="_document">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_attachmentDocumentRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_attachmentDocumentRefUpper" value="1"/>
+        </packagedElement>
+
+    <!--  Adding more specialized classes and associations -->
+      <!--  Interaction Log for Activities (One-to-Many)-->
+        <packagedElement xmi:type="uml:Class" xmi:id="_interactionLog" name="InteractionLog">
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_interactionId" name="interactionID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_interactionType" name="interactionType" visibility="public" type="_string"/>  <!--  Call, Email, Meeting, etc. -->
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_interactionDate" name="interactionDate" visibility="public" type="_date"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_interactionNotes" name="notes" visibility="public" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_interactionContact" name="contact" visibility="public" type="_contact"/>
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Association" xmi:id="_contactInteractions" name="ContactInteractions" memberEnd="_contactInteractionRef _interactionContactRef">
+       </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_contactInteractionRef" name="interactions" association="_contactInteractions" type="_interactionLog" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_contactInteractionRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_contactInteractionRefUpper" value="*"/>
+        </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_interactionContactRef" name="contact" association="_contactInteractions" type="_contact">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_interactionContactRefLower" value="1"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_interactionContactRefUpper" value="1"/>
+        </packagedElement>
+
+     <!-- Custom Fields (for extensibility) -->
+       <packagedElement xmi:type="uml:Class" xmi:id="_customField" name="CustomField">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_customFieldId" name="customFieldID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_customFieldName" name="fieldName" visibility="public" type="_string"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_customFieldType" name="fieldType" visibility="public" type="_string"/>  <!--  Text, Number, Date, etc. -->
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_customFieldValue" name="fieldValue" visibility="public" type="_string"/>
+          
+        </packagedElement>
+    <!-- Custom Fields for Customer -->
+      <packagedElement xmi:type="uml:Association" xmi:id="_customerCustomFields" name="CustomerCustomFields" memberEnd="_customerCustomFieldRef _customFieldCustomerRef">
+      </packagedElement>
+
+    <packagedElement xmi:type="uml:Property" xmi:id="_customerCustomFieldRef" name="customFields" association="_customerCustomFields" type="_customField" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customerCustomFieldRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customerCustomFieldRefUpper" value="*"/>
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_customFieldCustomerRef" name="customer" association="_customerCustomFields" type="_customer">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customFieldCustomerRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customFieldCustomerRefUpper" value="1"/>
+    </packagedElement>
+
+        <!-- Custom Fields for Contact -->
+      <packagedElement xmi:type="uml:Association" xmi:id="_contactCustomFields" name="ContactCustomFields" memberEnd="_contactCustomFieldRef _customFieldContactRef">
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_contactCustomFieldRef" name="customFields" association="_contactCustomFields" type="_customField" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_contactCustomFieldRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_contactCustomFieldRefUpper" value="*"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_customFieldContactRef" name="contact" association="_contactCustomFields" type="_contact">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customFieldContactRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customFieldContactRefUpper" value="1"/>
+    </packagedElement>
+        <!-- Custom Fields for Opportunity -->
+        <packagedElement xmi:type="uml:Association" xmi:id="_OpportunityCustomFields" name="OpportunityCustomFields" memberEnd="_OpportunityCustomFieldRef _customFieldOpportunityRef">
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_OpportunityCustomFieldRef" name="customFields" association="_OpportunityCustomFields" type="_customField" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_OpportunityCustomFieldRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_OpportunityCustomFieldRefUpper" value="*"/>
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_customFieldOpportunityRef" name="opportunity" association="_OpportunityCustomFields" type="_opportunity">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customFieldOpportunityRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customFieldOpportunityRefUpper" value="1"/>
+    </packagedElement>
+        <!-- Custom Fields for Lead -->
+         <packagedElement xmi:type="uml:Association" xmi:id="_LeadCustomFields" name="LeadCustomFields" memberEnd="_LeadCustomFieldRef _customFieldLeadRef">
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_LeadCustomFieldRef" name="customFields" association="_LeadCustomFields" type="_customField" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_LeadCustomFieldRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_LeadCustomFieldRefUpper" value="*"/>
+    </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_customFieldLeadRef" name="Lead" association="_LeadCustomFields" type="_Lead">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_customFieldLeadRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_customFieldLeadRefUpper" value="1"/>
+    </packagedElement>
+    <!-- Quote and Product (Many-to-Many through Association Class) -->
+      <packagedElement xmi:type="uml:AssociationClass" xmi:id="_quoteLineItem" name="QuoteLineItem">
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteLineItemId" name="quoteLineItemID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteLineItemQuantity" name="quantity" visibility="public" type="_integer"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteLineItemUnitPrice" name="unitPrice" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteLineItemDiscount" name="discount" visibility="public" type="_integer"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteLineItemProduct" name="product" visibility="public" type="_product"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_quoteLineItemQuote" name="quote" visibility="public" type="_quote"/>
+       </packagedElement>
+       <packagedElement xmi:type="uml:Association" xmi:id="_quoteProductsAssociation" name="QuoteProducts" memberEnd="_quoteProduct _productQuote">
+         </packagedElement>
+
+       <packagedElement xmi:type="uml:Property" xmi:id="_quoteProduct" name="quote" association="_quoteProductsAssociation" type="_quote">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_quoteProductLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_quoteProductUpper" value="1"/>
+      </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_productQuote" name="product" association="_quoteProductsAssociation" type="_product">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_productQuoteLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_productQuoteUpper" value="1"/>
+      </packagedElement>
+
+    <!-- Order and Product (Many-to-Many through Association Class) -->
+        <packagedElement xmi:type="uml:AssociationClass" xmi:id="_orderLineItem" name="OrderLineItem">
+         <ownedAttribute xmi:type="uml:Property" xmi:id="_orderLineItemId" name="orderLineItemID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderLineItemQuantity" name="quantity" visibility="public" type="_integer"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_orderLineItemUnitPrice" name="unitPrice" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderLineItemDiscount" name="discount" visibility="public" type="_integer"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_orderLineItemProduct" name="product" visibility="public" type="_product"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_orderLineItemOrder" name="order" visibility="public" type="_order"/>
+        </packagedElement>
+       <packagedElement xmi:type="uml:Association" xmi:id="_orderProductsAssociation" name="OrderProducts" memberEnd="_orderProduct _productOrder">
+       </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_orderProduct" name="order" association="_orderProductsAssociation" type="_order">
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_orderProductLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_orderProductUpper" value="1"/>
+      </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_productOrder" name="product" association="_orderProductsAssociation" type="_product">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_productOrderLower"/>
+           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_productOrderUpper" value="1"/>
+      </packagedElement>
+
+     <!-- Quote and Order (One-to-One or One-to-Zero) -->
+     <packagedElement xmi:type="uml:Association" xmi:id="_quoteOrder" name="QuoteOrder" memberEnd="_quoteOrderRef _orderQuoteRef">
+      </packagedElement>
+       <packagedElement xmi:type="uml:Property" xmi:id="_quoteOrderRef" name="order" association="_quoteOrder" type="_order">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_quoteOrderRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_quoteOrderRefUpper" value="1"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_orderQuoteRef" name="quote" association="_quoteOrder" type="_quote">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_orderQuoteRefLower" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_orderQuoteRefUpper" value="1"/>
+    </packagedElement>
+
+     <!-- Order and Invoice (One-to-One or One-to-Many) -->
+       <packagedElement xmi:type="uml:Association" xmi:id="_orderInvoices" name="OrderInvoices" memberEnd="_orderInvoiceRef _invoiceOrderRef">
+         </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_orderInvoiceRef" name="invoices" association="_orderInvoices" type="_invoice">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_orderInvoiceRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_orderInvoiceRefUpper" value="*"/>
+    </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_invoiceOrderRef" name="order" association="_orderInvoices" type="_order">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_invoiceOrderRefLower" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_invoiceOrderRefUpper" value="1"/>
+    </packagedElement>
+     <!-- Workflow Step and Action -->
+     <packagedElement xmi:type="uml:Class" xmi:id="_workflowStep" name="WorkflowStep">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_stepId" name="stepID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_stepName" name="stepName" visibility="public" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_stepOrder" name="stepOrder" visibility="public" type="_integer"/>
+        </packagedElement>
+
+       <packagedElement xmi:type="uml:Class" xmi:id="_workflowAction" name="WorkflowAction">
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_actionId" name="actionID" visibility="private" type="_string"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_actionName" name="actionName" visibility="public" type="_string"/>
+           <ownedAttribute xmi:type="uml:Property" xmi:id="_actionType" name="actionType" visibility="public" type="_string"/>  <!--  e.g., SendEmail, UpdateField, CreateTask -->
+        </packagedElement>
+
+        <packagedElement xmi:type="uml:Association" xmi:id="_stepActions" name="StepActions" memberEnd="_stepActionRef _actionStepRef">
+       </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_stepActionRef" name="actions" association="_stepActions" type="_workflowAction" aggregation="composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_stepActionRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_stepActionRefUpper" value="*"/>
+        </packagedElement>
+         <packagedElement xmi:type="uml:Property" xmi:id="_actionStepRef" name="step" association="_stepActions" type="_workflowStep">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_actionStepRefLower" value="1"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_actionStepRefUpper" value="1"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="_workflowSteps" name="WorkflowSteps" memberEnd="_workflowStepRef _stepWorkflowRef">
+        </packagedElement>
+        <packagedElement xmi:type="uml:Property" xmi:id="_workflowStepRef" name="steps" association="_workflowSteps" type="_workflowStep" aggregation="composite">
+         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_workflowStepRefLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_workflowStepRefUpper" value="*"/>
+         </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_stepWorkflowRef" name="workflow" association="_workflowSteps" type="_workflowEngine">
+       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_stepWorkflowRefLower" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_stepWorkflowRefUpper" value="1"/>
+        </packagedElement>
+
+      <!-- Lead and Score (One-to-One) -->
+     <packagedElement xmi:type="uml:Association" xmi:id="_leadScoreAssociation" name="LeadScoreAssociation" memberEnd="_leadScoreEnd _scoreLeadEnd">
+     </packagedElement>
+
+    <packagedElement xmi:type="uml:Property" xmi:id="_leadScoreEnd" name="score" association="_leadScoreAssociation" type="_leadScoringService">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_leadScoreLower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_leadScoreUpper" value="1"/>
+    </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_scoreLeadEnd" name="lead" association="_leadScoreAssociation" type="_lead">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_scoreLeadLower" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_scoreLeadUpper" value="1"/>
+    </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_leadSourceAnalytics" name="LeadSourceAnalytics">
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_leadSourceAnalysisId" name="leadSourceAnalysisID" visibility="private" type="_string"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_source" name="source" visibility="public" type="_leadSource"/>
+             <ownedAttribute xmi:type="uml:Property" xmi:id="_conversionRate" name="conversionRate" visibility="public" type="_integer"/>
+            <ownedAttribute xmi:type="uml:Property" xmi:id="_costPerLead" name="costPerLead" visibility="public" type="_integer"/>
+        </packagedElement>
+
+         <packagedElement xmi:type="uml:Association" xmi:id="_leadSourceAnalysis" name="LeadSourceAnalysis" memberEnd="_leadSourceAnalysisRef _analysisLeadSourceRef">
+        </packagedElement>
+    <packagedElement xmi:type="uml:Property" xmi:id="_leadSourceAnalysisRef" name="leadSourceAnalysis" association="_leadSourceAnalysis" type="_leadSourceAnalytics" aggregation = "composite">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_leadSourceAnalysisRefLower" value="0"/>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_leadSourceAnalysisRefUpper" value="*"/>
+        </packagedElement>
+     <packagedElement xmi:type="uml:Property" xmi:id="_analysisLeadSourceRef" name="leadSource" association="_leadSourceAnalysis" type="_leadSource">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_analysisLeadSourceRefLower" value="1"/>
+       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_analysisLeadSourceRefUpper" value="1"/>
+       </packagedElement>
+
+</uml:Model>
+</XMI>
+            

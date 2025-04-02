@@ -10,7 +10,6 @@ com\sdmetrics\metrics\MetricProcedureSetOperation.class
 com\sdmetrics\model\MetaModel$MetaModelParser.class
 com\sdmetrics\math\ExpressionParser$ParserException.class
 com\sdmetrics\metrics\ExpressionOperations$EndsWithOperator.class
-com\facadeimpl\sdmetrics\MetricsHandler.class
 com\sdmetrics\metrics\MetricsEngine$MetricValuesCache.class
 com\sdmetrics\metrics\FilterAttributeProcessor$1.class
 com\sdmetrics\math\IntegerMatrix.class
@@ -78,7 +77,6 @@ com\sdmetrics\util\XMLParser$1.class
 com\sdmetrics\metrics\MetricStore.class
 com\sdmetrics\metrics\MetricProcedureSubelements.class
 com\sdmetrics\metrics\MetricsEngine.class
-com\facadeimpl\sdmetrics\DiagramHandler.class
 com\sdmetrics\metrics\ExpressionOperations$GreaterOrEqualOperator.class
 com\sdmetrics\metrics\ProcedureCache.class
 com\sdmetrics\model\ElementFilters.class
@@ -92,7 +90,6 @@ com\sdmetrics\metrics\MetricEntry.class
 com\sdmetrics\metrics\RuleProcedureCycle.class
 com\sdmetrics\metrics\ExpressionOperations$DifferenceOperation.class
 com\sdmetrics\metrics\SetProcedureProjection.class
-com\facadeimpl\sdmetrics\CalculateMetricsHandler.class
 com\sdmetrics\model\XMIContextStack.class
 com\sdmetrics\metrics\MatrixEngine.class
 com\sdmetrics\math\ExpressionNode.class
@@ -141,7 +138,6 @@ com\sdmetrics\metrics\SetProcedureCompound.class
 com\facadeimpl\sdmetrics\SDMetricsParser.class
 com\sdmetrics\metrics\ExpressionOperations$BinarySetOperation.class
 com\sdmetrics\metrics\ExpressionOperations$ExponentiationOperator.class
-com\facadeimpl\sdmetrics\XMIHandler.class
 com\sdmetrics\metrics\MetricProcedureSubString.class
 com\sdmetrics\metrics\Glossary.class
 com\sdmetrics\model\ModelElement.class

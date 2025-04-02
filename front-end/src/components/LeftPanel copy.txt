@@ -16,27 +16,27 @@ export function LeftPanel({
   setPerspective, 
   selectedNode,
   matrices,
-  // activeMatrixTab
+  activeMatrixTab
 }) {
   // Get unique node categories based on the active matrix
   const getNodeCategories = () => {
     const categories = new Set(["all"]);
     
-    // if (matrices && activeMatrixTab && matrices[activeMatrixTab]) {
-    //   // Add categories based on node naming conventions in the active matrix
-    //   const matrix = matrices[activeMatrixTab];
-    //   const allNodes = [...matrix.columns, ...Object.keys(matrix.rows)];
+    if (matrices && activeMatrixTab && matrices[activeMatrixTab]) {
+      // Add categories based on node naming conventions in the active matrix
+      const matrix = matrices[activeMatrixTab];
+      const allNodes = [...matrix.columns, ...Object.keys(matrix.rows)];
       
-    //   allNodes.forEach(nodeName => {
-    //     if (nodeName.startsWith("I") && nodeName.length > 1 && nodeName[1].toUpperCase() === nodeName[1]) {
-    //       categories.add("interface");
-    //     } else if (nodeName.includes("Package") || nodeName.includes("Module")) {
-    //       categories.add("package");
-    //     } else {
-    //       categories.add("class");
-    //     }
-    //   });
-    // }
+      allNodes.forEach(nodeName => {
+        if (nodeName.startsWith("I") && nodeName.length > 1 && nodeName[1].toUpperCase() === nodeName[1]) {
+          categories.add("interface");
+        } else if (nodeName.includes("Package") || nodeName.includes("Module")) {
+          categories.add("package");
+        } else {
+          categories.add("class");
+        }
+      });
+    }
     
     return Array.from(categories);
   };
@@ -97,6 +97,7 @@ export function LeftPanel({
         <PropertiesPanel 
           selectedNode={selectedNode} 
           matrices={matrices}
+          activeMatrixTab={activeMatrixTab}
         />
       </ScrollArea>
     </div>

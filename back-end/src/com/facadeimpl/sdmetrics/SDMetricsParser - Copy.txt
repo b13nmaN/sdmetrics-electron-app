@@ -105,19 +105,6 @@ public class SDMetricsParser {
     public MetaModel getMetaModel() {
         return metaModel;
     }
-
-    // Add these methods to SDMetricsParser.java
-    public String getMetaModelURL() {
-        return metaModelURL;
-    }
-
-    public String getXmiTransURL() {
-        return xmiTransURL;
-    }
-
-    public String getMetricsURL() {
-        return metricsURL;
-    }
     
     // Optional: Add cleanup method if needed
     public void cleanup() {

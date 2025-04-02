@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,8 +43,18 @@ public class SDMetricFacade {
         METRICS_TO_INCLUDE.add("Ca");
         METRICS_TO_INCLUDE.add("Ce");
         METRICS_TO_INCLUDE.add("DepPack");
+        METRICS_TO_INCLUDE.add("MsgSent");
+        METRICS_TO_INCLUDE.add("MsgRecv");
         METRICS_TO_INCLUDE.add("Assoc_Out");
         METRICS_TO_INCLUDE.add("Assoc_In");
+        METRICS_TO_INCLUDE.add("MsgSent_Outside");
+        METRICS_TO_INCLUDE.add("MsgRecv_Outside");
+
+        // Cohesion Metrics
+        METRICS_TO_INCLUDE.add("LCOM1");
+        METRICS_TO_INCLUDE.add("TCC");
+        METRICS_TO_INCLUDE.add("AUC");
+        METRICS_TO_INCLUDE.add("PCI");
     }
 
     public SDMetricFacade(String metaModelURL, String xmiTransURL, String metricsURL, int httpPort) throws Exception {
@@ -61,7 +69,7 @@ public class SDMetricFacade {
         this.metricsServer.start();
         System.out.println("REST server started on port: " + httpPort);
     }
-    
+
     public void processXMI(String filepath) throws Exception {
         this.lastFilePath = filepath;
         saveLastFilePath(filepath); // Save to file
@@ -125,9 +133,6 @@ public class SDMetricFacade {
         
         // Calculate matrix data
         calculateAndSendMatrices();
-        
-        // Calculate and send interface realization matrix
-        calculateAndSendInterfaceMatrix();
     }
 
     private void calculateAndSendMatrices() {
@@ -154,140 +159,6 @@ public class SDMetricFacade {
         }
         
         System.out.println("Matrix calculations completed");
-    }
-    
-    /**
-     * Creates and sends a custom matrix that shows interface-class realization relationships
-     */
-    private void calculateAndSendInterfaceMatrix() {
-        Model model = sdMetricsParser.getModel();
-        if (model == null) {
-            System.err.println("Model is null, cannot calculate interface matrix");
-            return;
-        }
-        
-        System.out.println("Calculating Interface Realization Matrix...");
-        
-        // First, collect all interfaces and classes
-        List<ModelElement> interfaces = new ArrayList<>();
-        List<ModelElement> classes = new ArrayList<>();
-        
-        for (ModelElement element : model) {
-            if (element.getType().getName().equalsIgnoreCase("interface")) {
-                interfaces.add(element);
-            } else if (element.getType().getName().equalsIgnoreCase("class")) {
-                classes.add(element);
-            }
-        }
-        
-        System.out.println("Found " + interfaces.size() + " interfaces and " + classes.size() + " classes");
-        
-        // Create a matrix representation
-        Map<String, Object> matrixJson = new HashMap<>();
-        
-        // Set column names (classes)
-        String[] columns = new String[classes.size()];
-        for (int i = 0; i < classes.size(); i++) {
-            columns[i] = classes.get(i).getName();
-        }
-        matrixJson.put("columns", columns);
-        
-        // Create rows (interfaces)
-        Map<String, int[]> rows = new HashMap<>();
-        for (ModelElement iface : interfaces) {
-            String interfaceName = iface.getName();
-            String interfaceXMIID = iface.getXMIID();
-            int[] values = new int[classes.size()];
-            
-            System.out.println("Processing interface: " + interfaceName + " (ID: " + interfaceXMIID + ")");
-            
-            // For each class, check if it implements this interface
-            for (int i = 0; i < classes.size(); i++) {
-                ModelElement cls = classes.get(i);
-                boolean implementsInterface = checkInterfaceRealization(cls, iface);
-                values[i] = implementsInterface ? 1 : 0;
-                
-                if (implementsInterface) {
-                    System.out.println("  Class " + cls.getName() + " implements " + interfaceName);
-                }
-            }
-            
-            rows.put(interfaceName, values);
-        }
-        
-        matrixJson.put("rows", rows);
-        
-        // Store the matrix data with a custom name
-        MetricsDataStore.setMatrixData("Interface_Realizations", matrixJson);
-        System.out.println("Interface Realization Matrix processed and stored");
-    }
-    
-    /**
-     * Checks if a class implements a specific interface using multiple detection approaches
-     */
-    private boolean checkInterfaceRealization(ModelElement classElement, ModelElement interfaceElement) {
-        String interfaceXMIID = interfaceElement.getXMIID();
-        
-        // Approach 1: Check via "implements" attribute
-        try {
-            Collection<?> interfaces = classElement.getSetAttribute("implements");
-            if (interfaces != null) {
-                for (Object interfaceObj : interfaces) {
-                    if (interfaceObj instanceof ModelElement) {
-                        ModelElement impl = (ModelElement) interfaceObj;
-                        if (impl.getXMIID().equals(interfaceXMIID)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // Attribute not found, continue to next approach
-        }
-        
-        // Approach 2: Check via InterfaceRealization elements
-        try {
-            Collection<ModelElement> ownedElements = classElement.getOwnedElements();
-            if (ownedElements != null) {
-                for (ModelElement owned : ownedElements) {
-                    if (owned.getType().getName().equalsIgnoreCase("interfacerealization")) {
-                        try {
-                            ModelElement contract = owned.getRefAttribute("contract");
-                            if (contract != null && contract.getXMIID().equals(interfaceXMIID)) {
-                                return true;
-                            }
-                        } catch (Exception e) {
-                            // Attribute not found
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // Error processing interface realizations
-        }
-        
-        // Approach 3: Check if interface has realizations pointing to this class
-        try {
-            Collection<ModelElement> realizationElements = interfaceElement.getRelations("supplier");
-            if (realizationElements != null) {
-                for (ModelElement realization : realizationElements) {
-                    if (realization.getType().getName().equalsIgnoreCase("interfacerealization")) {
-                        try {
-                            ModelElement client = realization.getRefAttribute("client");
-                            if (client != null && client.getXMIID().equals(classElement.getXMIID())) {
-                                return true;
-                            }
-                        } catch (Exception e) {
-                            // Attribute not found
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // Error processing supplier relations
-        }
-        
-        return false;
     }
 
     private void sendMatrix(MatrixData matrixData) {
@@ -351,18 +222,6 @@ public class SDMetricFacade {
 
     public String getLastFilePath() {
         return lastFilePath;
-    }
-
-    public String getMetaModelURL() {
-        return sdMetricsParser.getMetaModelURL();
-    }
-
-    public String getXmiTransURL() {
-        return sdMetricsParser.getXmiTransURL();
-    }
-
-    public String getMetricsURL() {
-        return sdMetricsParser.getMetricsURL();
     }
 
     public void stopServer() throws Exception {

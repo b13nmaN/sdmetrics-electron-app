@@ -5,15 +5,15 @@
   "type": "module",
   "main": "public/main.js",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "electron": "vite --config vite.config.js",
-  "dev:electron": "vite",
-  "build:electron": "vite build && electron-builder",
-  "package": "electron-builder"
-},
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron": "vite --config vite.config.js",
+    "dev:electron": "vite",
+    "build:electron": "vite build && electron-builder",
+    "package": "electron-builder"
+  },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -47,6 +47,8 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "cytoscape": "^3.31.1",
+    "cytoscape-cola": "^2.5.1",
+    "cytoscape-fcose": "^2.2.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.5.2",
     "input-otp": "^1.4.2",

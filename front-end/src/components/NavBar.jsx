@@ -1,7 +1,7 @@
 // components/NavBar.jsx
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export function NavBar({ activeTab, setActiveTab }) {
+export function NavBar() {
   return (
     <div className="border-b border-b-border px-10">
       <div className="mx-auto px-4 flex items-center justify-between py-2"> 

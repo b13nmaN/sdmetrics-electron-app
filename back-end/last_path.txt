@@ -1,1 +1,1 @@
-C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\resources\ECommerceSystem.xmi
+C:\Users\shond\OneDrive\Desktop\UWI\Year 3 - Semester 2\Major Research Project\sdmetrics-electron-app\back-end\src\com\sdmetrics\resources\CMS.xmi

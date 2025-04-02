@@ -24,7 +24,7 @@ export default function Home() {
   const [metrics, setMetrics] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [jsonData, setJsonData] = useState(null);
+  const [jsonData, setJsonData] = useState(null); // Add state for JSON data
 
   // Load initial data on mount
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function Home() {
       // Set matrices data if available
       if (data.matrices) {
         setMatrices(data.matrices);
-        console.log("Loaded matrices:", data.matrices);
+        
         if (Object.keys(data.matrices).length > 0) {
           setActiveMatrixTab(Object.keys(data.matrices)[0]);
         }
@@ -59,18 +59,30 @@ export default function Home() {
       
       // Set metrics if available
       if (data.metrics) {
+        console.log("Metrics data:", data.metrics);
         setMetrics(data.metrics);
       }
-
+      
       // Try to load XMI JSON data
       try {
         const parsedData = await apiService.getParsedXMI();
         setJsonData(parsedData);
-        // console.log("Loaded parsed XMI data:", parsedData);
+        console.log("Loaded parsed XMI data:", parsedData);
       } catch (jsonErr) {
         console.error("Error loading parsed XMI:", jsonErr);
+        
+        // For development/demo: Use paste.txt data if API fails
+        try {
+          // This is a simplified example - in production, you would properly fetch this
+          // This assumes paste.txt content has been parsed into a JSON object
+          const pasteData = JSON.parse(document.getElementById('paste-data').textContent);
+          setJsonData(pasteData);
+          console.log("Using fallback paste.txt data:", pasteData);
+        } catch (fallbackErr) {
+          console.error("Error loading fallback data:", fallbackErr);
+        }
       }
-
+      
     } catch (err) {
       console.error("Error loading initial data:", err);
       setError("Failed to load initial data: " + err.message);
@@ -173,6 +185,14 @@ export default function Home() {
       
       if (processResult.metrics) {
         setMetrics(processResult.metrics);
+      }
+      
+      // Try to get updated JSON data
+      try {
+        const newJsonData = await apiService.getParsedXMI();
+        setJsonData(newJsonData);
+      } catch (jsonErr) {
+        console.error("Error updating JSON data:", jsonErr);
       }
     } catch (err) {
       console.error("Error opening file:", err);
@@ -299,6 +319,7 @@ export default function Home() {
             selectedNode={selectedNode}
             matrices={matrices}
             activeMatrixTab={activeMatrixTab}
+            jsonData={jsonData} // Pass JSON data to LeftPanel
           />
           <RightPanel
             onNodeSelect={handleNodeSelect}
