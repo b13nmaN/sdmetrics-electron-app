@@ -49,130 +49,6 @@ other part of SDMetrics.
     class="com.sdmetrics.test.BooleanOperationXOR" />
 
 
-<!-- LCOM -->
-    <metric name="LCOM1" domain="class">
-        <description>Measures lack of cohesion as the difference between method pairs not sharing attributes and those that do. A negative LCOM1 is set to 0.</description>
-        <compoundmetric condition="P - Q lt 0" term="0" alt="P - Q" fallback="0"/>
-    </metric>
-
-    <set name="Methods" domain="class">
-        <description>All methods in the class.</description>
-        <projection relation="context" target="operation"/>
-    </set>
-
-    <set name="Attributes" domain="class">
-        <description>All attributes in the class.</description>
-        <projection relation="context" target="attribute"/>
-    </set>
-
-    <metric name="P" domain="class">
-        <description>Number of method pairs not sharing any attributes.</description>
-        <compoundmetric term="MethodPairsWithoutSharedAttributes" fallback="0"/>
-    </metric>
-
-    <metric name="MethodPairsWithoutSharedAttributes" domain="class">
-        <description>Counts method pairs in the class that do NOT share attributes.</description>
-        <pairwise relset="Methods" target="operation" paircondition="size(_first.UsesAttributes * _second.UsesAttributes) = 0 and _first.name lt _second.name"/>
-    </metric>
-
-    <metric name="Q" domain="class">
-        <description>Number of method pairs sharing at least one attribute.</description>
-        <compoundmetric term="MethodPairsWithSharedAttributes" fallback="0"/>
-    </metric>
-
-    <metric name="MethodPairsWithSharedAttributes" domain="class">
-        <description>Counts method pairs in the class that share attributes.</description>
-        <pairwise relset="Methods" target="operation" paircondition="size(_first.UsesAttributes * _second.UsesAttributes) gt 0 and _first.name lt _second.name"/>
-    </metric>
-
-    <set name="UsesAttributes" domain="operation">
-        <description>Set of attributes used by this operation. CRITICAL FIX NEEDED HERE: 'uses' relation may not exist in standard UML.</description>
-        <projection relation="uses" target="attribute"/>
-        <!-- Fallback: <projection relation="context" target="attribute"/> -->
-    </set>
-
-    <metric name="TotalPairs" domain="class">
-        <description>Total number of method pairs in the class.</description>
-        <compoundmetric term="NumOps * (NumOps - 1) / 2" fallback="0"/>
-    </metric>
-
-    <!-- <metric name="NumOps" domain="class">
-        <description>Number of operations in the class.</description>
-        <projection relation="context" target="operation" sum="1"/>
-    </metric> -->
-
-    <!-- TCC -->
-    <metric name="TCC" domain="class">
-        <description>Ratio of directly connected methods to total number of method pairs.</description>
-        <compoundmetric condition="NumOps le 1" term="1" alt="(2 * SharedPairs) / (NumOps * (NumOps - 1))" fallback="0"/>
-    </metric>
-
-    <metric name="SharedPairs" domain="class">
-        <description>Number of method pairs sharing at least one attribute.</description>
-        <compoundmetric term="MethodPairsWithSharedAttributes" fallback="0"/>
-    </metric>
-
-    <!-- AUC -->
-    <metric name="AUC" domain="class">
-        <description>Average proportion of class attributes used by each method.</description>
-        <compoundmetric condition="NumOps = 0" term="0" alt="AttrUsageSum / NumOps" fallback="0"/>
-    </metric>
-
-    <metric name="AttrUsageSum" domain="class">
-        <description>Sum of attribute usage proportions across all methods.</description>
-        <projection relset="Methods" target="operation" sum="AttrUsageProportion"/>
-    </metric>
-
-    <metric name="AttrUsageProportion" domain="operation">
-        <description>Proportion of class attributes used by this operation.</description>
-        <compoundmetric condition="context.TotalAttrs = 0" term="0" alt="AttrUsed / context.TotalAttrs" fallback="0"/>
-    </metric>
-
-    <metric name="AttrUsed" domain="operation">
-        <description>Number of attributes used by this operation.</description>
-        <projection relation="uses" target="attribute" sum="1"/>
-    </metric>
-
-    <metric name="TotalAttrs" domain="class">
-        <description>Total number of attributes in the class.</description>
-        <projection relation="context" target="attribute" sum="1"/>
-    </metric>
-
-    <!-- PCI -->
-    <metric name="PCI" domain="package">
-        <description>Ratio of internal dependencies to total dependencies in the package.</description>
-        <compoundmetric condition="(InternalDeps + ExternalDeps) = 0" term="0" alt="InternalDeps / (InternalDeps + ExternalDeps)" fallback="0"/>
-    </metric>
-
-    <metric name="InternalDeps" domain="package">
-        <description>Number of dependencies between classes within the package.</description>
-        <projection relset="PackageClasses" target="class" sum="InternalClassDeps"/>
-    </metric>
-
-    <set name="PackageClasses" domain="package">
-        <description>All classes in this package.</description>
-        <projection relation="context" target="class"/>
-    </set>
-
-    <metric name="InternalClassDeps" domain="class">
-        <description>Number of dependencies to other classes in the same package.</description>
-        <projection relset="AllClassDependencies" target="class" condition="context = _principal.context" sum="1"/>
-    </metric>
-
-    <metric name="ExternalDeps" domain="package">
-        <description>Number of dependencies from package classes to external classes.</description>
-        <projection relset="PackageClasses" target="class" sum="ExternalClassDeps"/>
-    </metric>
-
-    <metric name="ExternalClassDeps" domain="class">
-        <description>Number of dependencies to classes outside the package.</description>
-        <projection relset="AllClassDependencies" target="class" condition="context != _principal.context" sum="1"/>
-    </metric>
-
-    <set name="AllClassDependencies" domain="class">
-        <description>All classes that this class depends on.</description>
-        <projection relation="depclient" target="dependency" element="depsupplier" eltype="class"/>
-    </set>
 
 	<!-- Add these relation matrix definitions within the <sdmetrics> tag,
      ideally after the <rule> definitions and before the <reference> tags.
@@ -202,6 +78,54 @@ other part of SDMetrics.
     <description>Interface realization relationships (from class to interface).</description>
     <projection relset="ProvidedIF" />
 </matrix>
+
+
+<!-- start of class cohesion metrics -->
+<!-- CAMC (Cohesion among methods in a class) -->
+<set name="OpParameterTypes" domain="operation">
+<projection relation="context" target="parameter" 
+  element="parametertype"/>
+</set>
+
+<set name="ClsParameterTypesMS" domain="class" multiset="true">
+<projection relation="context" target="operation" 
+  set="OpParameterTypes" />
+</set>
+
+<metric name="CAMC" domain="class" type="Cohesion">
+<description>Cohesion among methods in the class.</description>
+<compoundmetric fallback="0"
+  term="size(ClsParameterTypesMS)/(NumOps*flatsize(ClsParameterTypesMS))" />
+</metric>
+<!-- NHD (Normalized Hamming Distance) -->
+<set name="ClsParameterTypes" domain="class">
+<projection relation="context" target="operation" 
+  set="OpParameterTypes" />
+</set>
+
+<metric name="HD_raw" domain="class" internal="true">
+<projection relset="ClsParameterTypes"
+  sum="(_self in _principal.ClsParameterTypesMS)*(_principal.NumOps-(_self in _principal.ClsParameterTypesMS))" />
+</metric>
+
+<metric name="NHD" domain="class" type="Cohesion">
+<description>Normalized Hamming Distance.</description>
+<compoundmetric fallback="0"
+  term="1-2*HD_raw/(size(ClsParameterTypes)*NumOps*(NumOps-1))"/>
+</metric>
+
+<!-- LCOM (Lack of Cohesion in Methods) -->
+<!-- <set name="ParaTypeSet" domain="operation">
+<description>The set of parameter types of an operation.</description>
+<projection relation="context" target="parameter" element="parametertype" />
+</set> -->
+<metric name="LCOM_Parametertypes" domain="class">
+<description>Lack of cohesion in operations based on operation 
+   parameter types.</description>
+<pairwise relation="context" target="operation" 
+   paircondition="size(_first.ParaTypeSet * _second.ParaTypeSet)=0" />
+</metric>
+<!-- end of class cohesion metrics -->
 
 
 <!-- class metrics -->

@@ -253,18 +253,18 @@ export default function GraphVisualization({
     const parentClassNames = new Set(jsonData_.parentClasses?.map(p => p.name) || []);
 
     // log the variables inuseMemo
-    console.log("entityToPackageMap:", entityToPackageMap);
-    console.log("allNodeData:", allNodeData);
-    console.log("parentClassNames:", parentClassNames);
+    // console.log("entityToPackageMap:", entityToPackageMap);
+    // console.log("allNodeData:", allNodeData);
+    // console.log("parentClassNames:", parentClassNames);
     
 
     // Function to determine classes for a node
     const getNodeClasses = (nodeData) => {
         const classes = [];
         // log the nodeData
-        console.log("nodeData:", nodeData);
+        // console.log("nodeData:", nodeData);
         //log classes
-        console.log("classes:", classes);
+        // console.log("classes:", classes);
         if (nodeData.type === 'package') {
             classes.push('package');
         } else if (nodeData.category === 'Class') {
@@ -285,7 +285,7 @@ export default function GraphVisualization({
     if (jsonData_.packages && Array.isArray(jsonData_.packages)) {
 
       //log the packages
-      console.log("jsonData.packages:", jsonData_.packages);
+      // console.log("jsonData.packages:", jsonData_.packages);
 
       jsonData_.packages.forEach(pkg => {
         if (pkg?.name) {
@@ -299,13 +299,13 @@ export default function GraphVisualization({
           if (allNodeData.has(pkg.name)) {
             console.warn(`Package ${pkg.name} already exists, skipping.`);
           } else {
-            console.log(`Adding package node: ${pkg.name}`);
+            // console.log(`Adding package node: ${pkg.name}`);
           }
           allNodeData.set(pkg.name, pkgData);
           //log the package data
-          console.log("pkgData:", pkgData);
+          // console.log("pkgData:", pkgData);
           // log allNodeData
-          console.log("allNodeData after adding package:", allNodeData);
+          // console.log("allNodeData after adding package:", allNodeData);
 
           // Process classes within package - Create Child Nodes
           if (pkg.classes && Array.isArray(pkg.classes)) {
@@ -324,9 +324,9 @@ export default function GraphVisualization({
                 allNodeData.set(cls.name, classData);
               }
               // log the class data
-              console.log("classData:", cls.name);
+              // console.log("classData:", cls.name);
               // log allNodeData after adding class
-              console.log("allNodeData after adding class:", allNodeData);
+              // console.log("allNodeData after adding class:", allNodeData);
             });
           }
 
@@ -346,9 +346,9 @@ export default function GraphVisualization({
                  allNodeData.set(intf.name, intfData);
               }
               // log the interface data
-              console.log("intfData:", intf.name);
+              // console.log("intfData:", intf.name);
               // log allNodeData after adding interface
-              console.log("allNodeData after adding interface:", allNodeData);
+              // console.log("allNodeData after adding interface:", allNodeData);
             });
           }
         }
@@ -400,44 +400,18 @@ export default function GraphVisualization({
                      };
                     allNodeData.set(parentInfo.name, parentData);
                      // log the parent data
-                    console.log("parentData:", parentInfo.name);
+                    // console.log("parentData:", parentInfo.name);
                     // log allNodeData after adding parent
-                    console.log("allNodeData after adding parent:", allNodeData);
+                    // console.log("allNodeData after adding parent:", allNodeData);
                 }
                 
             }
         });
     }
-
-    
-    // // 3. Add nodes that might only exist in matrices
-    // const matrixNodeNames = new Set();
-    // const processMatrixForNodeNames = (matrix) => {
-    //   if (matrix?.columns) matrix.columns.forEach(name => name && matrixNodeNames.add(name));
-    //   if (matrix?.rows) Object.keys(matrix.rows).forEach(name => name && matrixNodeNames.add(name));
-    // };
-    // processMatrixForNodeNames(matrices?.Class_Dependencies);
-    // processMatrixForNodeNames(matrices?.Class_Inheritance);
-    // processMatrixForNodeNames(matrices?.Interface_Realizations);
-    // // Add missing nodes found only in matrices
-    // matrixNodeNames.forEach(name => {
-    //      if (!allNodeData.has(name)) {
-    //          console.warn(`Node ${name} found only in matrices, adding without package info.`);
-    //          const missingData = {
-    //            id: name,
-    //            label: name,
-    //            category: "Class", // Assume Class
-    //            isAbstract: false,
-    //            isParent: false,
-    //           };
-    //           allNodeData.set(name, missingData);
-    //           entityToPackageMap.set(name, null);
-    //         }
-    //       });
           
           // 4. Convert node data Map to the final nodes array, adding classes
           result.nodes = Array.from(allNodeData.values()).map(nodeData => {
-            console.log("nodeData:", nodeData);
+            // console.log("nodeData:", nodeData);
             return {
               data: nodeData, // Keep all collected data
               classes: getNodeClasses(nodeData) // Assign classes for styling
@@ -513,7 +487,15 @@ export default function GraphVisualization({
               "width": "60px",
               "height": "60px",
               "font-size": "11px",
-              "text-max-width": "50px",
+              "text-wrap": "wrap",          // Explicitly enable text wrapping
+              "text-max-width": "50px",     // Max width before wrapping
+              "text-overflow-wrap": "anywhere", // Allow breaking long words
+              "display": "flex",            // Helps with text alignment
+              "align-items": "center",      // Vertically center text
+              "justify-content": "center",  // Horizontally center text
+              "padding": "5px",             // Add some padding
+              "text-valign": "center",      // Vertical alignment
+              "text-halign": "center"       // Horizontal alignment
             },
           },
            { // Style for Parent Classes (Triangle Shape) - Overrides .class styles
@@ -701,7 +683,10 @@ export default function GraphVisualization({
                'border-color': '#EAB308', // Darker yellow border
                'color': '#713F12', // Dark text on yellow
                'opacity': 1,
-               'z-index': 501
+               'z-index': 501,
+                'width': '60px', // Reset to default size
+                'height': '60px', // Reset to default size
+                'font-size': '12px', // Reset to default font size
              }
            },
           { // Ensure selected node/package remains fully visible even if dimmed
@@ -815,7 +800,6 @@ useEffect(() => {
       ...edges.map(edge => ({ group: 'edges', data: edge.data, classes: edge.classes }))
     ];
 
-    // console.log("Updating Cytoscape elements:", elementsToAdd);
 
     cyRef.current.batch(() => {
       cyRef.current.elements().remove(); // Clear existing elements
@@ -918,7 +902,7 @@ useEffect(() => {
     legendContainer.style.cssText = `
         position: absolute; bottom: 15px; left: 15px;
         background-color: rgba(255, 255, 255, 0.95); padding: 12px;
-        border: 1px solid #d1d5db; border-radius: 8px;
+        border: 1px solid #d1d5db;
         display: grid; grid-template-columns: repeat(2, auto); /* 2 columns */
         gap: 8px 18px; /* row-gap column-gap */
         font-size: 12px; z-index: 1000; max-width: 380px;

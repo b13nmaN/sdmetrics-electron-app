@@ -37,16 +37,39 @@ public class SDMetricFacade {
         METRICS_TO_INCLUDE.add("NumAssEl_ssc");
         METRICS_TO_INCLUDE.add("NumAssEl_sb");
         METRICS_TO_INCLUDE.add("NumAssEl_nsb");
-        METRICS_TO_INCLUDE.add("EC_Attr");
         METRICS_TO_INCLUDE.add("IC_Attr");
-        METRICS_TO_INCLUDE.add("EC_Par");
-        METRICS_TO_INCLUDE.add("IC_Par");
-        METRICS_TO_INCLUDE.add("Assoc");
+        METRICS_TO_INCLUDE.add("Assoc_Out");
+        METRICS_TO_INCLUDE.add("Assoc_In");
+
+        // Inheritance metrics
+        METRICS_TO_INCLUDE.add("IFImpl");
+        METRICS_TO_INCLUDE.add("NOC");
+        METRICS_TO_INCLUDE.add("DIT");
+        METRICS_TO_INCLUDE.add("CLD");
+        METRICS_TO_INCLUDE.add("OpsInh");
+        METRICS_TO_INCLUDE.add("AttrInh");
+
+        // Cohesion metrics
+        METRICS_TO_INCLUDE.add("CAMC");
+        METRICS_TO_INCLUDE.add("LCOM_Parametertypes");
+        METRICS_TO_INCLUDE.add("NHD");
+
+        // Size metrics
+        METRICS_TO_INCLUDE.add("TC_Attr");
+
+        // Package metrics
+        METRICS_TO_INCLUDE.add("R");
         METRICS_TO_INCLUDE.add("Ca");
         METRICS_TO_INCLUDE.add("Ce");
         METRICS_TO_INCLUDE.add("DepPack");
-        METRICS_TO_INCLUDE.add("Assoc_Out");
-        METRICS_TO_INCLUDE.add("Assoc_In");
+
+        // Interface metrics
+        METRICS_TO_INCLUDE.add("NumAnc");
+        METRICS_TO_INCLUDE.add("NumDesc");
+        METRICS_TO_INCLUDE.add("EC_Attr");
+        METRICS_TO_INCLUDE.add("EC_Par");
+        METRICS_TO_INCLUDE.add("IC_Par");
+        METRICS_TO_INCLUDE.add("Assoc");
     }
 
     public SDMetricFacade(String metaModelURL, String xmiTransURL, String metricsURL, int httpPort) throws Exception {

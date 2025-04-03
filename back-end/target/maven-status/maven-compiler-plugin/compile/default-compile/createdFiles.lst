@@ -90,7 +90,6 @@ com\sdmetrics\metrics\MetricEntry.class
 com\sdmetrics\metrics\RuleProcedureCycle.class
 com\sdmetrics\metrics\ExpressionOperations$DifferenceOperation.class
 com\sdmetrics\metrics\SetProcedureProjection.class
-com\sdmetrics\model\XMIContextStack.class
 com\sdmetrics\metrics\MatrixEngine.class
 com\sdmetrics\math\ExpressionNode.class
 com\sdmetrics\model\XMIReader$ProgressMessageHandler.class
@@ -152,7 +151,6 @@ com\sdmetrics\metrics\ExpressionOperations$NotOperator.class
 com\sdmetrics\metrics\SetProcedureCompare.class
 com\sdmetrics\metrics\MetricProcedureNesting.class
 com\sdmetrics\metrics\DescriptionLocator.class
-com\sdmetrics\model\XMITransformations$XMITranformationsParser.class
 com\sdmetrics\metrics\ExpressionOperations$InstanceOfFunction.class
 com\sdmetrics\metrics\SetOperation.class
 com\sdmetrics\metrics\ExpressionOperations$AndOperator.class

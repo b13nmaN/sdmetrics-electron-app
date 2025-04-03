@@ -1,4 +1,3 @@
-
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,11 +17,11 @@ export function RightPanel({
   setXmiContent,
   matrices,
   activeMatrixTab,
-  jsonData={jsonData} // Pass JSON data to RightPanel
+  jsonData
 }) {
   return (
-    <div className="w-4/5 flex flex-col">
-      <TabsContent value="visualizations" className="flex-1 m-0 relative">
+    <div className="w-4/5 flex flex-col overflow-hidden">
+      <TabsContent value="visualizations" className="flex-1 m-0 relative h-full">
         <div className="absolute top-4 right-4 flex space-x-2 z-10">
           <Button variant="outline" size="icon" onClick={handleZoomIn}>
             <ZoomIn className="h-4 w-4" />
@@ -40,10 +39,11 @@ export function RightPanel({
           onNodeSelect={onNodeSelect}
           perspective={perspective}
           zoomLevel={zoomLevel}
-          jsonData={jsonData} // Pass JSON data to RightPanel
+          jsonData={jsonData}
         />
       </TabsContent>
-      <TabsContent value="overview" className="flex-1 m-0 p-6">
+      
+      <TabsContent value="overview" className="flex-1 m-0 p-6 h-full overflow-auto">
         <Card>
           <CardHeader>
             <CardTitle>Project Overview</CardTitle>
@@ -62,10 +62,12 @@ export function RightPanel({
           </CardContent>
         </Card>
       </TabsContent>
-      <TabsContent value="metrics" className="flex-1 m-0 p-6">
+      
+      <TabsContent value="metrics" className="flex-1 m-0 p-6 h-full overflow-auto">
         <MetricsDisplay matrices={matrices} activeMatrixTab={activeMatrixTab} />
       </TabsContent>
-      <TabsContent value="editor" className="flex-1 m-0">
+      
+      <TabsContent value="editor" className="flex-1 m-0 h-full overflow-hidden">
         <XMIEditor xmiContent={xmiContent} filePath={filePath} setXmiContent={setXmiContent} />
       </TabsContent>
     </div>

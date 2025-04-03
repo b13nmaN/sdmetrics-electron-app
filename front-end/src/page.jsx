@@ -51,7 +51,7 @@ export default function Home() {
       // Set matrices data if available
       if (data.matrices) {
         setMatrices(data.matrices);
-        console.log("Loaded matrices:", data.matrices);
+        // console.log("Loaded matrices:", data.matrices);
         if (Object.keys(data.matrices).length > 0) {
           setActiveMatrixTab(Object.keys(data.matrices)[0]);
         }
@@ -66,7 +66,7 @@ export default function Home() {
       try {
         const parsedData = await apiService.getParsedXMI();
         setJsonData(parsedData);
-        // console.log("Loaded parsed XMI data:", parsedData);
+        console.log("Loaded parsed XMI data:", parsedData);
       } catch (jsonErr) {
         console.error("Error loading parsed XMI:", jsonErr);
       }

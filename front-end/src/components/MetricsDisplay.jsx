@@ -12,19 +12,17 @@ const MetricsDisplay = () => {
   const [matrices, setMatrices] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // const [activeMatrixTab, setActiveMatrixTab] = useState(null);
   const [viewMode, setViewMode] = useState("table");
 
   const fetchMetrics = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiService.getInitialData(); // Use getInitialData for consistency
+      const data = await apiService.getInitialData();
       console.log("Metrics data:", data.matrices);
       if (data.metrics) setMetrics(data.metrics);
       if (data.matrices) {
         setMatrices(data.matrices);
-        // if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
       }
     } catch (err) {
       setError(err.message);
@@ -43,7 +41,6 @@ const MetricsDisplay = () => {
       if (data.metrics) setMetrics(data.metrics);
       if (data.matrices) {
         setMatrices(data.matrices);
-        // if (Object.keys(data.matrices).length > 0) setActiveMatrixTab(Object.keys(data.matrices)[0]);
       }
     } catch (err) {
       setError(err.message);
@@ -61,24 +58,26 @@ const MetricsDisplay = () => {
   const hasMatrixData = Object.keys(matrices).length > 0;
 
   return (
-    <div className="flex flex-col space-y-6 h-full max-h-screen overflow-hidden">
-      <div className="flex justify-between items-center flex-shrink-0">
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center py-4">
         <h2 className="text-2xl font-bold">Software Metrics Analysis</h2>
         <Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2" disabled={loading}>
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh Metrics
         </Button>
       </div>
+      
       {error && (
-        <Alert variant="destructive" className="flex-shrink-0">
+        <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      {loading && <p className="text-muted-foreground flex-shrink-0">Loading metrics data...</p>}
       
-      <div className="flex-1 overflow-y-auto pb-6 space-y-6">
+      {loading && <p className="text-muted-foreground mb-4">Loading metrics data...</p>}
+      
+      <div className="space-y-6 overflow-auto">
         {!loading && !error && !hasMetricsData && (
           <Card>
             <CardContent className="pt-6">
@@ -90,8 +89,8 @@ const MetricsDisplay = () => {
         )}
         
         {hasMetricsData && (
-          <Card>
-            <CardHeader className="flex-shrink-0">
+          <Card className="mb-6">
+            <CardHeader>
               <CardTitle>Element Metrics</CardTitle>
               <CardDescription>Calculated metrics for each element in the model</CardDescription>
             </CardHeader>
@@ -125,7 +124,7 @@ const MetricsDisplay = () => {
         
         {hasMatrixData && (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Dependency Matrices</CardTitle>
                 <CardDescription>Relationship matrices between model elements</CardDescription>
@@ -152,7 +151,7 @@ const MetricsDisplay = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs>
+              <Tabs defaultValue={Object.keys(matrices)[0]}>
                 <TabsList className="mb-4">
                   {Object.keys(matrices).map((matrixName) => (
                     <TabsTrigger key={matrixName} value={matrixName}>

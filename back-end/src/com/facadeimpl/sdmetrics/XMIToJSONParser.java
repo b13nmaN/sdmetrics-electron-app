@@ -99,6 +99,8 @@ public class XMIToJSONParser {
         List<Map<String, Object>> parentClassesJson = extractParentClasses(model, metricStore, metricsEngine);
         rootJson.put("parentClasses", parentClassesJson);
         System.out.println("Line 102: Extracted parent classes: " + parentClassesJson.size() + " parent classes found.");
+
+        
         
         // Convert to JSON string
         System.out.println("Line 106: Converting model to JSON string...");
@@ -1116,8 +1118,12 @@ public class XMIToJSONParser {
         extractBasicMetricsForType(element, metricsEngine, metricStore, "IC_Attr", metricsJson);
         extractBasicMetricsForType(element, metricsEngine, metricStore, "EC_Par", metricsJson);
         extractBasicMetricsForType(element, metricsEngine, metricStore, "IC_Par", metricsJson);
-        extractBasicMetricsForType(element, metricsEngine, metricStore, "Connectors", metricsJson);
-        
+        // extractBasicMetricsForType(element, metricsEngine, metricStore, "Connectors", metricsJson);
+        // Cohesion metrics
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "CAMC", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "LCOM", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NHD", metricsJson);
+
         // Size metrics
         extractBasicMetricsForType(element, metricsEngine, metricStore, "TC_Attr", metricsJson);
         
