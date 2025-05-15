@@ -1,0 +1,309 @@
+// components/properties_panel.jsx
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+
+// Helper to get styling for metric badges
+const getMetricBadgeStyle = (metricName, value) => {
+  // Default style
+  let style = { label: "", className: "bg-gray-100 text-gray-700" };
+
+  if (metricName.toLowerCase() === "camc") {
+    if (value >= 0.75) style = { label: "High", className: "bg-green-100 text-green-700" };
+    else if (value >= 0.5) style = { label: "Moderate", className: "bg-yellow-100 text-yellow-700" }; 
+    else if (value >= 0.25) style = { label: "Low", className: "bg-orange-100 text-orange-700" };
+    else style = { label: "Very Low", className: "bg-red-100 text-red-700" };
+  } else if (metricName.toLowerCase() === "dep_out" || metricName.toLowerCase() === "dep-out") {
+    if (value <= 1) style = { label: "Good", className: "bg-green-100 text-green-700" }; 
+    else if (value <= 3) style = { label: "Okay", className: "bg-yellow-100 text-yellow-700" };
+    else if (value <= 5) style = { label: "Moderate", className: "bg-orange-100 text-orange-700" };
+    else style = { label: "High", className: "bg-red-100 text-red-700" };
+  }
+  return style;
+};
+
+const useNodeDetails = (nodeId, jsonData) => {
+  // console.log("useNodeDetails called with nodeId:", jsonData);
+  const [nodeDetails, setNodeDetails] = useState(null);
+
+  useEffect(() => {
+    if (!nodeId || !jsonData) {
+      setNodeDetails(null);
+      return;
+    }
+
+    const getNodeDetails = () => {
+      let details = {
+        id: nodeId,
+        label: nodeId,
+        category: '',
+        package: '',
+        metrics: {},
+        attributes: [],
+        methods: [],
+        isAbstract: false,
+        parents: [],
+        children: [],
+        implements: [],
+        realizedBy: [],
+        associations: [],
+        dependencies: [],
+      };
+
+      let foundNodeInfo = null;
+      let nodePackageName = '';
+      let nodeCategory = '';
+
+      // Search in jsonData.packages (primary source for classes and interfaces)
+      for (const pkg of jsonData.packages || []) {
+        const classInfo = pkg.classes?.find(c => c.name === nodeId);
+        if (classInfo) {
+          foundNodeInfo = classInfo;
+          nodePackageName = pkg.name;
+          nodeCategory = 'Class';
+          break;
+        }
+        const interfaceInfo = pkg.interfaces?.find(i => i.name === nodeId);
+        if (interfaceInfo) {
+          foundNodeInfo = interfaceInfo;
+          nodePackageName = pkg.name;
+          nodeCategory = 'Interface';
+          break;
+        }
+      }
+
+      // Fallback search in jsonData.parentClasses
+      if (!foundNodeInfo) {
+        const parentClassDef = jsonData.parentClasses?.find(p => p.name === nodeId);
+        if (parentClassDef) {
+          foundNodeInfo = { ...parentClassDef, metrics: parentClassDef.metrics || {} };
+          nodePackageName = parentClassDef.package || 'Unknown';
+          nodeCategory = 'Class';
+        }
+      }
+      
+      // Fallback search in jsonData.interfaces
+      if (!foundNodeInfo) {
+        const topLevelInterface = jsonData.interfaces?.find(i => i.name === nodeId);
+        if (topLevelInterface) {
+          foundNodeInfo = topLevelInterface;
+          nodePackageName = topLevelInterface.package || 'Unknown';
+          nodeCategory = 'Interface';
+        }
+      }
+
+      if (foundNodeInfo) {
+        details.metrics = foundNodeInfo.metrics || {};
+        details.attributes = foundNodeInfo.attributes || [];
+        details.methods = foundNodeInfo.methods || [];
+        details.isAbstract = foundNodeInfo.isAbstract || false;
+        if (nodeCategory === 'Interface') details.isAbstract = true;
+
+        if (nodeCategory === 'Class') {
+          if (foundNodeInfo.parents) details.parents.push(...foundNodeInfo.parents);
+          if (foundNodeInfo.implements) details.implements.push(...foundNodeInfo.implements);
+          
+          const parentEntryForChildren = jsonData.parentClasses?.find(p => p.name === nodeId);
+          if (parentEntryForChildren?.children) {
+            details.children.push(...parentEntryForChildren.children);
+          }
+        } else if (nodeCategory === 'Interface') {
+          if (foundNodeInfo.realizedBy) details.realizedBy.push(...foundNodeInfo.realizedBy);
+          if (foundNodeInfo.parents) details.parents.push(...foundNodeInfo.parents);
+        }
+      } else {
+        // Check if it's a package
+        const pkgData = jsonData.packages?.find(p => p.name === nodeId);
+        if (pkgData) {
+          nodeCategory = 'Package';
+          nodePackageName = nodeId;
+          details.metrics = pkgData.metrics || {};
+          if (pkgData.classes) details.children.push(...pkgData.classes.map(c => c.name));
+          if (pkgData.interfaces) details.children.push(...pkgData.interfaces.map(i => i.name));
+        } else {
+          nodeCategory = 'Unknown';
+          nodePackageName = 'Unknown';
+        }
+      }
+      
+      details.package = nodePackageName;
+      details.category = nodeCategory;
+
+      return details;
+    };
+
+    setNodeDetails(getNodeDetails());
+  }, [nodeId, jsonData]);
+
+  return nodeDetails;
+};
+
+export default function PropertiesPanel({ selectedNode, jsonData }) {
+  // console.log("PropertiesPanel called with selectedNode:", jsonData);
+  const nodeDetails = useNodeDetails(selectedNode?.id, jsonData);
+  // console.log("nodeDetails:", nodeDetails);
+
+  if (!selectedNode || !selectedNode.id) {
+    return (
+      <div className="p-4 h-full flex items-center justify-center">
+        <p className="text-muted-foreground text-center">Select a node to view its properties</p>
+      </div>
+    );
+  }
+
+  if (!nodeDetails) {
+    return (
+      <div className="p-4 h-full flex items-center justify-center">
+        <p className="text-muted-foreground text-center">Loading node details...</p>
+      </div>
+    );
+  }
+
+  // Get all available metrics from the node
+  const availableMetrics = Object.entries(nodeDetails.metrics || {})
+    .filter(([_, value]) => value !== undefined && value !== null)
+    .map(([key]) => ({
+      key,
+      displayName: key.replace(/_/g, '-') // Convert Dep_Out to Dep-out
+    }));
+
+  // Generate recommendations based on node metrics and properties
+  const generateRecommendations = () => {
+    const recommendations = [];
+    
+    // CAMC recommendation
+    if (nodeDetails.metrics.CAMC !== undefined && nodeDetails.metrics.CAMC < 0.7) {
+      recommendations.push({
+        type: "Cohesion",
+        text: `CAMC is low (${nodeDetails.metrics.CAMC.toFixed(2)}). Consider splitting this class to improve cohesion.`,
+        icon: <AlertCircle className="h-5 w-5 text-gray-600" />
+      });
+    }
+    
+    // Dep-out recommendation
+    if (nodeDetails.metrics.Dep_Out !== undefined && nodeDetails.metrics.Dep_Out > 5) {
+      recommendations.push({
+        type: "Coupling",
+        text: `High dependency out (${nodeDetails.metrics.Dep_Out}). Consider reducing dependencies on this class.`,
+        icon: <AlertCircle className="h-5 w-5 text-gray-600" />
+      });
+    }
+    
+    // Abstract class/interface recommendation
+    if (nodeDetails.isAbstract && nodeDetails.methods?.length === 0) {
+      recommendations.push({
+        type: "Design",
+        text: "Abstract class/interface with no methods. Consider adding abstract methods or converting to concrete class.",
+        icon: <AlertCircle className="h-5 w-5 text-gray-600" />
+      });
+    }
+    
+    return recommendations;
+  };
+
+  const recommendations = generateRecommendations();
+
+  return (
+    <div className="p-6 overflow-y-auto h-full bg-white rounded-lg">
+      {/* Header section */}
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-black">{nodeDetails.label}</h2>
+          <p className="text-gray-500 capitalize">
+            {nodeDetails.category.toLowerCase()}
+          </p>
+        </div>
+        {nodeDetails.package && (
+          <Badge className="bg-white text-black border border-gray-200 font-medium">
+            {nodeDetails.package}
+          </Badge>
+        )}
+      </div>
+
+      {/* Metrics section */}
+      {availableMetrics.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-medium mb-2">Metrics</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {availableMetrics.map(metricInfo => {
+              const metricValue = nodeDetails.metrics[metricInfo.key];
+              const badgeStyle = getMetricBadgeStyle(metricInfo.key, metricValue);
+              return (
+                <div key={metricInfo.key} className="p-3 border rounded-lg bg-white">
+                  <p className="text-sm text-gray-500">{metricInfo.displayName}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-lg font-medium text-black">
+                      {typeof metricValue === 'number' ? metricValue.toFixed(2) : String(metricValue)}
+                    </p>
+                    {badgeStyle.label && (
+                      <Badge className={`px-2 py-1 text-sm ${badgeStyle.className}`}>
+                        {badgeStyle.label}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Relationships section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-2">Relationships</h3>
+        <div className="space-y-2">
+          {nodeDetails.parents?.length > 0 && (
+            <div className="text-sm">
+              <span className="font-medium">Extends: </span>
+              {nodeDetails.parents.join(', ')}
+            </div>
+          )}
+          {nodeDetails.children?.length > 0 && (
+            <div className="text-sm">
+              <span className="font-medium">Extended by: </span>
+              {nodeDetails.children.join(', ')}
+            </div>
+          )}
+          {nodeDetails.implements?.length > 0 && (
+            <div className="text-sm">
+              <span className="font-medium">Implements: </span>
+              {nodeDetails.implements.join(', ')}
+            </div>
+          )}
+          {nodeDetails.realizedBy?.length > 0 && (
+            <div className="text-sm">
+              <span className="font-medium">Implemented by: </span>
+              {nodeDetails.realizedBy.join(', ')}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recommendations section */}
+      {recommendations.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-medium mb-2">Recommendations</h3>
+          <div className="space-y-3">
+            {recommendations.map((rec, index) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <div className="flex items-start">
+                  <div className="mr-3 flex-shrink-0 pt-0.5">{rec.icon}</div>
+                  <div>
+                    <p className="font-medium text-black">{rec.type}</p>
+                    <p className="text-gray-700">{rec.text}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Refactor button */}
+      <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+        <span className="mr-2">→</span> Refactor
+      </Button>
+    </div>
+  );
+}

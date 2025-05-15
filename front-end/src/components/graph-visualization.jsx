@@ -20,6 +20,9 @@ export default function GraphVisualization({
   const containerRef = useRef(null)
   const cyRef = useRef(null)
 
+  // console.log("jsonData:", jsonData);
+  // console.log("matrices:", matrices);
+
   // --- Helper Functions ---
   // REMOVED calculateNodeSize as sizing is now handled by CSS classes
 
@@ -241,7 +244,7 @@ export default function GraphVisualization({
   // --- useMemo for Processing Data ---
   const { nodes, edges } = useMemo(() => {
     const result = { nodes: [], edges: [] };
-    const jsonData_ = JSON.parse(jsonData);
+    // const jsonData = JSON.parse(jsonData);
     
     if (!jsonData) {
         console.warn("jsonData is missing, cannot build graph.");
@@ -250,7 +253,7 @@ export default function GraphVisualization({
 
     const entityToPackageMap = new Map();
     const allNodeData = new Map(); // Use a Map to easily add/update node info
-    const parentClassNames = new Set(jsonData_.parentClasses?.map(p => p.name) || []);
+    const parentClassNames = new Set(jsonData.parentClasses?.map(p => p.name) || []);
 
     // log the variables inuseMemo
     // console.log("entityToPackageMap:", entityToPackageMap);
@@ -282,12 +285,12 @@ export default function GraphVisualization({
     }
 
     // 1. Process Packages from JSON - Create Parent Nodes
-    if (jsonData_.packages && Array.isArray(jsonData_.packages)) {
+    if (jsonData.packages && Array.isArray(jsonData.packages)) {
 
       //log the packages
-      // console.log("jsonData.packages:", jsonData_.packages);
+      // console.log("jsonData.packages:", jsonData.packages);
 
-      jsonData_.packages.forEach(pkg => {
+      jsonData.packages.forEach(pkg => {
         if (pkg?.name) {
           // Add package node
           const pkgData = {
@@ -359,8 +362,8 @@ export default function GraphVisualization({
 
     // 2. Process Parent Classes from JSON again to ensure flags are set correctly
     // and potentially add parents if they weren't inside a package structure (edge case)
-    if (jsonData_.parentClasses && Array.isArray(jsonData_.parentClasses)) {
-      jsonData_.parentClasses.forEach(parentInfo => {
+    if (jsonData.parentClasses && Array.isArray(jsonData.parentClasses)) {
+      jsonData.parentClasses.forEach(parentInfo => {
             if (parentInfo?.name) {
                 if (allNodeData.has(parentInfo.name)) {
                     // Update existing node
@@ -727,16 +730,22 @@ export default function GraphVisualization({
       // --- Event Handlers (No change needed here) ---
       const handleTap = (evt) => {
           const target = evt.target;
+          
           const cy = cyRef.current;
 
           if (target === cy) {
               // Tap on background: Deselect all
               cy.elements().removeClass('highlighted').removeClass('unselected');
+              // console.log("Tapped on:", target);
               if (onNodeSelect) onNodeSelect(null);
           } else if (target.isNode()) {
               // Tap on a node
               const tappedNode = target;
+              // console.log("Tapped node:", tappedNode);
               const tappedNodeId = tappedNode.data('id'); // Access ID from data
+              // // log the tapped node ID
+              // access the matrics of a node
+              // console.log("node metrics:", tappedNode.data('metrics'));
 
               cy.elements().addClass('unselected'); // Dim everything
 

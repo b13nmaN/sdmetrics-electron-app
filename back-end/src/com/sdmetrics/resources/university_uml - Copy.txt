@@ -114,8 +114,7 @@
              <ownedAttribute xmi:type="uml:Property" xmi:id="_roomCap" name="capacity" visibility="private" type="_integer"/>
       </packagedElement>
 
-    <packagedElement xmi:type="uml:Association" xmi:id="_building_association" name="Contains" memberEnd="_building_rooms _room_building">
-        </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_building_association" name="Contains" memberEnd="_building_rooms _room_building"></packagedElement>
 
        <packagedElement xmi:type="uml:Property" xmi:id="_building_rooms" name="rooms" type="_room" association="_building_association" aggregation="composite" isNavigable="true">
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_bRoomsLower"/>
@@ -170,7 +169,7 @@
         </packagedElement>
 
        <packagedElement xmi:type="uml:Property" xmi:id="_guardClearance" name="clearance" type="_clearance" association="_guard_association">
-           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_clearLower"/>
+           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_clearLower" value="1"/>
            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_clearUpper" value="1"/>
         </packagedElement>
        <packagedElement xmi:type="uml:Property" xmi:id="_clearanceGuard" name="guard" type="_guard" association="_guard_association">

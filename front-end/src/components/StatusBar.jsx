@@ -57,27 +57,11 @@ export function StatusBar({ matrices, activeMatrixTab, metrics }) {
   const metricsDisplay = getMetricsDisplay();
 
   return (
-    <div className="border-t py-2 px-4 flex justify-between items-center bg-muted/20">
+    <div className="border-t py-1 px-4 flex justify-between items-center bg-muted/20">
       <div className="flex space-x-4">
         <span>Nodes: {nodeCount}</span>
         <Separator orientation="vertical" className="h-4 my-auto" />
-        <span>Edges: {edgeCount}</span>
-        
-        {activeMatrixTab && (
-          <>
-            <Separator orientation="vertical" className="h-4 my-auto" />
-            <span>Matrix: {activeMatrixTab.replace(/_/g, " ")}</span>
-          </>
-        )}
-        
-        {metricsDisplay && metricsDisplay.length > 0 && (
-          <>
-            <Separator orientation="vertical" className="h-4 my-auto" />
-            <div className="flex space-x-4">
-              {metricsDisplay}
-            </div>
-          </>
-        )}
+        <span>Edges: {edgeCount}</span> 
       </div>
       <TooltipProvider>
         <Tooltip>

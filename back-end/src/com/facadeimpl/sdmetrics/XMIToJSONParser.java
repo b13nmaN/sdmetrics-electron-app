@@ -1122,7 +1122,7 @@ public class XMIToJSONParser {
         // Cohesion metrics
         extractBasicMetricsForType(element, metricsEngine, metricStore, "CAMC", metricsJson);
         extractBasicMetricsForType(element, metricsEngine, metricStore, "LCOM", metricsJson);
-        extractBasicMetricsForType(element, metricsEngine, metricStore, "NHD", metricsJson);
+        extractBasicMetricsForType(element, metricsEngine, metricStore, "NHM", metricsJson);
 
         // Size metrics
         extractBasicMetricsForType(element, metricsEngine, metricStore, "TC_Attr", metricsJson);

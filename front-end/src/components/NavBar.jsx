@@ -39,7 +39,7 @@ export function NavBar() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="visualizations">Visualizations</TabsTrigger>
           <TabsTrigger value="metrics">Metrics</TabsTrigger>
-          <TabsTrigger value="editor">Editor</TabsTrigger>
+          {/* <TabsTrigger value="editor">Editor</TabsTrigger> */}
         </TabsList>
       </div>
     </div>

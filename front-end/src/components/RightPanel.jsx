@@ -20,8 +20,8 @@ export function RightPanel({
   jsonData
 }) {
   return (
-    <div className="w-4/5 flex flex-col overflow-hidden">
-      <TabsContent value="visualizations" className="flex-1 m-0 relative h-full">
+    <div className="w-4/5 flex flex-col overflow-y-hidden">
+      <TabsContent value="visualizations" className="flex-1 m-0 relative h-full overflow-y-hidden">
         <div className="absolute top-4 right-4 flex space-x-2 z-10">
           <Button variant="outline" size="icon" onClick={handleZoomIn}>
             <ZoomIn className="h-4 w-4" />

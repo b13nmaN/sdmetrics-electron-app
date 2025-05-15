@@ -24,7 +24,7 @@ export default function Home() {
   const [metrics, setMetrics] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [jsonData, setJsonData] = useState(null); // Add state for JSON data
+  const [jsonData, setJsonData] = useState(null);
 
   // Load initial data on mount
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function Home() {
       // Set matrices data if available
       if (data.matrices) {
         setMatrices(data.matrices);
-        
+        // console.log("Loaded matrices:", data.matrices);
         if (Object.keys(data.matrices).length > 0) {
           setActiveMatrixTab(Object.keys(data.matrices)[0]);
         }
@@ -59,30 +59,19 @@ export default function Home() {
       
       // Set metrics if available
       if (data.metrics) {
-        console.log("Metrics data:", data.metrics);
         setMetrics(data.metrics);
+        // console.log("Loaded metrics:", data.metrics);
       }
-      
+
       // Try to load XMI JSON data
       try {
         const parsedData = await apiService.getParsedXMI();
-        setJsonData(parsedData);
-        console.log("Loaded parsed XMI data:", parsedData);
+        const parsedData_ = JSON.parse(parsedData);
+        setJsonData(parsedData_);
       } catch (jsonErr) {
         console.error("Error loading parsed XMI:", jsonErr);
-        
-        // For development/demo: Use paste.txt data if API fails
-        try {
-          // This is a simplified example - in production, you would properly fetch this
-          // This assumes paste.txt content has been parsed into a JSON object
-          const pasteData = JSON.parse(document.getElementById('paste-data').textContent);
-          setJsonData(pasteData);
-          console.log("Using fallback paste.txt data:", pasteData);
-        } catch (fallbackErr) {
-          console.error("Error loading fallback data:", fallbackErr);
-        }
       }
-      
+
     } catch (err) {
       console.error("Error loading initial data:", err);
       setError("Failed to load initial data: " + err.message);
@@ -91,71 +80,196 @@ export default function Home() {
     }
   };
 
-  const handleNodeSelect = (nodeId) => {
-    // Find the node in our data
-    if (!matrices || !activeMatrixTab) {
-      setSelectedNode(null);
-      return;
-    }
-    
-    // If nodeId is null (deselect) or not found
+  const handleNodeSelect = (nodeId, jsonData) => {
+    console.log("jsonData", jsonData);
     if (!nodeId) {
       setSelectedNode(null);
       return;
     }
-    
-    // Create a node object with information from the matrices
-    const node = {
+    if (!jsonData || !matrices) {
+      console.warn("jsonData or matrices not loaded yet. Cannot select node.");
+      // Optionally, set a basic node object if you want to show just the ID
+      setSelectedNode({ id: nodeId, label: nodeId, category: 'Unknown', package: 'Unknown', metrics: {} });
+      return;
+    }
+
+    let nodeDetails = {
       id: nodeId,
       label: nodeId,
-      // Find relationships for this node
-      relationships: findNodeRelationships(nodeId),
+      category: '',
+      package: '',
+      metrics: {},
+      attributes: [],
+      methods: [],
+      isAbstract: false,
+      parents: [],
+      children: [],
+      implements: [], // Interfaces this class implements
+      realizedBy: [], // Classes that realize this interface
+      associations: [],
+      dependencies: [],
     };
-    
-    setSelectedNode(node);
-  };
 
-  // Helper function to find relationships for a node from all matrices
-  const findNodeRelationships = (nodeId) => {
-    if (!matrices) return [];
+    let foundNodeInfo = null;
+    let nodePackageName = '';
+    let nodeCategory = '';
+
+    // 1. Search in jsonData.packages (primary source for classes and interfaces)
+    for (const pkg of jsonData.packages || []) {
+      const classInfo = pkg.classes?.find(c => c.name === nodeId);
+      if (classInfo) {
+        foundNodeInfo = classInfo;
+        nodePackageName = pkg.name;
+        nodeCategory = 'Class';
+        break;
+      }
+      const interfaceInfo = pkg.interfaces?.find(i => i.name === nodeId);
+      if (interfaceInfo) {
+        foundNodeInfo = interfaceInfo;
+        nodePackageName = pkg.name;
+        nodeCategory = 'Interface';
+        break;
+      }
+    }
+
+    // 2. Fallback search in jsonData.parentClasses (if not found in packages)
+    if (!foundNodeInfo) {
+      const parentClassDef = jsonData.parentClasses?.find(p => p.name === nodeId);
+      if (parentClassDef) {
+        // This entry might have different structure for metrics/attributes than package entry.
+        // Prioritize package entry if available.
+        foundNodeInfo = { ...parentClassDef, metrics: parentClassDef.metrics || {} }; 
+        nodePackageName = parentClassDef.package || 'Unknown';
+        nodeCategory = 'Class';
+      }
+    }
     
-    const relationships = [];
+    // 3. Fallback search in jsonData.interfaces (top-level, if applicable)
+    if (!foundNodeInfo) {
+        const topLevelInterface = jsonData.interfaces?.find(i => i.name === nodeId);
+        if (topLevelInterface) {
+            foundNodeInfo = topLevelInterface;
+            nodePackageName = topLevelInterface.package || 'Unknown';
+            nodeCategory = 'Interface';
+        }
+    }
+
+
+    if (foundNodeInfo) {
+      nodeDetails.metrics = foundNodeInfo.metrics || {};
+      nodeDetails.attributes = foundNodeInfo.attributes || [];
+      nodeDetails.methods = foundNodeInfo.methods || [];
+      nodeDetails.isAbstract = foundNodeInfo.isAbstract || false; // isAbstract from class/interface definition
+      if (nodeCategory === 'Interface') nodeDetails.isAbstract = true; // Interfaces are implicitly abstract
+
+      // Specific handling for Class
+      if (nodeCategory === 'Class') {
+        if (foundNodeInfo.parents) nodeDetails.parents.push(...foundNodeInfo.parents);
+        if (foundNodeInfo.implements) nodeDetails.implements.push(...foundNodeInfo.implements);
+        
+        // Children from jsonData.parentClasses (where current node is the parent)
+        const parentEntryForChildren = jsonData.parentClasses?.find(p => p.name === nodeId);
+        if (parentEntryForChildren && parentEntryForChildren.children) {
+          nodeDetails.children.push(...parentEntryForChildren.children);
+        }
+      }
+      // Specific handling for Interface
+      else if (nodeCategory === 'Interface') {
+        if (foundNodeInfo.realizedBy) nodeDetails.realizedBy.push(...foundNodeInfo.realizedBy);
+        // Interfaces can extend other interfaces (parents)
+        if (foundNodeInfo.parents) nodeDetails.parents.push(...foundNodeInfo.parents);
+      }
+    } else {
+      // Could be a package node itself
+      const pkgData = jsonData.packages?.find(p => p.name === nodeId);
+      if (pkgData) {
+          nodeCategory = 'Package';
+          nodePackageName = nodeId; // Package name is its own name
+          nodeDetails.metrics = pkgData.metrics || {};
+          // For packages, "children" could list classes/interfaces within it
+          if (pkgData.classes) nodeDetails.children.push(...pkgData.classes.map(c => c.name));
+          if (pkgData.interfaces) nodeDetails.children.push(...pkgData.interfaces.map(i => i.name));
+      } else {
+          console.warn(`Node ${nodeId} has no detailed info in jsonData.`);
+          nodeCategory = 'Unknown';
+          nodePackageName = 'Unknown';
+      }
+    }
     
-    // Check each matrix for relationships involving this node
-    Object.entries(matrices).forEach(([matrixName, matrix]) => {
-      // Check if node is a source (row)
-      if (matrix.rows[nodeId]) {
-        matrix.rows[nodeId].forEach((value, colIndex) => {
-          if (value > 0) {
-            const targetName = matrix.columns[colIndex];
-            relationships.push({
-              type: matrixName.replace(/_/g, " "),
-              direction: "outgoing",
-              target: targetName,
-              value
+    nodeDetails.package = nodePackageName;
+    nodeDetails.category = nodeCategory;
+
+
+    // Populate relationships from matrices
+    // Inheritance (parents from matrix - Child is Row, Parent is Column)
+    if (matrices.Class_Inheritance && matrices.Class_Inheritance.rows[nodeId] && nodeCategory === 'Class') {
+      matrices.Class_Inheritance.rows[nodeId].forEach((val, idx) => {
+        if (val === 1) {
+          const parentName = matrices.Class_Inheritance.columns[idx];
+          if (!nodeDetails.parents.includes(parentName)) nodeDetails.parents.push(parentName);
+        }
+      });
+    }
+    // Inheritance (children from matrix - Parent is Row, Child is Column)
+    if (matrices.Class_Inheritance && matrices.Class_Inheritance.columns.includes(nodeId) && nodeCategory === 'Class') {
+        const parentColIdx = matrices.Class_Inheritance.columns.indexOf(nodeId);
+        Object.entries(matrices.Class_Inheritance.rows).forEach(([childName, inheritFlags]) => {
+            if (inheritFlags[parentColIdx] === 1 && !nodeDetails.children.includes(childName)) {
+                nodeDetails.children.push(childName);
+            }
+        });
+    }
+
+
+    // Implementations (if class, interfaces it implements from matrix - Interface is Row, Class is Column)
+    if (matrices.Interface_Realizations && nodeCategory === 'Class') {
+        const classColIndex = matrices.Interface_Realizations.columns.indexOf(nodeId);
+        if (classColIndex !== -1) {
+            Object.entries(matrices.Interface_Realizations.rows).forEach(([interfaceName, realizations]) => {
+                if (realizations[classColIndex] === 1 && !nodeDetails.implements.includes(interfaceName)) {
+                    nodeDetails.implements.push(interfaceName);
+                }
             });
+        }
+    }
+    // Realizations (if interface, classes that realize it from matrix - Interface is Row, Class is Column)
+    if (matrices.Interface_Realizations && matrices.Interface_Realizations.rows[nodeId] && nodeCategory === 'Interface') {
+        matrices.Interface_Realizations.rows[nodeId].forEach((val, idx) => {
+            if (val === 1) {
+                const className = matrices.Interface_Realizations.columns[idx];
+                if (!nodeDetails.realizedBy.includes(className)) nodeDetails.realizedBy.push(className);
+            }
+        });
+    }
+    
+
+    // Associations and Dependencies from Class_Dependencies matrix
+    if (matrices.Class_Dependencies) {
+      // Outgoing
+      if (matrices.Class_Dependencies.rows[nodeId]) {
+        matrices.Class_Dependencies.rows[nodeId].forEach((value, colIndex) => {
+          if (value > 0) {
+            const targetClass = matrices.Class_Dependencies.columns[colIndex];
+            if (targetClass !== nodeId) {
+              if (value === 1) nodeDetails.associations.push({ target: targetClass, type: 'association', direction: 'outgoing' });
+              else nodeDetails.dependencies.push({ target: targetClass, type: 'dependency', weight: value, direction: 'outgoing' });
+            }
           }
         });
       }
-      
-      // Check if node is a target (column)
-      const colIndex = matrix.columns.indexOf(nodeId);
-      if (colIndex >= 0) {
-        Object.entries(matrix.rows).forEach(([rowName, rowValues]) => {
-          const value = rowValues[colIndex];
-          if (value > 0) {
-            relationships.push({
-              type: matrixName.replace(/_/g, " "),
-              direction: "incoming",
-              source: rowName,
-              value
-            });
+      // Incoming
+      const colIdx = matrices.Class_Dependencies.columns.indexOf(nodeId);
+      if (colIdx !== -1) {
+        Object.entries(matrices.Class_Dependencies.rows).forEach(([sourceClass, relations]) => {
+          const value = relations[colIdx];
+          if (value > 0 && sourceClass !== nodeId) {
+            if (value === 1) nodeDetails.associations.push({ source: sourceClass, type: 'association', direction: 'incoming' });
+            else nodeDetails.dependencies.push({ source: sourceClass, type: 'dependency', weight: value, direction: 'incoming' });
           }
         });
       }
-    });
-    
-    return relationships;
+    }
+    setSelectedNode(nodeDetails);
   };
 
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.1, 2));
@@ -185,14 +299,6 @@ export default function Home() {
       
       if (processResult.metrics) {
         setMetrics(processResult.metrics);
-      }
-      
-      // Try to get updated JSON data
-      try {
-        const newJsonData = await apiService.getParsedXMI();
-        setJsonData(newJsonData);
-      } catch (jsonErr) {
-        console.error("Error updating JSON data:", jsonErr);
       }
     } catch (err) {
       console.error("Error opening file:", err);
@@ -290,22 +396,6 @@ export default function Home() {
           {isLoading && <p className="text-blue-500 text-sm ml-2">Loading...</p>}
           {filePath && <p className="text-gray-500 text-sm ml-2 truncate max-w-md">{filePath}</p>}
           
-          {matrices && (
-            <div className="ml-4 flex items-center gap-2">
-              <span className="text-sm text-gray-500">Matrix:</span>
-              <select 
-                value={activeMatrixTab}
-                onChange={(e) => handleMatrixTabChange(e.target.value)}
-                className="text-sm border rounded p-1"
-              >
-                {Object.keys(matrices).map((matrixName) => (
-                  <option key={matrixName} value={matrixName}>
-                    {matrixName.replace(/_/g, " ")}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
         </div>
         
         <div className="flex-1 flex overflow-hidden">
@@ -317,6 +407,7 @@ export default function Home() {
             perspective={perspective}
             setPerspective={setPerspective}
             selectedNode={selectedNode}
+            onNodeSelect={handleNodeSelect}
             matrices={matrices}
             activeMatrixTab={activeMatrixTab}
             jsonData={jsonData} // Pass JSON data to LeftPanel

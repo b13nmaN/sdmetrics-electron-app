@@ -45,7 +45,7 @@ public class XMIToJSONHandler implements HttpHandler {
             // Parse XMI to JSON
             System.out.println("Parsing XMI to JSON...");
             String jsonOutput = jsonParser.parseToJson(xmiContent, fileName);
-            // System.out.println("Sending JSON response: " + jsonOutput);
+            System.out.println("Sending JSON response: " + jsonOutput);
             
             // Send JSON response
             ResponseUtils.sendJsonResponse(exchange,200, jsonOutput);
