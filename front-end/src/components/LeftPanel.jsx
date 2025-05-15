@@ -168,7 +168,7 @@ export function LeftPanel({
   };
 
   return (
-    <ScrollArea className="w-1/4 border-r bg-white flex flex-col">
+    <ScrollArea className="w-1/4 border-r bg-white flex flex-col ">
       <div className="p-4 border-b">
         {/* <div className="flex items-center space-x-2 mb-4">
           <Input

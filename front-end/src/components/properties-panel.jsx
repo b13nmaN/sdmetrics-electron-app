@@ -207,22 +207,11 @@ const getAllNodes = (jsonData) => {
 
 export default function PropertiesPanel({ selectedNode, jsonData, viewAllNodes = false }) {
   const nodeDetails = useNodeDetails(selectedNode?.id, jsonData);
-  const [nodesMetricsVisibility, setNodesMetricsVisibility] = useState({});
+  const [showAllMetrics, setShowAllMetrics] = useState(false);
   const [allNodes, setAllNodes] = useState([]);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notesContent, setNotesContent] = useState('');
   
-  // Helper function to toggle metrics visibility for a specific node
-  const toggleMetricsVisibility = (nodeId) => {
-    setNodesMetricsVisibility(prev => ({
-      ...prev,
-      [nodeId]: !prev[nodeId]
-    }));
-  };
-
-  // Get visibility state for current node
-  const showMetricsForCurrentNode = nodesMetricsVisibility[selectedNode?.id] || false;
-
   // Load all nodes when viewing all nodes mode is active
   useEffect(() => {
     if (viewAllNodes) {
@@ -245,28 +234,27 @@ export default function PropertiesPanel({ selectedNode, jsonData, viewAllNodes =
     // Render all nodes view
     return (
       <ScrollArea className="h-full">
-        <div className="p-6 overflow-y-auto">
-          <h2 className="text-2xl font-bold mb-6">All Nodes ({allNodes.length})</h2>
+        <div className="p-4 overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">All Nodes ({allNodes.length})</h2>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             {allNodes.map(node => (
-              <div key={node.id} className="border rounded-lg p-4 bg-white ">
-                <div className="flex justify-between items-start mb-3 overflow-y-auto" >
-                  <div>
-                    <h3 className="text-lg font-bold">{node.label}</h3>
-                    <p className="text-gray-500 capitalize">{node.category.toLowerCase()}</p>
+              <div key={node.id} className="border rounded-lg p-3 bg-white">
+                <div className="flex flex-wrap justify-between items-start mb-2">
+                  <div className="min-w-0 flex-grow">
+                    <h3 className="text-lg font-bold truncate">{node.label}</h3>
+                    <p className="text-gray-500 capitalize text-sm">{node.category.toLowerCase()}</p>
                   </div>
                   {node.package && (
-                    <Badge className="bg-white text-black border border-gray-200 font-medium">
+                    <Badge className="bg-white text-black border border-gray-200 font-medium ml-2 mt-1">
                       {node.package}
                     </Badge>
                   )}
                 </div>
                 
-                {/* We'd show the node details here - simplified for brevity */}
                 <div className="flex items-center space-x-2 text-gray-600 mt-2">
-                  <Link2 className="h-4 w-4" />
-                  <span className="text-sm">View details and relationships</span>
+                  <Link2 className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-sm truncate">View details and relationships</span>
                 </div>
               </div>
             ))}
@@ -358,42 +346,40 @@ export default function PropertiesPanel({ selectedNode, jsonData, viewAllNodes =
                           nodeDetails.dependencies?.length > 0;
 
   return (
-    <>
-      <div className="p-6 pb-24 bg-white rounded-lg"> {/* Added pb-24 to ensure spacing for status bar */}
-        {/* Header section */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-black">{nodeDetails.label}</h2>
-            <p className="text-gray-500 capitalize">
+    <ScrollArea className="h-full">
+      <div className="p-4 pb-16 bg-white min-w-0"> {/* Removed rounded-lg to allow full container width */}
+        {/* Header section - made more responsive with flex-wrap */}
+        <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
+          <div className="min-w-0 flex-grow">
+            <h2 className="text-xl font-bold text-black truncate">{nodeDetails.label}</h2>
+            <p className="text-gray-500 capitalize text-sm">
               {nodeDetails.category.toLowerCase()}
             </p>
           </div>
           {nodeDetails.package && (
-            <Badge className="bg-white text-black border border-gray-200 font-medium">
+            <Badge className="bg-white text-black border border-gray-200 font-medium flex-shrink-0">
               {nodeDetails.package}
             </Badge>
           )}
         </div>
 
-        {/* Metrics section */}
-        {(primaryMetrics.length > 0 || (showMetricsForCurrentNode && additionalMetrics.length > 0)) && (
-          <div className="mb-6">
-            <h3 className="text-lg font-medium mb-2">Metrics</h3>
-            <div className="grid grid-cols-2 gap-3">
+        {/* Metrics section - adjusted grid to be responsive */}
+        {(primaryMetrics.length > 0 || (showAllMetrics && additionalMetrics.length > 0)) && (
+          <div className="mb-4">
+            <h3 className="text-base font-medium mb-2">Metrics</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {primaryMetrics.map(metricInfo => {
-                const metricValue = metricInfo.key === 'Dep_Out' 
-                  ? normalizeDepOut(nodeDetails.metrics[metricInfo.key])
-                  : nodeDetails.metrics[metricInfo.key];
-                const badgeStyle = getMetricBadgeStyle(metricInfo.key, nodeDetails.metrics[metricInfo.key]);
+                const metricValue = nodeDetails.metrics[metricInfo.key];
+                const badgeStyle = getMetricBadgeStyle(metricInfo.key, metricValue);
                 return (
-                  <div key={metricInfo.key} className="p-3 border rounded-lg bg-white">
+                  <div key={metricInfo.key} className="p-2 border rounded-lg bg-white">
                     <p className="text-sm text-gray-500">{metricInfo.displayName}</p>
                     <div className="flex items-center justify-between mt-1">
-                      <p className="text-lg font-medium text-black">
+                      <p className="text-base font-medium text-black">
                         {typeof metricValue === 'number' ? metricValue.toFixed(2) : String(metricValue)}
                       </p>
                       {badgeStyle.label && (
-                        <Badge className={`px-2 py-1 text-sm ${badgeStyle.className}`}>
+                        <Badge className={`px-2 py-0.5 text-xs ${badgeStyle.className}`}>
                           {badgeStyle.label}
                         </Badge>
                       )}
@@ -401,20 +387,18 @@ export default function PropertiesPanel({ selectedNode, jsonData, viewAllNodes =
                   </div>
                 );
               })}
-              {showMetricsForCurrentNode && additionalMetrics.map(metricInfo => {
-                const metricValue = metricInfo.key === 'Dep_Out' 
-                  ? normalizeDepOut(nodeDetails.metrics[metricInfo.key])
-                  : nodeDetails.metrics[metricInfo.key];
-                const badgeStyle = getMetricBadgeStyle(metricInfo.key, nodeDetails.metrics[metricInfo.key]);
+              {showAllMetrics && additionalMetrics.map(metricInfo => {
+                const metricValue = nodeDetails.metrics[metricInfo.key];
+                const badgeStyle = getMetricBadgeStyle(metricInfo.key, metricValue);
                 return (
-                  <div key={metricInfo.key} className="p-3 border rounded-lg bg-white">
+                  <div key={metricInfo.key} className="p-2 border rounded-lg bg-white">
                     <p className="text-sm text-gray-500">{metricInfo.displayName}</p>
                     <div className="flex items-center justify-between mt-1">
-                      <p className="text-lg font-medium text-black">
+                      <p className="text-base font-medium text-black">
                         {typeof metricValue === 'number' ? metricValue.toFixed(2) : String(metricValue)}
                       </p>
                       {badgeStyle.label && (
-                        <Badge className={`px-2 py-1 text-sm ${badgeStyle.className}`}>
+                        <Badge className={`px-2 py-0.5 text-xs ${badgeStyle.className}`}>
                           {badgeStyle.label}
                         </Badge>
                       )}
@@ -426,28 +410,27 @@ export default function PropertiesPanel({ selectedNode, jsonData, viewAllNodes =
             {additionalMetrics.length > 0 && (
               <Button
                 variant="link"
-                className="mt-3 text-gray-600 hover:text-gray-900"
-                onClick={() => toggleMetricsVisibility(selectedNode.id)}
+                className="mt-2 text-gray-600 hover:text-gray-900 p-0 h-auto"
+                onClick={() => setShowAllMetrics(!showAllMetrics)}
               >
-                {showMetricsForCurrentNode ? 'Hide Additional Metrics' : 'Show All Metrics'}
+                {showAllMetrics ? 'Hide Additional Metrics' : 'Show All Metrics'}
               </Button>
             )}
           </div>
         )}
 
-        {/* Relationships section */}
-        {/* Recommendations section */}
+        {/* Recommendations section - improved for small screens */}
         {recommendations.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-medium mb-2">Recommendations</h3>
-            <div className="space-y-3">
+          <div className="mb-4">
+            <h3 className="text-base font-medium mb-2">Recommendations</h3>
+            <div className="space-y-2">
               {recommendations.map((rec, index) => (
-                <div key={index} className="p-4 border rounded-lg">
+                <div key={index} className="p-3 border rounded-lg">
                   <div className="flex items-start">
-                    <div className="mr-3 flex-shrink-0 pt-0.5">{rec.icon}</div>
-                    <div>
+                    <div className="mr-2 flex-shrink-0 pt-0.5">{rec.icon}</div>
+                    <div className="min-w-0">
                       <p className="font-medium text-black">{rec.type}</p>
-                      <p className="text-gray-700">{rec.text}</p>
+                      <p className="text-gray-700 text-sm">{rec.text}</p>
                     </div>
                   </div>
                 </div>
@@ -456,11 +439,13 @@ export default function PropertiesPanel({ selectedNode, jsonData, viewAllNodes =
           </div>
         )}
 
-        {/* Refactor button */}
-        <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
-          <span className="mr-2">→</span> Refactor
-        </Button>
+        {/* Refactor button - always visible at bottom */}
+        <div className="mt-4">
+          <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+            <span className="mr-2">→</span> Refactor
+          </Button>
+        </div>
       </div>
-    </>
+    </ScrollArea>
   );
 }
