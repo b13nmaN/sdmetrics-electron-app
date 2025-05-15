@@ -25,7 +25,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [jsonData, setJsonData] = useState(null);
-  console.log("jsonData fro page.jsx line: 30", jsonData);
+  // console.log("jsonData fro page.jsx line: 30", jsonData);
+  console.log("Metrics from page.jsx line: 31", metrics);
+
 
   // Load initial data on mount
   useEffect(() => {
@@ -424,6 +426,7 @@ export default function Home() {
             matrices={matrices}
             activeMatrixTab={activeMatrixTab}
             jsonData={jsonData} // Pass JSON data to RightPanel
+            
           />
         </div>
       </Tabs>

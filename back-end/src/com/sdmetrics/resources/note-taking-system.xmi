@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML">
+<uml:Model xmi:id="_noteTakingSystem" name="NoteTakingSystem">
+
+  <!-- Primitive Types Package -->
+  <packagedElement xmi:type="uml:Package" xmi:id="_primitiveTypesPackage" name="PrimitiveTypes">
+    <packagedElement xmi:type="uml:DataType" xmi:id="_string" name="String"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_integer" name="Integer"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_boolean" name="Boolean"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_dateTime" name="DateTime"/>
+    <packagedElement xmi:type="uml:DataType" xmi:id="_list" name="List"/> <!-- Generic List placeholder -->
+    <packagedElement xmi:type="uml:DataType" xmi:id="_any" name="Any"/> <!-- For settings value -->
+  </packagedElement>
+
+  <!-- Core/Domain Package -->
+  <packagedElement xmi:type="uml:Package" xmi:id="_coreDomainPackage" name="CoreDomain">
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractUser" name="AbstractUser" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractUser_userId" name="userId" visibility="protected" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractUser_username" name="username" visibility="protected" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractUser_getProfile" name="getProfile" visibility="public" isQuery="true"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_standardUser" name="StandardUser">
+      <generalization xmi:type="uml:Generalization" xmi:id="_standardUser_inherits_abstractUser" general="_abstractUser"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractNote" name="AbstractNote" isAbstract="true">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractNote_noteId" name="noteId" visibility="protected" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractNote_title" name="title" visibility="public" type="_string"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractNote_creationDate" name="creationDate" visibility="public" type="_dateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractNote_lastModifiedDate" name="lastModifiedDate" visibility="public" type="_dateTime"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractNote_getContent" name="getContent" visibility="public" isQuery="true"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractNote_setContent" name="setContent" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_abstractNote_setContent_param_content" name="content" type="_any" direction="in"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_textNote" name="TextNote">
+      <generalization xmi:type="uml:Generalization" xmi:id="_textNote_inherits_abstractNote" general="_abstractNote"/>
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_textNote_realizes_iSearchable" contract="_iSearchable" implementingClassifier="_textNote"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_textNote_textContent" name="textContent" visibility="private" type="_string"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_textNote_getIndexableContent" name="getIndexableContent" visibility="public" isQuery="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_textNote_getIndexableContent_return" type="_string" direction="return"/>
+      </ownedOperation>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractNotebook" name="AbstractNotebook" isAbstract="true">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractNotebook_notebookId" name="notebookId" visibility="protected" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractNotebook_name" name="name" visibility="public" type="_string"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_defaultNotebook" name="DefaultNotebook">
+        <generalization xmi:type="uml:Generalization" xmi:id="_defaultNotebook_inherits_abstractNotebook" general="_abstractNotebook"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractTag" name="AbstractTag" isAbstract="true">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractTag_tagId" name="tagId" visibility="protected" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_abstractTag_name" name="name" visibility="public" type="_string"/>
+    </packagedElement>
+     <packagedElement xmi:type="uml:Class" xmi:id="_userTag" name="UserTag">
+        <generalization xmi:type="uml:Generalization" xmi:id="_userTag_inherits_abstractTag" general="_abstractTag"/>
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_checklistItem" name="ChecklistItem">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_checklistItem_text" name="text" visibility="public" type="_string"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_checklistItem_isChecked" name="isChecked" visibility="public" type="_boolean"/>
+    </packagedElement>
+
+     <packagedElement xmi:type="uml:Class" xmi:id="_checklistNote" name="ChecklistNote">
+      <generalization xmi:type="uml:Generalization" xmi:id="_checklistNote_inherits_abstractNote" general="_abstractNote"/>
+      <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_checklistNote_realizes_iSearchable" contract="_iSearchable" implementingClassifier="_checklistNote"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_checklistNote_items" name="items" visibility="private" type="_list"> <!-- Assume _list can hold _checklistItem -->
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_checklistNote_items_lower" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_checklistNote_items_upper" value="*"/>
+      </ownedAttribute>
+    </packagedElement>
+
+    <!-- ... other classes in CoreDomain ... -->
+  </packagedElement>
+
+  <!-- Storage/Persistence Package -->
+  <packagedElement xmi:type="uml:Package" xmi:id="_storagePersistencePackage" name="StoragePersistence">
+    <packagedElement xmi:type="uml:Interface" xmi:id="_iNoteRepository" name="INoteRepository">
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_iNoteRepository_findById" name="findById" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_iNoteRepository_findById_param_noteId" name="noteId" type="_string" direction="in"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_iNoteRepository_findById_return" type="_abstractNote" direction="return"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_iNoteRepository_save" name="save" visibility="public">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_iNoteRepository_save_param_note" name="note" type="_abstractNote" direction="in"/>
+      </ownedOperation>
+      <!-- ... other operations ... -->
+    </packagedElement>
+
+    <packagedElement xmi:type="uml:Class" xmi:id="_databaseStorageAdapter" name="DatabaseStorageAdapter">
+      <generalization xmi:type="uml:Generalization" xmi:id="_dbAdapter_inherits_abstractAdapter" general="_abstractStorageAdapter"/> <!-- Assuming _abstractStorageAdapter is defined -->
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_databaseStorageAdapter_connStr" name="connectionString" visibility="private" type="_string"/>
+    </packagedElement>
+    <!-- ... other classes and interfaces in StoragePersistence ... -->
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractStorageAdapter" name="AbstractStorageAdapter" isAbstract="true">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractStorageAdapter_connect" name="connect" visibility="public"/>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractStorageAdapter_disconnect" name="disconnect" visibility="public"/>
+    </packagedElement>
+  </packagedElement>
+
+  <!-- Search/Indexing Package (for ISearchable) -->
+  <packagedElement xmi:type="uml:Package" xmi:id="_searchIndexingPackage" name="SearchIndexing">
+    <packagedElement xmi:type="uml:Interface" xmi:id="_iSearchable" name="ISearchable">
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_iSearchable_getIndexableContent" name="getIndexableContent" visibility="public" isQuery="true">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_iSearchable_getIndexableContent_return" type="_string" direction="return"/>
+      </ownedOperation>
+    </packagedElement>
+    <!-- ... other elements ... -->
+  </packagedElement>
+
+  <!-- Synchronization Package -->
+  <packagedElement xmi:type="uml:Package" xmi:id="_synchronizationPackage" name="Synchronization">
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractSyncService" name="AbstractSyncService" isAbstract="true">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractSyncService_sync" name="sync" visibility="public"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_cloudSyncService" name="CloudSyncService">
+        <generalization xmi:type="uml:Generalization" xmi:id="_cloudSync_inherits_abstractSync" general="_abstractSyncService"/>
+        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cloudSync_realizes_iSyncConflictHandler" contract="_iSyncConflictHandler" implementingClassifier="_cloudSyncService"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_cloudSyncService_apiUrl" name="apiUrl" visibility="private" type="_string"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_iSyncConflictHandler" name="ISyncConflictHandler">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_iSyncConflictHandler_handleConflict" name="handleConflict" visibility="public"/>
+    </packagedElement>
+    <!-- ... other elements ... -->
+  </packagedElement>
+
+  <!-- User Interface Package -->
+  <packagedElement xmi:type="uml:Package" xmi:id="_uiPackage" name="UserInterface">
+    <packagedElement xmi:type="uml:Interface" xmi:id="_iTextFormatter" name="ITextFormatter">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_iTextFormatter_formatBold" name="formatBold" visibility="public"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_iUndoRedoManager" name="IUndoRedoManager">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_iUndoRedoManager_undo" name="undo" visibility="public"/>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_iUndoRedoManager_redo" name="redo" visibility="public"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_abstractEditor" name="AbstractEditor" isAbstract="true">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_abstractEditor_open" name="open" visibility="public"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_richTextEditor" name="RichTextEditor">
+        <generalization xmi:type="uml:Generalization" xmi:id="_richTextEditor_inherits_abstractEditor" general="_abstractEditor"/>
+        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_richTextEditor_realizes_iNoteEditor" contract="_iNoteEditor" implementingClassifier="_richTextEditor"/>
+        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_richTextEditor_realizes_iTextFormatter" contract="_iTextFormatter" implementingClassifier="_richTextEditor"/>
+        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_richTextEditor_realizes_iUndoRedoManager" contract="_iUndoRedoManager" implementingClassifier="_richTextEditor"/>
+    </packagedElement>
+     <packagedElement xmi:type="uml:Interface" xmi:id="_iNoteEditor" name="INoteEditor">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_iNoteEditor_loadNote" name="loadNote" visibility="public">
+            <ownedParameter xmi:type="uml:Parameter" xmi:id="_iNoteEditor_loadNote_param_note" name="note" type="_abstractNote" direction="in"/>
+        </ownedOperation>
+    </packagedElement>
+    <!-- ... other elements ... -->
+  </packagedElement>
+
+  <!-- ... Other Packages (Collaboration, Versioning, AttachmentsMedia, Integrations, BackgroundServices, EventingNotifications, Security, Settings) would follow similar structure ... -->
+
+  <!-- Example Associations (typically placed in a common owning package or the model root) -->
+  <!-- Association: User owns Notes (1 User to 0..* Notes, composite) -->
+  <packagedElement xmi:type="uml:Association" xmi:id="_assoc_user_owns_notes" name="UserOwnsNotes"
+                   memberEnd="_assocEnd_user_owns_notes_user _assocEnd_user_owns_notes_notes"/>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_user_owns_notes_user" name="owner"
+                   type="_abstractUser" association="_assoc_user_owns_notes">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_user_owns_notes_user_lower" value="1"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_user_owns_notes_user_upper" value="1"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_user_owns_notes_notes" name="ownedNotes"
+                   type="_abstractNote" association="_assoc_user_owns_notes" aggregation="composite">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_user_owns_notes_notes_lower" value="0"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_user_owns_notes_notes_upper" value="*"/>
+  </packagedElement>
+
+  <!-- Association: Notebook contains Notes (1 Notebook to 0..* Notes, composite) -->
+  <packagedElement xmi:type="uml:Association" xmi:id="_assoc_notebook_contains_notes" name="NotebookContainsNotes"
+                   memberEnd="_assocEnd_notebook_contains_notes_notebook _assocEnd_notebook_contains_notes_notes"/>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_notebook_contains_notes_notebook" name="containerNotebook"
+                   type="_abstractNotebook" association="_assoc_notebook_contains_notes">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_notebook_contains_notes_notebook_lower" value="1"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_notebook_contains_notes_notebook_upper" value="1"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_notebook_contains_notes_notes" name="containedNotes"
+                   type="_abstractNote" association="_assoc_notebook_contains_notes" aggregation="composite">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_notebook_contains_notes_notes_lower" value="0"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_notebook_contains_notes_notes_upper" value="*"/>
+  </packagedElement>
+
+  <!-- Association: Note has Tags (0..* Notes to 0..* Tags, many-to-many) -->
+  <packagedElement xmi:type="uml:Association" xmi:id="_assoc_note_has_tags" name="NoteHasTags"
+                   memberEnd="_assocEnd_note_has_tags_note _assocEnd_note_has_tags_tag"/>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_note_has_tags_note" name="taggedNotes"
+                   type="_abstractNote" association="_assoc_note_has_tags">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_note_has_tags_note_lower" value="0"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_note_has_tags_note_upper" value="*"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_note_has_tags_tag" name="tagsOnNote"
+                   type="_abstractTag" association="_assoc_note_has_tags">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_note_has_tags_tag_lower" value="0"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_note_has_tags_tag_upper" value="*"/>
+  </packagedElement>
+
+  <!-- Association: CloudSyncService uses INoteRepository (Dependency modeled as Association) -->
+  <packagedElement xmi:type="uml:Association" xmi:id="_assoc_cloudSync_uses_noteRepo" name="CloudSyncUsesNoteRepo"
+                   memberEnd="_assocEnd_cloudSync_uses_noteRepo_service _assocEnd_cloudSync_uses_noteRepo_repo"/>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_cloudSync_uses_noteRepo_service" name="syncServiceUser"
+                   type="_cloudSyncService" association="_assoc_cloudSync_uses_noteRepo_repo">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cloudSync_uses_noteRepo_service_lower" value="1"/> <!-- Or 0..1 if optional -->
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cloudSync_uses_noteRepo_service_upper" value="1"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Property" xmi:id="_assocEnd_cloudSync_uses_noteRepo_repo" name="noteRepositoryDependency"
+                   type="_iNoteRepository" association="_assoc_cloudSync_uses_noteRepo">
+    <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cloudSync_uses_noteRepo_repo_lower" value="1"/>
+    <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cloudSync_uses_noteRepo_repo_upper" value="1"/>
+  </packagedElement>
+
+</uml:Model>
+</XMI>

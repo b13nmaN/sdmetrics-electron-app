@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useMemo, useState } from "react"
+import { useEffect, useRef, useMemo } from "react"
 import cytoscape from "cytoscape"
 import fcose from "cytoscape-fcose"
 
@@ -19,8 +19,6 @@ export default function GraphVisualization({
 }) {
   const containerRef = useRef(null)
   const cyRef = useRef(null)
-
-  
 
   // console.log("jsonData:", jsonData);
   // console.log("matrices:", matrices);
@@ -781,8 +779,6 @@ export default function GraphVisualization({
       console.error("Error initializing Cytoscape:", error);
       cyRef.current = null;
     }
-
-
 
     // Cleanup function
     return () => {

@@ -1,0 +1,180 @@
+// components/LeftPanel.jsx
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Search, Layers } from "lucide-react"
+import PropertiesPanel from "@/components/properties-panel"
+import { useState, useEffect } from "react"
+
+export function LeftPanel({ 
+  searchTerm, 
+  setSearchTerm, 
+  filter, 
+  setFilter, 
+  selectedNode,
+  setSelectedNode, // Make sure this prop is properly passed from parent
+  jsonData,
+}) {
+  const [viewAllNodes, setViewAllNodes] = useState(false);
+  const [filteredNodes, setFilteredNodes] = useState([]);
+
+  // Function to search through nodes and their relationships
+  const searchNodesAndRelationships = (term, data) => {
+    if (!term || !data) return [];
+    
+    const lowerTerm = term.toLowerCase();
+    const results = new Set();
+
+    // Search through packages
+    data.packages?.forEach(pkg => {
+      // Check package name
+      if (pkg.name.toLowerCase().includes(lowerTerm)) {
+        results.add(pkg.name);
+      }
+
+      // Search through classes
+      pkg.classes?.forEach(cls => {
+        if (cls.name.toLowerCase().includes(lowerTerm)) {
+          results.add(cls.name);
+        }
+        // Search class relationships
+        if (cls.parents?.some(p => p.toLowerCase().includes(lowerTerm))) {
+          results.add(cls.name);
+          cls.parents.forEach(p => {
+            if (p.toLowerCase().includes(lowerTerm)) results.add(p);
+          });
+        }
+        if (cls.implements?.some(i => i.toLowerCase().includes(lowerTerm))) {
+          results.add(cls.name);
+          cls.implements.forEach(i => {
+            if (i.toLowerCase().includes(lowerTerm)) results.add(i);
+          });
+        }
+        if (cls.associations?.some(a => a.toLowerCase().includes(lowerTerm))) {
+          results.add(cls.name);
+        }
+        if (cls.dependencies?.some(d => d.toLowerCase().includes(lowerTerm))) {
+          results.add(cls.name);
+        }
+      });
+
+      // Search through interfaces
+      pkg.interfaces?.forEach(intf => {
+        if (intf.name.toLowerCase().includes(lowerTerm)) {
+          results.add(intf.name);
+        }
+        // Search interface relationships
+        if (intf.parents?.some(p => p.toLowerCase().includes(lowerTerm))) {
+          results.add(intf.name);
+          intf.parents.forEach(p => {
+            if (p.toLowerCase().includes(lowerTerm)) results.add(p);
+          });
+        }
+        if (intf.realizedBy?.some(r => r.toLowerCase().includes(lowerTerm))) {
+          results.add(intf.name);
+        }
+      });
+    });
+
+    // Search through parent classes
+    data.parentClasses?.forEach(cls => {
+      if (cls.name.toLowerCase().includes(lowerTerm)) {
+        results.add(cls.name);
+      }
+      // Search parent class relationships
+      if (cls.children?.some(c => c.toLowerCase().includes(lowerTerm))) {
+        results.add(cls.name);
+        cls.children.forEach(c => {
+          if (c.toLowerCase().includes(lowerTerm)) results.add(c);
+        });
+      }
+    });
+
+    // Search through top-level interfaces
+    data.interfaces?.forEach(intf => {
+      if (intf.name.toLowerCase().includes(lowerTerm)) {
+        results.add(intf.name);
+      }
+      if (intf.parents?.some(p => p.toLowerCase().includes(lowerTerm))) {
+        results.add(intf.name);
+      }
+    });
+
+    return Array.from(results);
+  };
+
+  // Update filtered nodes when search term changes
+  useEffect(() => {
+    if (searchTerm && jsonData) {
+      const results = searchNodesAndRelationships(searchTerm, jsonData);
+      setFilteredNodes(results);
+      
+      // If there's only one result, select it automatically
+      if (results.length === 1) {
+        setSelectedNode({ id: results[0] });
+      }
+    } else {
+      setFilteredNodes([]);
+    }
+  }, [searchTerm, jsonData, setSelectedNode]);
+
+  const handleNodeSelect = (nodeId) => {
+    setSelectedNode({ id: nodeId });
+    setSearchTerm(''); // Clear search term to show the full properties panel
+    setFilteredNodes([]); // Clear search results
+  };
+
+  return (
+    <ScrollArea className="w-1/4 border-r bg-white flex flex-col">
+      <div className="p-4 border-b">
+        <div className="flex items-center space-x-2 mb-4">
+          <Input
+            placeholder="Search nodes or relationships..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1"
+          />
+          <Button size="icon" variant="ghost">
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        {/* Show search results if there's a search term */}
+        {searchTerm && filteredNodes.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-sm font-medium mb-2">Search Results ({filteredNodes.length}):</h3>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {filteredNodes.map(nodeId => (
+                <Button
+                  key={nodeId}
+                  variant={selectedNode?.id === nodeId ? "default" : "outline"}
+                  className="w-full text-left justify-start"
+                  onClick={() => handleNodeSelect(nodeId)}
+                >
+                  {nodeId}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Button 
+          variant={viewAllNodes ? "default" : "outline"} 
+          className="w-full flex items-center justify-center"
+          onClick={() => setViewAllNodes(!viewAllNodes)}
+        >
+          <Layers className="h-4 w-4 mr-2" />
+          {viewAllNodes ? "View Selected Node" : "View All Nodes"}
+        </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <PropertiesPanel 
+          selectedNode={selectedNode} 
+          jsonData={jsonData} 
+          viewAllNodes={viewAllNodes}
+        />
+      </ScrollArea>
+    </ScrollArea>
+  )
+}
