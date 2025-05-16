@@ -25,6 +25,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [jsonData, setJsonData] = useState(null);
+  // console.log("jsonData fro page.jsx line: 30", jsonData);
+  console.log("Metrics from page.jsx line: 31", matrices);
+
 
   // Load initial data on mount
   useEffect(() => {
@@ -80,8 +83,8 @@ export default function Home() {
     }
   };
 
-  const handleNodeSelect = (nodeId, jsonData) => {
-    console.log("jsonData", jsonData);
+  const handleNodeSelect = (nodeId) => {
+    console.log("jsonData line:  83", jsonData);
     if (!nodeId) {
       setSelectedNode(null);
       return;
@@ -340,7 +343,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col h-screen bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col h-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col h-full overflow-hidden">
         <NavBar activeTab={activeTab} setActiveTab={setActiveTab} />
         
         <div className="px-4 py-2 flex items-center gap-2 border-b">
@@ -407,7 +410,6 @@ export default function Home() {
             perspective={perspective}
             setPerspective={setPerspective}
             selectedNode={selectedNode}
-            onNodeSelect={handleNodeSelect}
             matrices={matrices}
             activeMatrixTab={activeMatrixTab}
             jsonData={jsonData} // Pass JSON data to LeftPanel
@@ -424,6 +426,7 @@ export default function Home() {
             matrices={matrices}
             activeMatrixTab={activeMatrixTab}
             jsonData={jsonData} // Pass JSON data to RightPanel
+            
           />
         </div>
       </Tabs>

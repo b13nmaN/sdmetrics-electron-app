@@ -413,6 +413,7 @@ export default function Home() {
             matrices={matrices}
             activeMatrixTab={activeMatrixTab}
             jsonData={jsonData} // Pass JSON data to LeftPanel
+            xmiContent={xmiContent}
           />
           <RightPanel
             onNodeSelect={handleNodeSelect}

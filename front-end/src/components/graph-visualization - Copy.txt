@@ -781,12 +781,12 @@ useEffect(() => {
       
       const handleLayoutDone = () => {
         const existingLegend = document.getElementById('uml-legend');
-        if (existingLegend) existingLegend.remove();
-        addLegend();
+        if (existingLegend) existingLegend.remove(); // Keep removal for old ID, just in case
+        // addLegend(); // REMOVED
       };
 
       if (layoutRun && typeof layoutRun.promise === 'function') {
-        layoutRun.promise().then(handleLayoutDone).catch(err => {
+        layoutRun.promise().then(handleLayoutDone).catch(err => { // Ensure handleLayoutDone is called
           console.warn("Layout promise error:", err);
           handleLayoutDone();
         });
@@ -796,24 +796,25 @@ useEffect(() => {
           handleLayoutDone();
         });
       } else { // No promise, use events or timeout
-        layout.one('layoutstop', handleLayoutDone); // Listen for layoutstop event
+        layout.one('layoutstop', handleLayoutDone);
         // Fallback timeout if event doesn't fire (shouldn't be necessary with fcose)
         // setTimeout(handleLayoutDone, 600); 
       }
     } catch (layoutError) {
       console.error("Layout error:", layoutError);
       try {
-        cyRef.current.layout({ name: 'grid', fit: true }).run();
+        const fallbackLayout = cyRef.current.layout({ name: 'grid', fit: true });
+        fallbackLayout.run(); // Run it
         setTimeout(() => {
           const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }, 300);
+          if (existingLegend) existingLegend.remove(); // Keep removal
+          // addLegend(); // REMOVED
+        }, 300); // Assuming grid layout is fast
       } catch (fallbackError) {
         console.error("Fallback layout error:", fallbackError);
         const existingLegend = document.getElementById('uml-legend');
-        if (existingLegend) existingLegend.remove();
-        addLegend();
+        if (existingLegend) existingLegend.remove(); // Keep removal
+        // addLegend(); // REMOVED
       }
     }
   } catch (error) {
@@ -898,146 +899,6 @@ useEffect(() => {
       console.error("Error applying zoom:", error);
     }
   }, [zoomLevel]);
-
-  const addLegend = () => {
-    if (!containerRef.current || document.getElementById('uml-legend')) return;
-
-    const legendContainer = document.createElement('div');
-    legendContainer.id = 'uml-legend';
-    legendContainer.style.cssText = `
-        position: absolute; bottom: 15px; left: 15px;
-        background-color: rgba(255, 255, 255, 0.95); padding: 12px;
-        border: 1px solid #d1d5db; border-radius: 6px;
-        display: grid; grid-template-columns: repeat(2, auto); 
-        gap: 8px 18px; 
-        font-size: 12px; z-index: 1000; max-width: 420px; /* Increased max-width */
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-family: sans-serif;
-    `;
-
-    const legendItems = [
-      { style: { type: 'node', shape: 'round-rectangle', bgColor: '#E0F2FE', borderColor: '#38BDF8', borderW: 2 }, label: 'Package' },
-      { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2 }, label: 'Class' },
-      { style: { type: 'node', shape: 'triangle', bgColor: '#F59E0B', borderColor: '#D97706', borderW: 2 }, label: 'Parent Class' },
-      { style: { type: 'node', shape: 'round-rectangle', bgColor: '#8b5cf6', borderColor: '#7c3aed', borderW: 2 }, label: 'Interface' },
-      { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2, borderStyle: 'dashed', fontStyle: 'italic' }, label: 'Abstract Class' },
-      { style: { type: 'edge', lineStyle: 'solid', color: '#ef4444', arrow: 'hollow-triangle' }, label: 'Inheritance' },
-      { style: { type: 'edge', lineStyle: 'dashed', color: '#8b5cf6', arrow: 'hollow-triangle', dashPattern: '6,3' }, label: 'Implementation' },
-      { style: { type: 'edge', lineStyle: 'solid', color: '#f97316', arrow: 'none' }, label: 'Association' },
-      { style: { type: 'edge', lineStyle: 'dashed', color: '#f97316', arrow: 'none', dashPattern: '5,5' }, label: 'Inter-Package Assoc.' },
-      { style: { type: 'edge', lineStyle: 'dashed', color: '#22c55e', arrow: 'vee', dashPattern: '4,2' }, label: 'Dependency' },
-      { style: { type: 'node', shape: 'ellipse', bgColor: '#E53E3E', borderColor: '#C53030', borderW: 2 }, label: 'Highly Coupled Class' },
-      { style: { type: 'node', shape: 'ellipse', bgColor: '#DD6B20', borderColor: '#C05621', borderW: 2 }, label: 'Low Cohesion Class' },
-    ];
-
-    legendItems.forEach(item => {
-      const itemContainer = document.createElement('div');
-      itemContainer.style.display = 'flex';
-      itemContainer.style.alignItems = 'center';
-      itemContainer.style.gap = '8px';
-
-      const icon = document.createElement('div');
-      icon.style.flexShrink = '0';
-      icon.style.display = 'flex';
-      icon.style.alignItems = 'center';
-      icon.style.justifyContent = 'center';
-
-      if (item.style.type === 'node') {
-          icon.style.width = '20px';
-          icon.style.height = '20px';
-          icon.style.backgroundColor = item.style.bgColor;
-          icon.style.border = `${item.style.borderW || 1}px ${item.style.borderStyle || 'solid'} ${item.style.borderColor}`;
-          
-          if (item.style.shape === 'ellipse') {
-              icon.style.borderRadius = '50%';
-          } else if (item.style.shape === 'round-rectangle') {
-              icon.style.borderRadius = '4px';
-          } else if (item.style.shape === 'triangle') {
-              icon.style.width = '0';
-              icon.style.height = '0';
-              icon.style.backgroundColor = 'transparent'; 
-              icon.style.borderLeft = '10px solid transparent';
-              icon.style.borderRight = '10px solid transparent';
-              icon.style.borderBottom = `18px solid ${item.style.bgColor}`; // Color of triangle body
-              icon.style.borderTop = 'none'; 
-              icon.style.position = 'relative'; 
-              // Simulate border for triangle
-              const borderPseudo = document.createElement('div');
-              borderPseudo.style.cssText = `
-                position: absolute; top: 1.5px; left: -11.5px; /* Adjust based on borderW */
-                width: 0; height: 0;
-                border-left: 11.5px solid transparent;
-                border-right: 11.5px solid transparent;
-                border-bottom: 21px solid ${item.style.borderColor}; /* Color of border */
-                z-index: -1;
-              `;
-              icon.appendChild(borderPseudo);
-          }
-      } else { // Edge
-          icon.style.width = '35px';
-          icon.style.height = '15px'; 
-          icon.style.position = 'relative';
-
-          const line = document.createElement('div');
-          line.style.width = '100%';
-          line.style.height = '2px';
-          const isSolid = !item.style.lineStyle || item.style.lineStyle === 'solid';
-          line.style.backgroundColor = isSolid ? item.style.color : 'transparent';
-
-          if (!isSolid) { 
-              const pattern = item.style.dashPattern || '4,2'; 
-              const [dash, gap] = pattern.split(',').map(Number);
-              line.style.backgroundImage = `linear-gradient(to right, ${item.style.color} ${dash}px, transparent ${dash}px)`;
-              line.style.backgroundSize = `${dash + gap}px 2px`;
-              line.style.backgroundRepeat = 'repeat-x';
-          }
-          line.style.position = 'absolute';
-          line.style.top = '50%';
-          line.style.transform = 'translateY(-50%)';
-          icon.appendChild(line);
-
-          if (item.style.arrow && item.style.arrow !== 'none') {
-              const arrow = document.createElement('div');
-              arrow.style.position = 'absolute';
-              arrow.style.right = '-2px'; 
-              arrow.style.top = '50%';
-              arrow.style.transform = 'translateY(-50%)';
-              arrow.style.width = '0';
-              arrow.style.height = '0';
-              arrow.style.borderTop = '5px solid transparent';
-              arrow.style.borderBottom = '5px solid transparent';
-
-               if (item.style.arrow === 'hollow-triangle') {
-                    arrow.style.borderLeft = `7px solid ${item.style.color}`; 
-                    const innerArrow = document.createElement('div');
-                    innerArrow.style.position = 'absolute';
-                    innerArrow.style.top = '-3px';
-                    innerArrow.style.left = '-6px'; 
-                    innerArrow.style.width = '0';
-                    innerArrow.style.height = '0';
-                    innerArrow.style.borderTop = '3px solid transparent';
-                    innerArrow.style.borderBottom = '3px solid transparent';
-                    innerArrow.style.borderLeft = `4px solid ${legendContainer.style.backgroundColor || 'white'}`; 
-                    arrow.appendChild(innerArrow);
-               } else if (item.style.arrow === 'vee') {
-                    arrow.style.borderLeft = `7px solid ${item.style.color}`; 
-               }
-              icon.appendChild(arrow);
-          }
-      }
-
-      const label = document.createElement('span');
-      label.textContent = item.label;
-      label.style.whiteSpace = 'nowrap';
-      if(item.style.fontStyle === 'italic') label.style.fontStyle = 'italic';
-
-      itemContainer.appendChild(icon);
-      itemContainer.appendChild(label);
-      legendContainer.appendChild(itemContainer);
-    });
-
-    containerRef.current.appendChild(legendContainer);
-  };
-
 
   return (
     <div

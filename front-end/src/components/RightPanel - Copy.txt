@@ -4,7 +4,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button"; // Import buttonVariants
 import { Input } from "@/components/ui/input";
-import { ZoomIn, ZoomOut, Move, Search, XCircle, X as XIcon, Zap, AlertTriangle } from "lucide-react"; // Added Zap and AlertTriangle
+import { ZoomIn, ZoomOut, Search, XCircle, X as XIcon, Zap, AlertTriangle, List } from "lucide-react"; // Added List, removed Move
 import GraphVisualization from "@/components/graph-visualization";
 import FilteredGraphView from "@/components/FilteredGraphView";
 import XMIEditor from "@/components/xmi-editor";
@@ -27,6 +27,7 @@ export function RightPanel({
   const [graphSearchTermInput, setGraphSearchTermInput] = useState("");
   const [submittedGraphSearchTerm, setSubmittedGraphSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [isLegendVisible, setIsLegendVisible] = useState(false); 
   const [activeHighlight, setActiveHighlight] = useState(null); // 'coupling', 'cohesion', or null
 
   // Thresholds (could be made configurable later)
@@ -35,6 +36,64 @@ export function RightPanel({
     lcom: 2     // e.g., if LCOM4 > 2 (higher LCOM4 means lower cohesion)
   }), []);
   
+  const legendItemsData = useMemo(() => [
+    { style: { type: 'node', shape: 'round-rectangle', bgColor: '#E0F2FE', borderColor: '#38BDF8', borderW: 2 }, label: 'Package' },
+    { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2 }, label: 'Class' },
+    { style: { type: 'node', shape: 'triangle', bgColor: '#F59E0B', borderColor: '#D97706', borderW: 2 }, label: 'Parent Class' },
+    { style: { type: 'node', shape: 'round-rectangle', bgColor: '#8b5cf6', borderColor: '#7c3aed', borderW: 2 }, label: 'Interface' },
+    { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2, borderStyle: 'dashed', fontStyle: 'italic' }, label: 'Abstract Class' },
+    { style: { type: 'edge', lineStyle: 'solid', color: '#ef4444', arrow: 'hollow-triangle' }, label: 'Inheritance' },
+    { style: { type: 'edge', lineStyle: 'dashed', color: '#8b5cf6', arrow: 'hollow-triangle', dashPattern: '6,3' }, label: 'Implementation' },
+    { style: { type: 'edge', lineStyle: 'solid', color: '#f97316', arrow: 'none' }, label: 'Association' },
+    { style: { type: 'edge', lineStyle: 'dashed', color: '#f97316', arrow: 'none', dashPattern: '5,5' }, label: 'Inter-Package Assoc.' },
+    { style: { type: 'edge', lineStyle: 'dashed', color: '#22c55e', arrow: 'vee', dashPattern: '4,2' }, label: 'Dependency' },
+    { style: { type: 'node', shape: 'ellipse', bgColor: '#E53E3E', borderColor: '#C53030', borderW: 2 }, label: 'Highly Coupled Class' },
+    { style: { type: 'node', shape: 'ellipse', bgColor: '#DD6B20', borderColor: '#C05621', borderW: 2 }, label: 'Low Cohesion Class' },
+  ], []);
+
+  const LegendIcon = ({ style }) => {
+    const iconContainerClasses = "flex-shrink-0 flex items-center justify-center";
+    const borderWidth = style.borderW || 2;
+
+    if (style.type === 'node') {
+      let shapeClasses = "w-5 h-5";
+      let borderStyleCss = style.borderStyle === 'dashed' ? 'border-dashed' : 'border-solid';
+      let finalStyle = {
+        backgroundColor: style.bgColor,
+        borderColor: style.borderColor,
+        borderWidth: `${borderWidth}px`,
+      };
+
+      if (style.shape === 'ellipse') shapeClasses += " rounded-full";
+      else if (style.shape === 'round-rectangle') shapeClasses += " rounded-sm";
+      else if (style.shape === 'triangle') {
+        return (
+          <div className={`${iconContainerClasses} w-5 h-5 relative`}>
+            <div style={{ width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderBottom: `18px solid ${style.borderColor}`, position: 'absolute', top: '0px', left: '0px', zIndex: 1 }}/>
+            <div style={{ width: 0, height: 0, borderLeft: `calc(10px - ${borderWidth}px) solid transparent`, borderRight: `calc(10px - ${borderWidth}px) solid transparent`, borderBottom: `calc(18px - ${borderWidth}px) solid ${style.bgColor}`, position: 'absolute', top: `${borderWidth}px`, left: `${borderWidth}px`, zIndex: 2 }}/>
+          </div>
+        );
+      }
+      return <div className={`${iconContainerClasses} ${shapeClasses} ${borderStyleCss}`} style={finalStyle}></div>;
+    } else { // Edge
+      const lineCssStyle = {};
+      const isSolid = !style.lineStyle || style.lineStyle === 'solid';
+      if (isSolid) lineCssStyle.backgroundColor = style.color;
+      else { const [dash, gap] = (style.dashPattern || '4,2').split(',').map(Number); lineCssStyle.backgroundImage = `linear-gradient(to right, ${style.color} ${dash}px, transparent ${dash}px)`; lineCssStyle.backgroundSize = `${dash + gap}px 2px`; lineCssStyle.backgroundRepeat = 'repeat-x'; }
+
+      return (
+        <div className={`${iconContainerClasses} w-[35px] h-[15px] relative`}>
+          <div className="w-full h-[2px] absolute top-1/2 -translate-y-1/2" style={lineCssStyle}></div>
+          {style.arrow && style.arrow !== 'none' && 
+            <div className="absolute right-[-2px] top-1/2 -translate-y-1/2 w-0 h-0" style={{ borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: (style.arrow === 'vee' || style.arrow === 'hollow-triangle') ? `7px solid ${style.color}` : 'none' }}> 
+              {style.arrow === 'hollow-triangle' && <div className="absolute top-[-3px] left-[-6px] w-0 h-0" style={{ borderTop: '3px solid transparent', borderBottom: '3px solid transparent', borderLeft: `4px solid var(--legend-bg-color, white)` }} />}
+            </div>
+          }
+        </div>
+      );
+    }
+  };
+
   const inputRef = useRef(null);
   const searchContainerRef = useRef(null);
 
@@ -237,12 +296,9 @@ export function RightPanel({
             <Button variant="outline" size="icon" onClick={handleZoomOut} aria-label="Zoom Out" className="h-10 w-10">
               <ZoomOut className="h-4 w-4" />
             </Button>
-            {/* Pan/Move functionality is usually handled by graph library directly via drag */}
-            {/* <Button variant="outline" size="icon" aria-label="Pan/Move" className="h-10 w-10">
-              <Move className="h-4 w-4" />
-            </Button> */}
-
-            {/* Highlight Toggle Buttons */}
+            <Button variant="outline" size="icon" onClick={() => setIsLegendVisible(!isLegendVisible)} aria-label="Toggle Legend" className="h-10 w-10">
+                <List className="h-4 w-4" />
+            </Button>
             <Button
               variant={activeHighlight === 'coupling' ? 'default' : 'outline'}
               size="sm" // Use sm for text buttons or keep icon-like if just icon
@@ -292,6 +348,29 @@ export function RightPanel({
             highlightThresholds={HIGHLIGHT_THRESHOLDS}
           />
         )}
+
+        {/* Legend Display */}
+        <div 
+          id="uml-legend-right-panel"
+          style={{ '--legend-bg-color': 'rgba(255, 255, 255, 0.95)' }} 
+          className={`
+            absolute bottom-4 left-4 bg-[var(--legend-bg-color)] p-3 
+            border border-gray-300/80 rounded-lg shadow-xl 
+            grid grid-cols-2 gap-x-4 gap-y-2 
+            text-xs z-[1000] max-w-[420px]
+            transition-all duration-300 ease-in-out
+            ${isLegendVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+          `}
+        >
+          {legendItemsData.map((item, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <LegendIcon style={item.style} />
+              <span className={`whitespace-nowrap ${item.style.fontStyle === 'italic' ? 'italic' : ''}`}>
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </TabsContent>
       
       <TabsContent value="overview" className="flex-1 m-0 p-6 h-full overflow-auto">
@@ -324,9 +403,6 @@ export function RightPanel({
         <MetricsDisplay matrices={matrices} activeMatrixTab={activeMatrixTab} />
       </TabsContent>
       
-      <TabsContent value="editor" className="flex-1 m-0 h-full overflow-hidden">
-        <XMIEditor xmiContent={xmiContent} filePath={filePath} setXmiContent={setXmiContent} />
-      </TabsContent>
     </div>
   );
 }
