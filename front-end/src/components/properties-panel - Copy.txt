@@ -21,12 +21,12 @@ const getMetricBadgeStyle = (metricName, value) => {
 
   if (metricName.toLowerCase() === "camc") {
     if (value >= 0.75) style = { label: "High", className: "bg-green-100 text-green-700" };
-    else if (value >= 0.5) style = { label: "Moderate", className: "bg-yellow-100 text-yellow-700" }; 
+    else if (value >= 0.5) style = { label: "Moderate", className: "bg-yellow-100 text-yellow-700" };
     else if (value >= 0.25) style = { label: "Low", className: "bg-orange-100 text-orange-700" };
     else style = { label: "Very Low", className: "bg-red-100 text-red-700" };
   } else if (metricName.toLowerCase() === "dep_out" || metricName.toLowerCase() === "dep-out") {
     const normalizedValue = normalizeDepOut(value);
-    if (normalizedValue <= 0.1) style = { label: "Good", className: "bg-green-100 text-green-700" }; 
+    if (normalizedValue <= 0.1) style = { label: "Good", className: "bg-green-100 text-green-700" };
     else if (normalizedValue <= 0.3) style = { label: "Okay", className: "bg-yellow-100 text-yellow-700" };
     else if (normalizedValue <= 0.5) style = { label: "Moderate", className: "bg-orange-100 text-orange-700" };
     else style = { label: "High", className: "bg-red-100 text-red-700" };
@@ -102,7 +102,7 @@ const useNodeDetails = (nodeId, jsonData, matrices) => {
       }
 
       if (foundNodeInfo) {
-        details.metrics = { ...(foundNodeInfo.metrics || {}) }; 
+        details.metrics = { ...(foundNodeInfo.metrics || {}) };
         details.attributes = foundNodeInfo.attributes || [];
         details.methods = foundNodeInfo.methods || [];
         details.isAbstract = foundNodeInfo.isAbstract || false;
@@ -130,7 +130,7 @@ const useNodeDetails = (nodeId, jsonData, matrices) => {
         if (pkgData) {
           nodeCategory = 'Package';
           nodePackageName = nodeId;
-          details.metrics = { ...(pkgData.metrics || {}) }; 
+          details.metrics = { ...(pkgData.metrics || {}) };
           if (pkgData.classes) details.children.push(...pkgData.classes.map(c => c.name));
           if (pkgData.interfaces) details.children.push(...pkgData.interfaces.map(i => i.name));
           if (pkgData.dependencies) details.dependencies.push(...pkgData.dependencies);
@@ -146,7 +146,7 @@ const useNodeDetails = (nodeId, jsonData, matrices) => {
 
       let depOutToDisplay;
       const depOutFromMetricsRaw = details.metrics.Dep_Out;
-      let depOutFromMetricsValue; 
+      let depOutFromMetricsValue;
 
       if (depOutFromMetricsRaw !== undefined && depOutFromMetricsRaw !== null) {
         const numVal = Number(depOutFromMetricsRaw);
@@ -161,11 +161,11 @@ const useNodeDetails = (nodeId, jsonData, matrices) => {
       if (details.category === 'Class' && nodeId && matrices?.Class_Dependencies) {
         const { rows, columns } = matrices.Class_Dependencies;
         if (rows && rows[nodeId] && columns) {
-          canCalculateFromMatrix = true; 
+          canCalculateFromMatrix = true;
           const dependencyArray = rows[nodeId];
           if (Array.isArray(dependencyArray)) {
             dependencyArray.forEach((value, colIndex) => {
-              if (value > 1) { 
+              if (value > 1) {
                 const targetClass = columns[colIndex];
                 if (targetClass && nodeId !== targetClass) {
                   calculatedDepCountFromMatrix++;
@@ -188,7 +188,7 @@ const useNodeDetails = (nodeId, jsonData, matrices) => {
         if (details.category === 'Class' && canCalculateFromMatrix) {
           depOutToDisplay = calculatedDepCountFromMatrix;
         } else {
-          depOutToDisplay = 0; 
+          depOutToDisplay = 0;
         }
       }
       
@@ -197,7 +197,7 @@ const useNodeDetails = (nodeId, jsonData, matrices) => {
     };
 
     setNodeDetails(getNodeDetails());
-  }, [nodeId, jsonData, matrices]); 
+  }, [nodeId, jsonData, matrices]);
 
   return nodeDetails;
 };
@@ -294,11 +294,11 @@ const buildFocusedContextForLLM = (nodeDetails, jsonData) => {
   if (nodeDetails.children && nodeDetails.category !== 'Package') nodeDetails.children.forEach(c => relatedElementNames.add(c));
   if (nodeDetails.implements) nodeDetails.implements.forEach(i => relatedElementNames.add(i));
   if (nodeDetails.realizedBy) nodeDetails.realizedBy.forEach(r => relatedElementNames.add(r));
-  allConnections.forEach(conn => { 
+  allConnections.forEach(conn => {
       const nameMatch = conn.match(/^([^\s(]+)/);
       if (nameMatch) relatedElementNames.add(nameMatch[1]);
   });
-  relatedElementNames.delete(nodeDetails.label); 
+  relatedElementNames.delete(nodeDetails.label);
 
   if (relatedElementNames.size > 0) {
     context += "\nBrief on Directly Related Elements (Name - Type - up to 10):\n";
@@ -328,7 +328,7 @@ const buildFocusedContextForLLM = (nodeDetails, jsonData) => {
     }
   }
   
-  const MAX_CONTEXT_CHARS = 18000; 
+  const MAX_CONTEXT_CHARS = 18000;
   if (context.length > MAX_CONTEXT_CHARS) {
     console.warn("Focused context was truncated due to excessive length. Original length:", context.length);
     context = context.substring(0, MAX_CONTEXT_CHARS) + "\n\n... (Context above was truncated due to length to fit token limits)";
@@ -358,7 +358,7 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
   const handleViewAIRecommendations = async () => {
     if (!nodeDetails || !nodeDetails.id || !jsonData) {
       setLlmError("Selected node details or overall system data is not available to generate focused context for AI.");
-      setShowLLMModal(true); 
+      setShowLLMModal(true);
       return;
     }
     if (!import.meta.env.VITE_TOGETHER_API_KEY) {
@@ -370,19 +370,21 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
     setIsLoadingLLM(true);
     setLlmError(null);
     setLlmRecommendations("");
-    setShowLLMModal(true); 
+    setShowLLMModal(true);
 
     const focusedContext = buildFocusedContextForLLM(nodeDetails, jsonData);
-    console.log("Focused context for LLM (approx length):", focusedContext.length); 
+    console.log("Focused context for LLM (approx length):", focusedContext.length);
     // For more detailed debugging if needed: console.log("Full Focused Context:\n", focusedContext);
 
     const violationsForLLM = [];
     const metrics = nodeDetails.metrics || {};
-    if (metrics.CAMC !== undefined && metrics.CAMC < 0.7) {
-      violationsForLLM.push({ ElementName: nodeDetails.label, ViolatedMetric: "CAMC", MetricValue: metrics.CAMC, Threshold: 0.7 });
+    // CAMC Threshold: lower is worse, so < 0.7 is a violation
+    if (metrics.CAMC !== undefined && metrics.CAMC !== null && !isNaN(parseFloat(metrics.CAMC)) && parseFloat(metrics.CAMC) < 0.7) {
+      violationsForLLM.push({ ElementName: nodeDetails.label, ViolatedMetric: "CAMC", MetricValue: parseFloat(metrics.CAMC).toFixed(6), Threshold: 0.7 });
     }
-    if (metrics.Dep_Out !== undefined && metrics.Dep_Out > 5) {
-      violationsForLLM.push({ ElementName: nodeDetails.label, ViolatedMetric: "Dep_Out", MetricValue: metrics.Dep_Out, Threshold: 5 });
+    // Dep_Out Threshold: higher is worse, so > 5 is a violation
+    if (metrics.Dep_Out !== undefined && metrics.Dep_Out !== null && !isNaN(parseInt(metrics.Dep_Out)) && parseInt(metrics.Dep_Out) > 5) {
+      violationsForLLM.push({ ElementName: nodeDetails.label, ViolatedMetric: "Dep_Out", MetricValue: parseInt(metrics.Dep_Out), Threshold: 5 });
     }
 
     try {
@@ -449,7 +451,7 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
     .filter(([_, value]) => value !== undefined && value !== null)
     .map(([key]) => ({
       key,
-      displayName: key.replace(/_/g, '-') 
+      displayName: key.replace(/_/g, '-')
     }));
 
   let primaryMetrics = [];
@@ -589,12 +591,12 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
         )}
 
         <div className="mt-6">
-            <Button 
+            <Button
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5"
               onClick={handleViewAIRecommendations}
               disabled={isLoadingLLM || !jsonData || !selectedNode?.id}
             >
-              <Brain className="mr-2 h-5 w-5" /> 
+              <Brain className="mr-2 h-5 w-5" />
               {isLoadingLLM ? "Generating AI Insights..." : "Get AI Design Recommendations"}
             </Button>
         </div>
@@ -606,7 +608,7 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
         </div>
 
         {showLLMModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-in-out">
+          <div className="fixed inset-0 bg-transparent flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-in-out"> {/* MODIFIED HERE */}
             <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-100">
               <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center">
@@ -619,7 +621,7 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
               </div>
               <ScrollArea className="flex-grow pr-2 -mr-2">
                 <div className="prose prose-sm lg:prose-base max-w-none text-gray-700">
-                  {isLoadingLLM && 
+                  {isLoadingLLM &&
                     <div className="flex flex-col items-center justify-center h-64">
                         <svg className="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -634,7 +636,7 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
                                </div>}
                   {!isLoadingLLM && !llmError && llmRecommendations && (
                     <ReactMarkdown
-                        components={{ 
+                        components={{
                             h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4 text-gray-800" {...props} />,
                             h2: ({node, ...props}) => <h2 className="text-xl font-semibold mt-6 mb-3 text-gray-800 border-b pb-1" {...props} />,
                             h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-5 mb-2 text-gray-700" {...props} />,
@@ -651,7 +653,7 @@ export default function PropertiesPanel({ selectedNode, jsonData, matrices, view
                                 </code>
                                 )
                             },
-                            pre: ({node, ...props}) => <div className="my-4">{props.children}</div> 
+                            pre: ({node, ...props}) => <div className="my-4">{props.children}</div>
                         }}
                     >{llmRecommendations}</ReactMarkdown>
                   )}

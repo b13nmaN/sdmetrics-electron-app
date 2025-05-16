@@ -31,6 +31,7 @@ Format your response as bullet points with concrete actions:
 - Replace [specific dependency] with [specific alternative]`;
 
     let violationsString = "";
+    console.log("Violations:", violations);
     if (violations && violations.length > 0) {
         violationsString = "Fix these violations:\n";
         violations.forEach(v => {
