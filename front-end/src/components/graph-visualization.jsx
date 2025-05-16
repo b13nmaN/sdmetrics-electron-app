@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useMemo, useState } from "react"
+import { useEffect, useRef, useMemo } from "react"
 import cytoscape from "cytoscape"
 import fcose from "cytoscape-fcose"
 
@@ -16,24 +16,17 @@ export default function GraphVisualization({
   jsonData, // Contains detailed structure
   onNodeSelect,
   zoomLevel = 1,
+  activeHighlight = null, // 'coupling', 'cohesion', or null
+  highlightThresholds = { coupling: 5, lcom: 2 }, // Default thresholds
 }) {
   const containerRef = useRef(null)
   const cyRef = useRef(null)
 
-  
-
-  // console.log("jsonData:", jsonData);
-  // console.log("matrices:", matrices);
-
-  // --- Helper Functions ---
-  // REMOVED calculateNodeSize as sizing is now handled by CSS classes
-
   // --- Edge Extraction Functions (Assumed Correct from Previous Version) ---
-    // Extracts Inheritance (Generalization) edges: Parent -> Child
   const extractInheritanceEdges = (jsonData, entityToPackageMap) => {
     const edges = [];
     let edgeIdCounter = 1;
-     const addedEdges = new Set(); // Track added edges to avoid duplicates
+     const addedEdges = new Set(); 
 
      const addEdge = (source, target, type) => {
          const key = `${source}->${target}->${type}`;
@@ -43,12 +36,12 @@ export default function GraphVisualization({
              edges.push({
                  data: {
                      id: `${type}-e${edgeIdCounter++}`,
-                     source: source, // The subclass (origin of arrow visually)
-                     target: target, // The superclass (where arrowhead points)
+                     source: source, 
+                     target: target, 
                      type: type,
                      interPackage: !!sourcePackage && !!targetPackage && sourcePackage !== targetPackage,
                  },
-                 classes: type + (!!sourcePackage && !!targetPackage && sourcePackage !== targetPackage ? ' interPackage' : '') // Add edge type class + interPackage class if applicable
+                 classes: type + (!!sourcePackage && !!targetPackage && sourcePackage !== targetPackage ? ' interPackage' : '') 
              });
              addedEdges.add(key);
              return true;
@@ -56,20 +49,17 @@ export default function GraphVisualization({
          return false;
      };
 
-    // 1. Primary Source: jsonData.parentClasses (Child inherits FROM Parent)
     if (jsonData?.parentClasses && Array.isArray(jsonData.parentClasses)) {
       jsonData.parentClasses.forEach(parentInfo => {
         if (parentInfo?.name && parentInfo?.children && Array.isArray(parentInfo.children)) {
           const parentName = parentInfo.name;
           parentInfo.children.forEach(childName => {
-             addEdge(childName, parentName, 'inheritance'); // Source: Child, Target: Parent
+             addEdge(childName, parentName, 'inheritance'); 
           });
         }
       });
     }
 
-    // 2. Secondary Source (Matrix): matrices.Class_Inheritance
-    // Matrix: Row (Child) inherits FROM Column (Parent). Edge: Child -> Parent
     if (matrices?.Class_Inheritance) {
         const { columns, rows } = matrices.Class_Inheritance;
         if (columns && rows) {
@@ -91,11 +81,10 @@ export default function GraphVisualization({
     return edges;
   };
 
-  // Extracts Implementation (Realization) edges: Class -> Interface
   const extractImplementationEdges = (jsonData, matrices, entityToPackageMap) => {
     const edges = [];
     let edgeIdCounter = 1;
-     const addedEdges = new Set(); // Track added edges
+     const addedEdges = new Set(); 
 
       const addEdge = (source, target, type) => {
           const key = `${source}->${target}->${type}`;
@@ -105,12 +94,12 @@ export default function GraphVisualization({
               edges.push({
                   data: {
                       id: `${type}-e${edgeIdCounter++}`,
-                      source: source, // Implementing Class
-                      target: target, // Implemented Interface
-                      type: type, // Keep type in data for potential logic
+                      source: source, 
+                      target: target, 
+                      type: type, 
                       interPackage: !!sourcePackage && !!targetPackage && sourcePackage !== targetPackage,
                   },
-                 classes: type + (!!sourcePackage && !!targetPackage && sourcePackage !== targetPackage ? ' interPackage' : '') // Add edge type class + interPackage class if applicable
+                 classes: type + (!!sourcePackage && !!targetPackage && sourcePackage !== targetPackage ? ' interPackage' : '')
               });
               addedEdges.add(key);
               return true;
@@ -118,19 +107,16 @@ export default function GraphVisualization({
           return false;
       };
 
-    // 1. Primary Source: jsonData interfaces and classes
-    // Check realizedBy on interfaces
     if (jsonData?.interfaces && Array.isArray(jsonData.interfaces)) {
         jsonData.interfaces.forEach(iface => {
             if (iface?.name && iface?.realizedBy && Array.isArray(iface.realizedBy)) {
                 const interfaceName = iface.name;
                 iface.realizedBy.forEach(className => {
-                     addEdge(className, interfaceName, 'implementation'); // Source: Class, Target: Interface
+                     addEdge(className, interfaceName, 'implementation');
                 });
             }
         });
     }
-     // Check implements on classes
     if (jsonData?.packages && Array.isArray(jsonData.packages)) {
         jsonData.packages.forEach(pkg => {
             if (pkg?.classes && Array.isArray(pkg.classes)) {
@@ -146,8 +132,6 @@ export default function GraphVisualization({
         });
     }
 
-    // 2. Secondary Source (Matrix): Interface_Realizations
-    // Matrix: Row (Interface) is realized BY Column (Class). Edge: Class -> Interface
      if (matrices?.Interface_Realizations) {
         const { columns, rows } = matrices.Interface_Realizations;
         if (columns && rows) {
@@ -169,12 +153,11 @@ export default function GraphVisualization({
     return edges;
   };
 
-  // Extracts Association (value=1) and Dependency (value>1) edges
   const extractAssociationDependencyEdges = (matrices, entityToPackageMap) => {
     const edges = [];
     let edgeIdCounter = 1;
-    const processedAssociationPairs = new Set(); // For handling potential bi-directional associations
-    const addedDependencyEdges = new Set(); // Avoid duplicate dependencies
+    const processedAssociationPairs = new Set(); 
+    const addedDependencyEdges = new Set();
 
       const addEdge = (source, target, type, value = 0) => {
            const key = `${source}->${target}->${type}`;
@@ -184,16 +167,16 @@ export default function GraphVisualization({
                if (!processedAssociationPairs.has(pairKey)) {
                     processedAssociationPairs.add(pairKey);
                } else {
-                   return false; // Already added this association pair
+                   return false; 
                }
            } else if (type === 'dependency') {
                 if (!addedDependencyEdges.has(key)) {
                     addedDependencyEdges.add(key);
                 } else {
-                    return false; // Already added this dependency
+                    return false; 
                 }
            } else {
-               return false; // Should not happen
+               return false; 
            }
 
             const sourcePackage = entityToPackageMap.get(source);
@@ -204,18 +187,17 @@ export default function GraphVisualization({
                  id: `${type}-e${edgeIdCounter++}`,
                  source: source,
                  target: target,
-                 type: type, // Keep type in data
+                 type: type, 
                  interPackage: isInterPackage,
              };
-             if (type === 'dependency') edgeData.weight = value; // Keep weight in data if needed
+             if (type === 'dependency') edgeData.weight = value; 
 
              edges.push({
                  data: edgeData,
-                 classes: type + (isInterPackage ? ' interPackage' : '') // Add edge type class + interPackage class if applicable
+                 classes: type + (isInterPackage ? ' interPackage' : '') 
              });
              return true;
       };
-
 
     if (matrices?.Class_Dependencies) {
         const { columns, rows } = matrices.Class_Dependencies;
@@ -227,9 +209,9 @@ export default function GraphVisualization({
                         if (value > 0) {
                             const targetClass = columns[colIndex];
                             if (targetClass && sourceClass !== targetClass) {
-                                if (value === 1) { // Association
+                                if (value === 1) { 
                                     addEdge(sourceClass, targetClass, 'association');
-                                } else { // Dependency (value > 1)
+                                } else { 
                                     addEdge(sourceClass, targetClass, 'dependency', value);
                                 }
                             }
@@ -242,11 +224,110 @@ export default function GraphVisualization({
     return edges;
   };
 
+  // --- Metrics Calculation Functions ---
+  const calculateCouplingMetrics = (classNodes, assocDepEdges) => {
+    const couplingData = new Map(); 
+
+    classNodes.forEach(node => {
+      couplingData.set(node.data.id, { afferent: 0, efferent: 0, total: 0 });
+    });
+
+    assocDepEdges.forEach(edge => {
+      const sourceId = edge.data.source;
+      const targetId = edge.data.target;
+
+      if (couplingData.has(sourceId)) {
+        couplingData.get(sourceId).efferent += 1;
+      }
+      if (couplingData.has(targetId)) {
+        couplingData.get(targetId).afferent += 1;
+      }
+    });
+
+    classNodes.forEach(node => {
+      const metrics = couplingData.get(node.data.id);
+      if (metrics) {
+        node.data.couplingScore = metrics.afferent + metrics.efferent;
+        node.data.afferentCoupling = metrics.afferent;
+        node.data.efferentCoupling = metrics.efferent;
+      } else {
+        node.data.couplingScore = 0;
+        node.data.afferentCoupling = 0;
+        node.data.efferentCoupling = 0;
+      }
+    });
+  };
+
+  const findLCOMConnectedComponents = (methodKeys, adj) => {
+    const visited = new Set();
+    let components = 0;
+    for (const methodKey of methodKeys) {
+      if (!visited.has(methodKey)) {
+        components++;
+        const stack = [methodKey];
+        visited.add(methodKey);
+        while (stack.length > 0) {
+          const u = stack.pop();
+          if (adj.has(u)) {
+            for (const v of adj.get(u)) {
+              if (!visited.has(v)) {
+                visited.add(v);
+                stack.push(v);
+              }
+            }
+          }
+        }
+      }
+    }
+    return components;
+  };
+
+  const calculateCohesionMetricsLCOM4 = (classNode, classJsonData) => {
+    // LCOM4: Number of connected components in the graph where methods are nodes
+    // and an edge exists if two methods access at least one common attribute.
+    // Assumes classJsonData has: { name: "...", attributes: [{name: "attr"}...], methods: [{name: "m", accessesAttributes: ["attr", ...]}...] }
+
+    if (!classJsonData || !Array.isArray(classJsonData.methods) || !Array.isArray(classJsonData.attributes)) {
+      classNode.data.lcomScore = 0; // Cannot calculate
+      return;
+    }
+    
+    const methods = classJsonData.methods;
+    if (methods.length <= 1) {
+      classNode.data.lcomScore = methods.length; // LCOM4 is 1 for 1 method, 0 for 0 methods (or 1, depending on definition)
+      return;
+    }
+
+    const methodNames = methods.map(m => m.name);
+    const methodAttributeAccess = new Map(
+        methods.map(m => [m.name, new Set(m.accessesAttributes || [])])
+    );
+    
+    const adj = new Map(); // Adjacency list for methods based on shared attributes
+
+    for (let i = 0; i < methodNames.length; i++) {
+      for (let j = i + 1; j < methodNames.length; j++) {
+        const methodA = methodNames[i];
+        const methodB = methodNames[j];
+        const attrsA = methodAttributeAccess.get(methodA);
+        const attrsB = methodAttributeAccess.get(methodB);
+
+        // Check for common attributes
+        if (attrsA && attrsB && [...attrsA].some(attr => attrsB.has(attr))) {
+          if (!adj.has(methodA)) adj.set(methodA, []);
+          if (!adj.has(methodB)) adj.set(methodB, []);
+          adj.get(methodA).push(methodB);
+          adj.get(methodB).push(methodA);
+        }
+      }
+    }
+    classNode.data.lcomScore = findLCOMConnectedComponents(methodNames, adj);
+  };
+
 
   // --- useMemo for Processing Data ---
   const { nodes, edges } = useMemo(() => {
     const result = { nodes: [], edges: [] };
-    // const jsonData = JSON.parse(jsonData);
     
     if (!jsonData) {
         console.warn("jsonData is missing, cannot build graph.");
@@ -254,22 +335,12 @@ export default function GraphVisualization({
     }
 
     const entityToPackageMap = new Map();
-    const allNodeData = new Map(); // Use a Map to easily add/update node info
+    const allNodeData = new Map(); 
     const parentClassNames = new Set(jsonData.parentClasses?.map(p => p.name) || []);
+    const classJsonMap = new Map(); // To store raw class data from jsonData for LCOM
 
-    // log the variables inuseMemo
-    // console.log("entityToPackageMap:", entityToPackageMap);
-    // console.log("allNodeData:", allNodeData);
-    // console.log("parentClassNames:", parentClassNames);
-    
-
-    // Function to determine classes for a node
     const getNodeClasses = (nodeData) => {
         const classes = [];
-        // log the nodeData
-        // console.log("nodeData:", nodeData);
-        //log classes
-        // console.log("classes:", classes);
         if (nodeData.type === 'package') {
             classes.push('package');
         } else if (nodeData.category === 'Class') {
@@ -278,82 +349,46 @@ export default function GraphVisualization({
             if (nodeData.isAbstract) classes.push('abstract');
         } else if (nodeData.category === 'Interface') {
             classes.push('interface');
-            // Interfaces are implicitly abstract in UML sense, apply abstract styling
-            classes.push('abstract');
+            classes.push('abstract'); // Interfaces are implicitly abstract
         } else {
-            classes.push('default'); // Fallback class
+            classes.push('default'); 
         }
-        return classes.join(' '); // Return space-separated string
+        return classes.join(' '); 
     }
 
-    // 1. Process Packages from JSON - Create Parent Nodes
     if (jsonData.packages && Array.isArray(jsonData.packages)) {
-
-      //log the packages
-      // console.log("jsonData.packages:", jsonData.packages);
-
       jsonData.packages.forEach(pkg => {
         if (pkg?.name) {
-          // Add package node
-          const pkgData = {
-            id: pkg.name,
-            label: pkg.name,
-            type: "package" // Keep type in data for potential logic, but use classes for styling
-          };
-          // add a log to check if the package already exists
-          if (allNodeData.has(pkg.name)) {
-            console.warn(`Package ${pkg.name} already exists, skipping.`);
-          } else {
-            // console.log(`Adding package node: ${pkg.name}`);
-          }
+          const pkgData = { id: pkg.name, label: pkg.name, type: "package" };
           allNodeData.set(pkg.name, pkgData);
-          //log the package data
-          // console.log("pkgData:", pkgData);
-          // log allNodeData
-          // console.log("allNodeData after adding package:", allNodeData);
 
-          // Process classes within package - Create Child Nodes
           if (pkg.classes && Array.isArray(pkg.classes)) {
             pkg.classes.forEach(cls => {
               if (cls?.name) {
                 entityToPackageMap.set(cls.name, pkg.name);
                 const isParent = parentClassNames.has(cls.name);
                 const classData = {
-                    id: cls.name,
-                    label: cls.name,
-                    parent: pkg.name, // Assign parent package
-                    category: "Class",
-                    isAbstract: cls.isAbstract || false, // Use flag from JSON
-                    isParent: isParent, // Check if it's listed as a parent
+                    id: cls.name, label: cls.name, parent: pkg.name,
+                    category: "Class", isAbstract: cls.isAbstract || false,
+                    isParent: isParent,
                 };
                 allNodeData.set(cls.name, classData);
+                classJsonMap.set(cls.name, cls); // Store raw class JSON for LCOM
               }
-              // log the class data
-              // console.log("classData:", cls.name);
-              // log allNodeData after adding class
-              // console.log("allNodeData after adding class:", allNodeData);
             });
           }
 
-          // Process interfaces within package - Create Child Nodes
           if (pkg.interfaces && Array.isArray(pkg.interfaces)) {
             pkg.interfaces.forEach(intf => {
               if (intf?.name) {
                 entityToPackageMap.set(intf.name, pkg.name);
                  const intfData = {
-                    id: intf.name,
-                    label: intf.name,
-                    parent: pkg.name, // Assign parent package
-                    category: "Interface",
-                    isAbstract: true, // Interfaces are always abstract conceptually
-                    isParent: false, // Interfaces aren't parent classes in the same way
+                    id: intf.name, label: intf.name, parent: pkg.name,
+                    category: "Interface", isAbstract: true, isParent: false,
                  };
                  allNodeData.set(intf.name, intfData);
+                 // Note: LCOM not typically calculated for interfaces in the same way as classes
               }
-              // log the interface data
-              // console.log("intfData:", intf.name);
-              // log allNodeData after adding interface
-              // console.log("allNodeData after adding interface:", allNodeData);
             });
           }
         }
@@ -362,89 +397,76 @@ export default function GraphVisualization({
         console.warn("jsonData.packages is missing or not an array.");
     }
 
-    // 2. Process Parent Classes from JSON again to ensure flags are set correctly
-    // and potentially add parents if they weren't inside a package structure (edge case)
     if (jsonData.parentClasses && Array.isArray(jsonData.parentClasses)) {
       jsonData.parentClasses.forEach(parentInfo => {
             if (parentInfo?.name) {
                 if (allNodeData.has(parentInfo.name)) {
-                    // Update existing node
                     const nodeData = allNodeData.get(parentInfo.name);
-                    nodeData.isParent = true; // Explicitly mark as parent
-                    if (parentInfo.isAbstract) {
-                        nodeData.isAbstract = true;
-                    }
-                     // Ensure package info is consistent
+                    nodeData.isParent = true; 
+                    if (parentInfo.isAbstract) nodeData.isAbstract = true;
                      if (parentInfo.package && !nodeData.parent) {
                          entityToPackageMap.set(parentInfo.name, parentInfo.package);
                           if (!allNodeData.has(parentInfo.package)) {
-                             const pkgData = { id: parentInfo.package, label: parentInfo.package, type: "package" };
-                             allNodeData.set(parentInfo.package, pkgData);
+                             allNodeData.set(parentInfo.package, { id: parentInfo.package, label: parentInfo.package, type: "package" });
                           }
                           nodeData.parent = parentInfo.package;
                      } else if (!nodeData.parent) {
                           console.warn(`Parent class ${parentInfo.name} has no package info.`);
-                          entityToPackageMap.set(parentInfo.name, null); // Mark as no known package
+                          entityToPackageMap.set(parentInfo.name, null); 
                      }
+                     // Ensure classJsonMap has the most complete info for parent classes
+                     classJsonMap.set(parentInfo.name, { ...classJsonMap.get(parentInfo.name), ...parentInfo });
                 } else {
-                    // Add parent if missing (should ideally be in a package)
-                     console.warn(`Parent class ${parentInfo.name} found in parentClasses but not defined within a package. Adding.`);
-                     const pkgName = parentInfo.package || null; // Assign package or null
+                     console.warn(`Parent class ${parentInfo.name} found in parentClasses but not defined. Adding.`);
+                     const pkgName = parentInfo.package || null; 
                      entityToPackageMap.set(parentInfo.name, pkgName);
                      if (pkgName && !allNodeData.has(pkgName)) {
-                         const pkgData = { id: pkgName, label: pkgName, type: "package" };
-                         allNodeData.set(pkgName, pkgData);
+                         allNodeData.set(pkgName, { id: pkgName, label: pkgName, type: "package" });
                      }
                      const parentData = {
-                         id: parentInfo.name,
-                         label: parentInfo.name,
-                         parent: pkgName,
-                         category: "Class",
-                         isAbstract: parentInfo.isAbstract || false,
+                         id: parentInfo.name, label: parentInfo.name, parent: pkgName,
+                         category: "Class", isAbstract: parentInfo.isAbstract || false,
                          isParent: true,
                      };
                     allNodeData.set(parentInfo.name, parentData);
-                     // log the parent data
-                    // console.log("parentData:", parentInfo.name);
-                    // log allNodeData after adding parent
-                    // console.log("allNodeData after adding parent:", allNodeData);
+                    classJsonMap.set(parentInfo.name, parentInfo); 
                 }
-                
             }
         });
     }
+    
+    const tempNodesForMetrics = Array.from(allNodeData.values()).map(nodeData => ({ data: nodeData }));
+    
+    const extractedInheritanceEdges = extractInheritanceEdges(jsonData, entityToPackageMap);
+    const extractedImplementationEdges = extractImplementationEdges(jsonData, matrices, entityToPackageMap);
+    const extractedAssocDepEdges = extractAssociationDependencyEdges(matrices, entityToPackageMap);
+    
+    const classNodesForMetrics = tempNodesForMetrics.filter(n => n.data.category === 'Class');
+    calculateCouplingMetrics(classNodesForMetrics, extractedAssocDepEdges);
+    classNodesForMetrics.forEach(node => {
+        const rawClassData = classJsonMap.get(node.data.id);
+        calculateCohesionMetricsLCOM4(node, rawClassData);
+    });
           
-          // 4. Convert node data Map to the final nodes array, adding classes
-          result.nodes = Array.from(allNodeData.values()).map(nodeData => {
-            // console.log("nodeData:", nodeData);
-            return {
-              data: nodeData, // Keep all collected data
-              classes: getNodeClasses(nodeData) // Assign classes for styling
-            };
-          });
+    result.nodes = Array.from(allNodeData.values()).map(nodeData => {
+        // Find the corresponding node from tempNodesForMetrics to get metrics
+        const nodeWithMetrics = tempNodesForMetrics.find(tn => tn.data.id === nodeData.id);
+        return {
+            data: { ...nodeData, ...nodeWithMetrics?.data }, // Merge original data with metrics
+            classes: getNodeClasses(nodeData) 
+        };
+    });
           
-          
-          // 5. Extract Edges (functions now add 'classes' property)
-          const inheritanceEdges = extractInheritanceEdges(jsonData, entityToPackageMap);
-          const implementationEdges = extractImplementationEdges(jsonData, matrices, entityToPackageMap);
-          const assocDepEdges = extractAssociationDependencyEdges(matrices, entityToPackageMap);
-          
-          result.edges = [
-            ...inheritanceEdges,
-            ...implementationEdges,
-            ...assocDepEdges,
-          ];
-          // log allNodeData
-          // console.log("allNodeData:", allNodeData);
+    result.edges = [
+        ...extractedInheritanceEdges,
+        ...extractedImplementationEdges,
+        ...extractedAssocDepEdges,
+    ];
 
-    // 6. Filter out edges pointing to/from non-existent nodes
     const existingNodeIds = new Set(result.nodes.map(n => n.data.id));
     result.edges = result.edges.filter(edge =>
         existingNodeIds.has(edge.data.source) && existingNodeIds.has(edge.data.target)
     );
-
-    // console.log("Processed Nodes:", result.nodes);
-    // console.log("Processed Edges:", result.edges);
 
     return result;
   }, [matrices, jsonData]);
@@ -458,321 +480,255 @@ export default function GraphVisualization({
     try {
       cyRef.current = cytoscape({
         container: containerRef.current,
-        elements: [], // Elements will be added in the update effect
+        elements: [], 
         style: [
           // --- Node Styles using Classes ---
-          { // Base style for all nodes (can be overridden)
+          { 
             selector: "node",
             style: {
-                "label": "data(label)",
-                "text-valign": "center",
-                "text-halign": "center",
-                "text-wrap": "wrap",
-                "color": "#333", // Default text color
-                "border-width": 2,
-                "border-color": "#666",
-                "background-color": "#f0f0f0",
-                opacity: 1,
-                "z-index": 10,
-                // Set base sizes here - can be overridden by more specific classes
-                "width": "50px",
-                "height": "50px",
-                "font-size": "12px",
-                "text-max-width": "80px",
+                "label": "data(label)", "text-valign": "center", "text-halign": "center",
+                "text-wrap": "wrap", "color": "#333", "border-width": 2,
+                "border-color": "#666", "background-color": "#f0f0f0",
+                opacity: 1, "z-index": 10, "width": "50px", "height": "50px",
+                "font-size": "12px", "text-max-width": "80px",
             }
           },
-          { // Style for Regular Classes (ellipse)
-            selector: "node.class", // Targets nodes with 'class' but not 'parent' or 'interface'
+          { 
+            selector: "node.class", 
             style: {
-              "background-color": "#3b82f6", // Blue
-              "border-color": "#2563eb",
-              "color": "white",
-              "shape": "ellipse",
-              // Specific size for regular classes
-              "width": "60px",
-              "height": "60px",
-              "font-size": "11px",
-              "text-wrap": "wrap",          // Explicitly enable text wrapping
-              "text-max-width": "50px",     // Max width before wrapping
-              "text-overflow-wrap": "anywhere", // Allow breaking long words
-              "display": "flex",            // Helps with text alignment
-              "align-items": "center",      // Vertically center text
-              "justify-content": "center",  // Horizontally center text
-              "padding": "5px",             // Add some padding
-              "text-valign": "center",      // Vertical alignment
-              "text-halign": "center"       // Horizontal alignment
+              "background-color": "#3b82f6", "border-color": "#2563eb", "color": "white",
+              "shape": "ellipse", "width": "60px", "height": "60px", "font-size": "11px",
+              "text-wrap": "wrap", "text-max-width": "50px", "text-overflow-wrap": "anywhere",
+              "display": "flex", "align-items": "center", "justify-content": "center",
+              "padding": "5px", "text-valign": "center", "text-halign": "center"
             },
           },
-           { // Style for Parent Classes (Triangle Shape) - Overrides .class styles
-             selector: 'node.parent', // Targets nodes with 'parent' class (should also have 'class')
+           { 
+             selector: 'node.parent', 
              style: {
-               "shape": "triangle",
-               "background-color": "#F59E0B", // Orange
-               "border-color": "#D97706",
-               "text-valign": "bottom", // Adjust label position for triangle
-               "text-margin-y": 5,      // Move label down slightly
-               "color": "#422006", // Dark brown text
-               // Specific size for parent triangles
-               "width": "65px",
-               "height": "60px",
-               "font-size": "11px",
-               "text-max-width": "60px",
+               "shape": "triangle", "background-color": "#F59E0B", "border-color": "#D97706",
+               "text-valign": "bottom", "text-margin-y": 5, "color": "#422006", 
+               "width": "65px", "height": "60px", "font-size": "11px", "text-max-width": "60px",
              },
            },
-          { // Interface Style - Overrides base node style
-             selector: 'node.interface', // Targets nodes with 'interface' class
+          { 
+             selector: 'node.interface', 
              style: {
-               "shape": "round-rectangle", // Correct shape for interface
-               "background-color": "#8b5cf6", // Purple
-               "border-color": "#7c3aed",
-               "color": "white",
-               // Specific size for interfaces
-               "width": "80px",
-               "height": "45px",
-               "font-size": "12px",
+               "shape": "round-rectangle", "background-color": "#8b5cf6", "border-color": "#7c3aed",
+               "color": "white", "width": "80px", "height": "45px", "font-size": "12px",
                "text-max-width": "70px",
              },
           },
-          { // Abstract Style Modifier (dashed border, italic font) - Applied additively
-             selector: 'node.abstract', // Targets ANY node with 'abstract' class (.class.abstract, .interface.abstract)
+          { 
+             selector: 'node.abstract', 
              style: {
-               "border-style": "dashed",
-               "border-width": 2, // Make dashed border clear
-               "font-style": "italic", // Italicize label
+               "border-style": "dashed", "border-width": 2, "font-style": "italic", 
              },
            },
-          { // Package Style (Compound Node / Parent)
-            selector: 'node.package', // Targets nodes with 'package' class
+          { 
+            selector: 'node.package', 
             style: {
-              "shape": "round-rectangle",
-              "background-color": "#E0F2FE", // Light blue
-              "border-color": "#38BDF8", // Blue
-              "border-width": 2,
-              "padding": "40px", // Increased padding
-              "text-valign": "top",
-              "text-halign": "center",
-              "color": "#0EA5E9", // Darker blue label
-              "font-size": "18px", // Larger font for package name
-              "font-weight": "bold",
-              "text-margin-y": -15, // Adjust label position
-              "background-opacity": 0.9,
-              "z-index": 1 // Behind regular nodes
+              "shape": "round-rectangle", "background-color": "#E0F2FE", "border-color": "#38BDF8",
+              "border-width": 2, "padding": "40px", "text-valign": "top",
+              "text-halign": "center", "color": "#0EA5E9", "font-size": "18px", 
+              "font-weight": "bold", "text-margin-y": -15, "background-opacity": 0.9,
+              "z-index": 1 
             },
           },
 
-          // --- Edge Styles using Classes (and maybe data for fallback/detail) ---
+          // --- Edge Styles using Classes ---
           {
-            selector: "edge", // Default edge style
+            selector: "edge", 
             style: {
-              width: 1.5,
-              "curve-style": "bezier",
-              "target-arrow-shape": "none",
-              "line-color": "#94a3b8", // Slate-400
-              "target-arrow-color": "#94a3b8",
-              opacity: 0.7,
-              "z-index": 5
+              width: 1.5, "curve-style": "bezier", "target-arrow-shape": "none",
+              "line-color": "#94a3b8", "target-arrow-color": "#94a3b8",
+              opacity: 0.7, "z-index": 5
             },
           },
-          { // Inheritance Edge Style
-            selector: 'edge.inheritance', // Use class selector
+          { 
+            selector: 'edge.inheritance', 
             style: {
-              "line-color": "#ef4444", // Red-500
-              "target-arrow-color": "#ef4444",
-              "target-arrow-shape": "triangle",
-              "target-arrow-fill": "hollow",
-              "arrow-scale": 1.2,
-              "line-style": "solid",
-              width: 2,
-              "z-index": 6
+              "line-color": "#ef4444", "target-arrow-color": "#ef4444",
+              "target-arrow-shape": "triangle", "target-arrow-fill": "hollow",
+              "arrow-scale": 1.2, "line-style": "solid", width: 2, "z-index": 6
             },
           },
-          { // Implementation Edge Style
-            selector: 'edge.implementation', // Use class selector
+          { 
+            selector: 'edge.implementation', 
             style: {
-              "line-color": "#8b5cf6", // Purple-500
-              "target-arrow-color": "#8b5cf6",
-              "target-arrow-shape": "triangle",
-              "target-arrow-fill": "hollow",
-              "arrow-scale": 1.2,
-              "line-style": "dashed",
-              "line-dash-pattern": [6, 3],
-              width: 2,
-              "z-index": 6
+              "line-color": "#8b5cf6", "target-arrow-color": "#8b5cf6",
+              "target-arrow-shape": "triangle", "target-arrow-fill": "hollow",
+              "arrow-scale": 1.2, "line-style": "dashed", "line-dash-pattern": [6, 3],
+              width: 2, "z-index": 6
             },
           },
-          { // Association Edge Style
-            selector: 'edge.association', // Use class selector
+          { 
+            selector: 'edge.association', 
             style: {
-              "line-color": "#f97316", // Orange-500
-              "target-arrow-color": "#f97316",
-              "line-style": "solid",
-              "target-arrow-shape": "none",
-              width: 1.5,
-              "z-index": 5
+              "line-color": "#f97316", "target-arrow-color": "#f97316",
+              "line-style": "solid", "target-arrow-shape": "none", width: 1.5, "z-index": 5
             },
           },
-           { // Inter-Package Association Edge Style Modifier
-             selector: 'edge.association.interPackage', // Target associations that are also interPackage
+           { 
+             selector: 'edge.association.interPackage', 
              style: {
-                "line-style": "dashed",
-                "line-dash-pattern": [5, 5],
-                "opacity": 0.8
+                "line-style": "dashed", "line-dash-pattern": [5, 5], "opacity": 0.8
              },
            },
-          { // Dependency Edge Style
-            selector: 'edge.dependency', // Use class selector
+          { 
+            selector: 'edge.dependency', 
             style: {
-              "line-color": "#22c55e", // Green-500
-              "target-arrow-color": "#22c55e",
-              "line-style": "dashed",
-              "line-dash-pattern": [4, 2],
-              "target-arrow-shape": "vee",
-              "arrow-scale": 1,
-              width: 1.5,
-               "z-index": 5
+              "line-color": "#22c55e", "target-arrow-color": "#22c55e",
+              "line-style": "dashed", "line-dash-pattern": [4, 2],
+              "target-arrow-shape": "vee", "arrow-scale": 1, width: 1.5, "z-index": 5
             },
           },
-          { // Inter-Package Dependency Edge Style Modifier (maybe just slightly dimmer)
+          { 
             selector: 'edge.dependency.interPackage',
-            style: {
-              "opacity": 0.8
-              // Could use a different dash pattern if desired: "line-dash-pattern": [2, 2],
-            },
+            style: { "opacity": 0.8 },
           },
 
           // --- Interaction Styles ---
-          { // Style for selected non-package node
-            selector: "node:selected:not(.package)", // More specific selector
+          { 
+            selector: "node:selected:not(.package)", 
             style: {
-              "background-color": "#DB2777", // Pink-600 for selection
-              "border-color": "#4C1D95", // Deep purple border
-              "border-width": 4,
-              "opacity": 1,
-              "z-index": 999
+              "background-color": "#DB2777", "border-color": "#4C1D95", 
+              "border-width": 4, "opacity": 1, "z-index": 999
             },
           },
-           { // Style for selected package node
+           { 
              selector: 'node.package:selected',
              style: {
-               "background-color": "#A5F3FC", // Lighter Cyan
-               "border-color": "#0891B2", // Darker Cyan
-               "border-width": 4,
-               "opacity": 1,
-               "z-index": 998
+               "background-color": "#A5F3FC", "border-color": "#0891B2",
+               "border-width": 4, "opacity": 1, "z-index": 998
              },
            },
-          { // Dim non-selected/non-neighbor elements
-            selector: '.unselected', // Keep using utility classes for dynamic state
+          { 
+            selector: '.unselected', 
             style: { 'opacity': 0.25 }
           },
-          { // Style for highlighted neighbours/related elements
-            selector: '.highlighted', // Keep using utility classes for dynamic state
+          { 
+            selector: '.highlighted', 
             style: {
-              // Highlight styles might need adjustment depending on base node color
-              // Using overlay or strong border might be better than changing background
-              'border-color': '#FACC15', // Yellow-400 border
-              'border-width': 4,
-              // For edges:
-              'line-color': '#F59E0B', // Amber-600
-              'target-arrow-color': '#F59E0B',
-              'opacity': 1,
-              'width': 3, // Thicker edge
-              'z-index': 500
+              'border-color': '#FACC15', 'border-width': 4,
+              'line-color': '#F59E0B', 'target-arrow-color': '#F59E0B',
+              'opacity': 1, 'width': 3, 'z-index': 500
             }
           },
-           // Ensure highlighted nodes themselves are fully visible and stand out
            {
              selector: 'node.highlighted',
              style: {
-               'background-color': '#FDE047', // Lighter yellow background
-               'border-color': '#EAB308', // Darker yellow border
-               'color': '#713F12', // Dark text on yellow
-               'opacity': 1,
-               'z-index': 501,
-                'width': '60px', // Reset to default size
-                'height': '60px', // Reset to default size
-                'font-size': '12px', // Reset to default font size
+               'background-color': '#FDE047', 'border-color': '#EAB308',
+               'color': '#713F12', 'opacity': 1, 'z-index': 501,
+                'width': '60px', 'height': '60px', 'font-size': '12px', 
              }
            },
-          { // Ensure selected node/package remains fully visible even if dimmed
+          { 
             selector: ':selected.unselected',
             style: { 'opacity': 1 }
+          },
+
+          // --- Special Highlight Styles (for Coupling/Cohesion) ---
+          {
+            selector: 'node.highly-coupled-highlight',
+            style: {
+              'background-color': '#E53E3E', // Red-600 (Tailwind)
+              'border-color': '#C53030',   // Red-700
+              'border-width': 3,
+              'color': 'white',
+              'z-index': 1000, 
+              'width': '70px', // Slightly larger to stand out
+              'height': '70px',
+              'font-size': '12px',
+              'text-max-width': '60px',
+            }
+          },
+          {
+            selector: 'node.low-cohesion-highlight',
+            style: {
+              'background-color': '#DD6B20', // Orange-600 (Tailwind)
+              'border-color': '#C05621',   // Orange-700
+              'border-width': 3,
+              'color': 'white',
+              'z-index': 1000,
+              'width': '70px', // Slightly larger
+              'height': '70px',
+              'font-size': '12px',
+              'text-max-width': '60px',
+            }
+          },
+          {
+            selector: '.dimmed-for-highlight', 
+            style: { 'opacity': 0.15, 'z-index': 0 } 
+          },
+          {
+            selector: ':selected.dimmed-for-highlight',
+            style: { 'opacity': 0.6 } 
+          },
+          { 
+            selector: 'edge.dimmed-for-highlight.connected-to-highlighted',
+            style: { 'opacity': 0.5, 'z-index': 4, 'width': 2 }
           }
         ],
 
-        // Layout: Use fcose as it supports compound nodes well
         layout: {
-          name: 'fcose',
-          quality: "default",
-          randomize: true,
-          animate: true,
-          animationDuration: 600,
-          fit: true,
-          padding: 60, // Increase padding slightly for packages
+          name: 'fcose', quality: "default", randomize: true, animate: true,
+          animationDuration: 600, fit: true, padding: 60, 
           nodeRepulsion: node => 45000,
-          // Adjust edge length based on edge data (interPackage flag)
           idealEdgeLength: edge => edge.data('interPackage') ? 180 : 90,
-          edgeElasticity: edge => 0.45,
-          nestingFactor: 1.2, // How tightly children fit
-          gravity: 80,
-          numIter: 2500,
-           gravityRangeCompound: 1.5, // Pulls nodes inside compound
-           gravityCompound: 1.0,
-           gravityRange: 3.8,
+          edgeElasticity: edge => 0.45, nestingFactor: 1.2, 
+          gravity: 80, numIter: 2500, gravityRangeCompound: 1.5, 
+          gravityCompound: 1.0, gravityRange: 3.8,
           initialEnergyOnIncremental: 0.3,
-          // Layout uses rendered dimensions which now come from fixed styles
-          nodeDimensionsIncludeLabels: false,
-          packComponents: true, // Pack disconnected components
-          tile: true, // Tile disconnected nodes
-           tilingPaddingVertical: 20, // Space between tiled nodes
-           tilingPaddingHorizontal: 20,
+          nodeDimensionsIncludeLabels: false, packComponents: true, 
+          tile: true, tilingPaddingVertical: 20, tilingPaddingHorizontal: 20,
         }
       });
 
-      // --- Event Handlers (No change needed here) ---
       const handleTap = (evt) => {
           const target = evt.target;
-          
           const cy = cyRef.current;
 
           if (target === cy) {
-              // Tap on background: Deselect all
               cy.elements().removeClass('highlighted').removeClass('unselected');
-              // console.log("Tapped on:", target);
+              // Do not clear special highlights on background tap
+              // cy.elements().removeClass('highly-coupled-highlight low-cohesion-highlight dimmed-for-highlight special-highlight-active connected-to-highlighted');
               if (onNodeSelect) onNodeSelect(null);
           } else if (target.isNode()) {
-              // Tap on a node
               const tappedNode = target;
-              // console.log("Tapped node:", tappedNode);
-              const tappedNodeId = tappedNode.data('id'); // Access ID from data
-              // // log the tapped node ID
-              // access the matrics of a node
-              // console.log("node metrics:", tappedNode.data('metrics'));
+              const tappedNodeId = tappedNode.data('id'); 
+              
+              // If a special highlight mode is active, tapping a node should still work for selection
+              // but we don't want to override the special highlight dimming logic entirely
+              if (!cy.elements('.special-highlight-active').length) {
+                 cy.elements().addClass('unselected'); 
+                 tappedNode.removeClass('unselected').addClass('highlighted');
+                 tappedNode.neighborhood().removeClass('unselected').addClass('highlighted');
 
-              cy.elements().addClass('unselected'); // Dim everything
-
-              // Highlight tapped node and its direct neighborhood
-              tappedNode.removeClass('unselected').addClass('highlighted');
-              tappedNode.neighborhood().removeClass('unselected').addClass('highlighted');
-
-              // If a package is tapped, highlight its children too
-              if (tappedNode.hasClass('package')) { // Check class instead of data type
-                  tappedNode.children().removeClass('unselected').addClass('highlighted');
+                 if (tappedNode.hasClass('package')) { 
+                     tappedNode.children().removeClass('unselected').addClass('highlighted');
+                 } else if (tappedNode.parent().length > 0 && tappedNode.parent().hasClass('package')) {
+                      tappedNode.parent().removeClass('unselected'); 
+                 }
+              } else {
+                // If special highlight is active, just ensure tapped node is fully visible
+                // and perhaps its direct neighborhood, but respect the overall dimming.
+                cy.elements('.highlighted').removeClass('highlighted'); // Clear previous tap highlights
+                tappedNode.addClass('highlighted');
+                // For special highlight mode, don't un-dim everything, just highlight the selected one.
+                // The :selected.dimmed-for-highlight style will handle its visibility.
               }
-              // If a node inside a package is tapped, ensure parent package is visible but not necessarily highlighted
-              else if (tappedNode.parent().length > 0 && tappedNode.parent().hasClass('package')) {
-                   tappedNode.parent().removeClass('unselected'); // Just make visible
-              }
-
-              if (onNodeSelect) onNodeSelect(tappedNodeId);
+              if (onNodeSelect) onNodeSelect(tappedNodeId, tappedNode.data());
           } else if (target.isEdge()) {
-              // Optional: Handle edge taps - highlight edge and connected nodes
               const tappedEdge = target;
-              cy.elements().addClass('unselected');
-              tappedEdge.removeClass('unselected').addClass('highlighted');
-              tappedEdge.connectedNodes().removeClass('unselected').addClass('highlighted');
-              // Maybe select the source node?
-              // if (onNodeSelect) onNodeSelect(tappedEdge.source().id());
+              if (!cy.elements('.special-highlight-active').length) {
+                cy.elements().addClass('unselected');
+                tappedEdge.removeClass('unselected').addClass('highlighted');
+                tappedEdge.connectedNodes().removeClass('unselected').addClass('highlighted');
+              } else {
+                 cy.elements('.highlighted').removeClass('highlighted');
+                 tappedEdge.addClass('highlighted');
+              }
           }
       };
       cyRef.current.on('tap', handleTap);
@@ -782,16 +738,13 @@ export default function GraphVisualization({
       cyRef.current = null;
     }
 
-
-
-    // Cleanup function
     return () => {
       if (cyRef.current) {
         cyRef.current.destroy();
         cyRef.current = null;
       }
     };
-  }, []); // Empty dependency array: Run only once on mount
+  }, []); 
 
   // --- useEffect for Updating Elements and Running Layout ---
 useEffect(() => {
@@ -800,77 +753,55 @@ useEffect(() => {
   }
   if (nodes.length === 0 && edges.length === 0 && cyRef.current.elements().length > 0) {
     cyRef.current.elements().remove();
-    // Clear legend if graph is cleared
     const existingLegend = document.getElementById('uml-legend');
     if (existingLegend) existingLegend.remove();
     return;
   }
 
   try {
-    // Map nodes and edges to the format Cytoscape expects, including classes
     const elementsToAdd = [
       ...nodes.map(node => ({ group: 'nodes', data: node.data, classes: node.classes })),
       ...edges.map(edge => ({ group: 'edges', data: edge.data, classes: edge.classes }))
     ];
 
-
     cyRef.current.batch(() => {
-      cyRef.current.elements().remove(); // Clear existing elements
-      cyRef.current.add(elementsToAdd);  // Add new/updated elements
-      cyRef.current.elements().removeClass('highlighted').removeClass('unselected'); // Reset states
+      cyRef.current.elements().remove(); 
+      cyRef.current.add(elementsToAdd);  
+      // Clear tap-based highlights, but special highlights will be reapplied by their own effect
+      cyRef.current.elements().removeClass('highlighted').removeClass('unselected'); 
     });
 
-    // --- Run Layout with proper error handling ---
     try {
       const layout = cyRef.current.layout({
-        name: 'fcose',
-        animate: true,
-        animationDuration: 500, // Shorter duration for updates
-        fit: true, // Re-fit the view after layout
-        padding: 60 // Ensure padding is applied
+        name: 'fcose', animate: true, animationDuration: 500, 
+        fit: true, padding: 60 
       });
       
-      // Run the layout
       const layoutRun = layout.run();
       
-      // Check if the layout returns a promise (not all layouts do)
+      const handleLayoutDone = () => {
+        const existingLegend = document.getElementById('uml-legend');
+        if (existingLegend) existingLegend.remove();
+        addLegend();
+      };
+
       if (layoutRun && typeof layoutRun.promise === 'function') {
-        // If there's a promise, use it
-        layoutRun.promise().then(() => {
-          // Add legend after layout is complete
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }).catch(err => {
+        layoutRun.promise().then(handleLayoutDone).catch(err => {
           console.warn("Layout promise error:", err);
-          // Add legend anyway
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
+          handleLayoutDone();
         });
-      } else if (layoutRun && layoutRun.promise) {
-        // Handle case where promise is a property not a function
-        layoutRun.promise.then(() => {
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }).catch(err => {
-          console.warn("Layout promise error:", err);
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
+      } else if (layoutRun && layoutRun.promise) { // Some older versions might have it as a property
+        layoutRun.promise.then(handleLayoutDone).catch(err => {
+          console.warn("Layout promise error (property):", err);
+          handleLayoutDone();
         });
-      } else {
-        // If no promise, just add the legend after a timeout
-        setTimeout(() => {
-          const existingLegend = document.getElementById('uml-legend');
-          if (existingLegend) existingLegend.remove();
-          addLegend();
-        }, 600); // Wait slightly longer than animation duration
+      } else { // No promise, use events or timeout
+        layout.one('layoutstop', handleLayoutDone); // Listen for layoutstop event
+        // Fallback timeout if event doesn't fire (shouldn't be necessary with fcose)
+        // setTimeout(handleLayoutDone, 600); 
       }
     } catch (layoutError) {
       console.error("Layout error:", layoutError);
-      // Fallback to a simpler layout
       try {
         cyRef.current.layout({ name: 'grid', fit: true }).run();
         setTimeout(() => {
@@ -880,7 +811,6 @@ useEffect(() => {
         }, 300);
       } catch (fallbackError) {
         console.error("Fallback layout error:", fallbackError);
-        // Add legend anyway
         const existingLegend = document.getElementById('uml-legend');
         if (existingLegend) existingLegend.remove();
         addLegend();
@@ -891,11 +821,76 @@ useEffect(() => {
   }
 }, [nodes, edges]); // Re-run when node or edge data changes
 
+
+  // --- useEffect for Applying Special Highlights (Coupling/Cohesion) ---
+  useEffect(() => {
+    if (!cyRef.current || !nodes || !edges || nodes.length === 0) return; 
+
+    const cy = cyRef.current;
+    const { coupling: couplingThreshold, lcom: lcomThreshold } = highlightThresholds;
+
+    cy.batch(() => {
+      cy.elements()
+        .removeClass('highly-coupled-highlight low-cohesion-highlight dimmed-for-highlight special-highlight-active connected-to-highlighted');
+      
+      // Also clear tap-based selection when special highlight changes
+      // cy.elements().removeClass('highlighted unselected');
+      // cy.$(':selected').unselect(); // More specific unselection
+
+      if (!activeHighlight) {
+        // If tap highlights were cleared, this ensures they are not reapplied without a tap
+        cy.elements().removeClass('unselected'); 
+        // Remove special-highlight-active if it was added
+        cy.elements().removeClass('special-highlight-active');
+        return;
+      }
+
+      cy.elements().addClass('special-highlight-active'); 
+
+      let highlightedNodesSelector = '';
+      let foundHighlights = false;
+
+      if (activeHighlight === 'coupling') {
+        cy.nodes().forEach(node => {
+          if (node.data('category') === 'Class' && node.data('couplingScore') != null && node.data('couplingScore') > couplingThreshold) {
+            node.addClass('highly-coupled-highlight');
+            foundHighlights = true;
+          } else {
+            node.addClass('dimmed-for-highlight');
+          }
+        });
+        highlightedNodesSelector = 'node.highly-coupled-highlight';
+      } else if (activeHighlight === 'cohesion') {
+        cy.nodes().forEach(node => {
+          if (node.data('category') === 'Class' && node.data('lcomScore') != null && node.data('lcomScore') > lcomThreshold) {
+            node.addClass('low-cohesion-highlight');
+            foundHighlights = true;
+          } else {
+            node.addClass('dimmed-for-highlight');
+          }
+        });
+        highlightedNodesSelector = 'node.low-cohesion-highlight';
+      }
+
+      if (foundHighlights) {
+        cy.edges().addClass('dimmed-for-highlight');
+        if (highlightedNodesSelector) {
+          cy.nodes(highlightedNodesSelector)
+            .connectedEdges()
+            .removeClass('dimmed-for-highlight')
+            .addClass('connected-to-highlighted'); 
+        }
+      } else {
+        // If no nodes met the criteria, remove dimming from all elements
+        cy.elements().removeClass('dimmed-for-highlight special-highlight-active');
+      }
+    });
+  }, [activeHighlight, nodes, edges, highlightThresholds]); // Re-run when mode or data/thresholds change
+
   // --- useEffect for Zoom Level ---
   useEffect(() => {
     if (!cyRef.current) return;
     try {
-      // Check if zoom level is significantly different to avoid tiny animations
       if (Math.abs(cyRef.current.zoom() - zoomLevel) > 0.01) {
           cyRef.current.animate({ zoom: zoomLevel, duration: 250 });
       }
@@ -904,9 +899,6 @@ useEffect(() => {
     }
   }, [zoomLevel]);
 
-  // Function to add a legend - Updated for new styles/types
-  // This function creates HTML elements based on the *intended* styles.
-  // Ensure the colors, shapes, and line styles here *match* the Cytoscape CSS above.
   const addLegend = () => {
     if (!containerRef.current || document.getElementById('uml-legend')) return;
 
@@ -915,26 +907,26 @@ useEffect(() => {
     legendContainer.style.cssText = `
         position: absolute; bottom: 15px; left: 15px;
         background-color: rgba(255, 255, 255, 0.95); padding: 12px;
-        border: 1px solid #d1d5db;
-        display: grid; grid-template-columns: repeat(2, auto); /* 2 columns */
-        gap: 8px 18px; /* row-gap column-gap */
-        font-size: 12px; z-index: 1000; max-width: 380px;
+        border: 1px solid #d1d5db; border-radius: 6px;
+        display: grid; grid-template-columns: repeat(2, auto); 
+        gap: 8px 18px; 
+        font-size: 12px; z-index: 1000; max-width: 420px; /* Increased max-width */
         box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-family: sans-serif;
     `;
 
-    // Match these styles exactly to the Cytoscape style definitions
     const legendItems = [
-      { style: { type: 'node', shape: 'round-rectangle', bgColor: '#E0F2FE', borderColor: '#38BDF8', borderW: 2 }, label: 'Package' }, // node.package
-      { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2 }, label: 'Class' }, // node.class
-      { style: { type: 'node', shape: 'triangle', bgColor: '#F59E0B', borderColor: '#D97706', borderW: 2 }, label: 'Parent Class' }, // node.parent
-      { style: { type: 'node', shape: 'round-rectangle', bgColor: '#8b5cf6', borderColor: '#7c3aed', borderW: 2 }, label: 'Interface' }, // node.interface
-      { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2, borderStyle: 'dashed', fontStyle: 'italic' }, label: 'Abstract Class' }, // node.class.abstract (show example)
-      // Note: Interface already implies abstract styling via node.abstract, but we could show it explicitly if needed.
-      { style: { type: 'edge', lineStyle: 'solid', color: '#ef4444', arrow: 'hollow-triangle' }, label: 'Inheritance' }, // edge.inheritance
-      { style: { type: 'edge', lineStyle: 'dashed', color: '#8b5cf6', arrow: 'hollow-triangle', dashPattern: '6,3' }, label: 'Implementation' }, // edge.implementation
-      { style: { type: 'edge', lineStyle: 'solid', color: '#f97316', arrow: 'none' }, label: 'Association' }, // edge.association
-      { style: { type: 'edge', lineStyle: 'dashed', color: '#f97316', arrow: 'none', dashPattern: '5,5' }, label: 'Inter-Package Assoc.' }, // edge.association.interPackage
-      { style: { type: 'edge', lineStyle: 'dashed', color: '#22c55e', arrow: 'vee', dashPattern: '4,2' }, label: 'Dependency' }, // edge.dependency
+      { style: { type: 'node', shape: 'round-rectangle', bgColor: '#E0F2FE', borderColor: '#38BDF8', borderW: 2 }, label: 'Package' },
+      { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2 }, label: 'Class' },
+      { style: { type: 'node', shape: 'triangle', bgColor: '#F59E0B', borderColor: '#D97706', borderW: 2 }, label: 'Parent Class' },
+      { style: { type: 'node', shape: 'round-rectangle', bgColor: '#8b5cf6', borderColor: '#7c3aed', borderW: 2 }, label: 'Interface' },
+      { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2, borderStyle: 'dashed', fontStyle: 'italic' }, label: 'Abstract Class' },
+      { style: { type: 'edge', lineStyle: 'solid', color: '#ef4444', arrow: 'hollow-triangle' }, label: 'Inheritance' },
+      { style: { type: 'edge', lineStyle: 'dashed', color: '#8b5cf6', arrow: 'hollow-triangle', dashPattern: '6,3' }, label: 'Implementation' },
+      { style: { type: 'edge', lineStyle: 'solid', color: '#f97316', arrow: 'none' }, label: 'Association' },
+      { style: { type: 'edge', lineStyle: 'dashed', color: '#f97316', arrow: 'none', dashPattern: '5,5' }, label: 'Inter-Package Assoc.' },
+      { style: { type: 'edge', lineStyle: 'dashed', color: '#22c55e', arrow: 'vee', dashPattern: '4,2' }, label: 'Dependency' },
+      { style: { type: 'node', shape: 'ellipse', bgColor: '#E53E3E', borderColor: '#C53030', borderW: 2 }, label: 'Highly Coupled Class' },
+      { style: { type: 'node', shape: 'ellipse', bgColor: '#DD6B20', borderColor: '#C05621', borderW: 2 }, label: 'Low Cohesion Class' },
     ];
 
     legendItems.forEach(item => {
@@ -947,38 +939,42 @@ useEffect(() => {
       icon.style.flexShrink = '0';
       icon.style.display = 'flex';
       icon.style.alignItems = 'center';
-      icon.style.justifyContent = 'center'; // Center content like arrows
+      icon.style.justifyContent = 'center';
 
       if (item.style.type === 'node') {
           icon.style.width = '20px';
           icon.style.height = '20px';
           icon.style.backgroundColor = item.style.bgColor;
           icon.style.border = `${item.style.borderW || 1}px ${item.style.borderStyle || 'solid'} ${item.style.borderColor}`;
-          if (item.style.borderStyle === 'dashed') {
-              // Approximate dashed border visually if needed, simple border is often enough
-          }
-
+          
           if (item.style.shape === 'ellipse') {
               icon.style.borderRadius = '50%';
           } else if (item.style.shape === 'round-rectangle') {
               icon.style.borderRadius = '4px';
           } else if (item.style.shape === 'triangle') {
-              // CSS triangle trick
               icon.style.width = '0';
               icon.style.height = '0';
-              icon.style.backgroundColor = 'transparent'; // No background needed
+              icon.style.backgroundColor = 'transparent'; 
               icon.style.borderLeft = '10px solid transparent';
               icon.style.borderRight = '10px solid transparent';
-              icon.style.borderBottom = `18px solid ${item.style.bgColor}`;
-              icon.style.borderTop = 'none'; // Override default border
-              icon.style.position = 'relative'; // Needed for pseudo-elements if adding border look
-               // Add border effect for triangle (approximate)
-              icon.style.filter = `drop-shadow(0px 1px 0 ${item.style.borderColor}) drop-shadow(1px -0.5px 0 ${item.style.borderColor}) drop-shadow(-1px -0.5px 0 ${item.style.borderColor})`;
+              icon.style.borderBottom = `18px solid ${item.style.bgColor}`; // Color of triangle body
+              icon.style.borderTop = 'none'; 
+              icon.style.position = 'relative'; 
+              // Simulate border for triangle
+              const borderPseudo = document.createElement('div');
+              borderPseudo.style.cssText = `
+                position: absolute; top: 1.5px; left: -11.5px; /* Adjust based on borderW */
+                width: 0; height: 0;
+                border-left: 11.5px solid transparent;
+                border-right: 11.5px solid transparent;
+                border-bottom: 21px solid ${item.style.borderColor}; /* Color of border */
+                z-index: -1;
+              `;
+              icon.appendChild(borderPseudo);
           }
-          // Italic style is indicated by label
       } else { // Edge
           icon.style.width = '35px';
-          icon.style.height = '15px'; // Give some height
+          icon.style.height = '15px'; 
           icon.style.position = 'relative';
 
           const line = document.createElement('div');
@@ -987,14 +983,13 @@ useEffect(() => {
           const isSolid = !item.style.lineStyle || item.style.lineStyle === 'solid';
           line.style.backgroundColor = isSolid ? item.style.color : 'transparent';
 
-          if (!isSolid) { // Dashed line
-              const pattern = item.style.dashPattern || '4,2'; // Default pattern if not specified
+          if (!isSolid) { 
+              const pattern = item.style.dashPattern || '4,2'; 
               const [dash, gap] = pattern.split(',').map(Number);
               line.style.backgroundImage = `linear-gradient(to right, ${item.style.color} ${dash}px, transparent ${dash}px)`;
               line.style.backgroundSize = `${dash + gap}px 2px`;
               line.style.backgroundRepeat = 'repeat-x';
           }
-
           line.style.position = 'absolute';
           line.style.top = '50%';
           line.style.transform = 'translateY(-50%)';
@@ -1003,7 +998,7 @@ useEffect(() => {
           if (item.style.arrow && item.style.arrow !== 'none') {
               const arrow = document.createElement('div');
               arrow.style.position = 'absolute';
-              arrow.style.right = '-2px'; // Position arrow at the end
+              arrow.style.right = '-2px'; 
               arrow.style.top = '50%';
               arrow.style.transform = 'translateY(-50%)';
               arrow.style.width = '0';
@@ -1012,21 +1007,19 @@ useEffect(() => {
               arrow.style.borderBottom = '5px solid transparent';
 
                if (item.style.arrow === 'hollow-triangle') {
-                    arrow.style.borderLeft = `7px solid ${item.style.color}`; // Outer triangle shape
-                    // Add inner white triangle using pseudo-element or another div
+                    arrow.style.borderLeft = `7px solid ${item.style.color}`; 
                     const innerArrow = document.createElement('div');
                     innerArrow.style.position = 'absolute';
                     innerArrow.style.top = '-3px';
-                    innerArrow.style.left = '-6px'; // Adjust based on outer border width
+                    innerArrow.style.left = '-6px'; 
                     innerArrow.style.width = '0';
                     innerArrow.style.height = '0';
                     innerArrow.style.borderTop = '3px solid transparent';
                     innerArrow.style.borderBottom = '3px solid transparent';
-                    innerArrow.style.borderLeft = `4px solid ${legendContainer.style.backgroundColor || 'white'}`; // Use background color to "hollow out"
+                    innerArrow.style.borderLeft = `4px solid ${legendContainer.style.backgroundColor || 'white'}`; 
                     arrow.appendChild(innerArrow);
-
                } else if (item.style.arrow === 'vee') {
-                    arrow.style.borderLeft = `7px solid ${item.style.color}`; // Standard solid 'vee'
+                    arrow.style.borderLeft = `7px solid ${item.style.color}`; 
                }
               icon.appendChild(arrow);
           }
@@ -1037,7 +1030,6 @@ useEffect(() => {
       label.style.whiteSpace = 'nowrap';
       if(item.style.fontStyle === 'italic') label.style.fontStyle = 'italic';
 
-
       itemContainer.appendChild(icon);
       itemContainer.appendChild(label);
       legendContainer.appendChild(itemContainer);
@@ -1047,7 +1039,6 @@ useEffect(() => {
   };
 
 
-  // --- Render Component ---
   return (
     <div
       ref={containerRef}
@@ -1059,7 +1050,7 @@ useEffect(() => {
         border: "1px solid #cbd5e1",
         borderRadius: "8px",
         position: "relative",
-        overflow: "hidden" // Important for Cytoscape container
+        overflow: "hidden" 
       }}
     />
   );

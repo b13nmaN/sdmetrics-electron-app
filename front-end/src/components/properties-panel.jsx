@@ -7,6 +7,7 @@ import { AlertCircle, Edit, FileText, Link2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 
 // Normalize Dep_Out to [0, 1] with a max value of 10
+// Normalize Dep_Out to [0, 1] with a max value of 10
 const normalizeDepOut = (depOut) => {
   if (depOut === undefined || depOut === null || isNaN(depOut)) return 0;
   const maxDepOut = 10; // Assumed max value for normalization

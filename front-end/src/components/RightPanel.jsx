@@ -2,9 +2,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button"; // Import buttonVariants
 import { Input } from "@/components/ui/input";
-import { ZoomIn, ZoomOut, Move, Search, XCircle, X as XIcon } from "lucide-react"; // Added XIcon
+import { ZoomIn, ZoomOut, Move, Search, XCircle, X as XIcon, Zap, AlertTriangle } from "lucide-react"; // Added Zap and AlertTriangle
 import GraphVisualization from "@/components/graph-visualization";
 import FilteredGraphView from "@/components/FilteredGraphView";
 import XMIEditor from "@/components/xmi-editor";
@@ -27,6 +27,13 @@ export function RightPanel({
   const [graphSearchTermInput, setGraphSearchTermInput] = useState("");
   const [submittedGraphSearchTerm, setSubmittedGraphSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [activeHighlight, setActiveHighlight] = useState(null); // 'coupling', 'cohesion', or null
+
+  // Thresholds (could be made configurable later)
+  const HIGHLIGHT_THRESHOLDS = useMemo(() => ({
+    coupling: 5, // e.g., if total degree (afferent + efferent) > 5
+    lcom: 2     // e.g., if LCOM4 > 2 (higher LCOM4 means lower cohesion)
+  }), []);
   
   const inputRef = useRef(null);
   const searchContainerRef = useRef(null);
@@ -67,21 +74,24 @@ export function RightPanel({
   const handleSuggestionClick = (nodeName) => {
     setGraphSearchTermInput(nodeName);
     setSubmittedGraphSearchTerm(nodeName);
-    onNodeSelect(nodeName);
+    onNodeSelect(nodeName); // This will trigger selection in GraphVisualization
     setSuggestions([]);
     setIsSearchExpanded(false);
+    setActiveHighlight(null); // Clear special highlights when a node is directly searched/selected
   };
 
   const handleSearchSubmit = () => {
     const termToSearch = graphSearchTermInput.trim();
     setSubmittedGraphSearchTerm(termToSearch);
+    setActiveHighlight(null); // Clear special highlights
+
     if (termToSearch === "") {
       onNodeSelect(null);
     } else {
       if (allNodeNames.includes(termToSearch)) {
         onNodeSelect(termToSearch);
       } else {
-        onNodeSelect(null);
+        onNodeSelect(null); // Or provide feedback that node wasn't found
       }
     }
     setSuggestions([]);
@@ -107,12 +117,18 @@ export function RightPanel({
     setSubmittedGraphSearchTerm("");
     onNodeSelect(null);
     setSuggestions([]);
+    // setActiveHighlight(null); // Keep active highlight if user just exits search filter mode
     setIsSearchExpanded(false);
   };
 
   useEffect(() => {
-      clearSearchAndCollapse();
-  }, [jsonData]);
+      // Clear search input when jsonData changes, but keep special highlights
+      setGraphSearchTermInput("");
+      setSubmittedGraphSearchTerm("");
+      onNodeSelect(null);
+      setSuggestions([]);
+      setIsSearchExpanded(false);
+  }, [jsonData]); // Only react to jsonData changes
 
   useEffect(() => {
     if (isSearchExpanded && inputRef.current) {
@@ -135,6 +151,12 @@ export function RightPanel({
     };
   }, [isSearchExpanded]);
 
+  const handleHighlightToggle = (type) => {
+    setActiveHighlight(prev => (prev === type ? null : type));
+    setSubmittedGraphSearchTerm(""); // Exit filtered view when toggling highlights
+    onNodeSelect(null); // Deselect any specific node
+  };
+
 
   return (
     <div className="w-4/5 flex flex-col overflow-y-hidden">
@@ -154,14 +176,13 @@ export function RightPanel({
         )}
 
         {/* Animated Search Bar */}
-        {/* Adjusts position based on whether the "View All Nodes" button is visible */}
         <div 
           ref={searchContainerRef} 
           className={`absolute top-4 z-20 transition-all duration-300 ease-in-out ${
-            submittedGraphSearchTerm ? 'left-16' : 'left-4' // left-16 (64px) = left-4 (16px) + Xbtn_width (40px) + space (8px)
+            submittedGraphSearchTerm ? 'left-16' : 'left-4'
           }`}
         >
-          <div className="relative flex items-center bg-white p-1 rounded-md  border border-gray-200 h-10">
+          <div className="relative flex items-center bg-white p-1 rounded-md shadow-sm border border-gray-200 h-10">
             <Button variant="ghost" size="icon" onClick={handleSearchIconClick} className="h-8 w-8 flex-shrink-0" aria-label="Toggle search">
               <Search className="h-5 w-5" />
             </Button>
@@ -175,7 +196,7 @@ export function RightPanel({
                 value={graphSearchTermInput}
                 onChange={handleInputChange}
                 onKeyPress={handleSearchKeyPress}
-                className="h-8 text-sm flex-grow min-w-0 "
+                className="h-8 text-sm flex-grow min-w-0 border-0 focus-visible:ring-0"
               />
         
               {graphSearchTermInput && (
@@ -186,13 +207,12 @@ export function RightPanel({
             </div>
           </div>
 
-          {/* Suggestions List */}
           {isSearchExpanded && suggestions.length > 0 && graphSearchTermInput.trim() !== "" && (
             <ul 
                 className="absolute bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto z-30 mt-1"
                 style={{ 
-                    left: 'calc(4px + 32px + 4px + 4px)', // p-1(bar_padding) + icon_w + ml-1(input_container_margin) + px-1(input_container_padding_left) = 44px
-                    width: '280px' // Should match the max-w of the expanded input area
+                    left: 'calc(4px + 32px + 4px + 4px)', 
+                    width: '280px' 
                 }}
             >
               {suggestions.map(suggestion => (
@@ -208,18 +228,44 @@ export function RightPanel({
           )}
         </div>
 
-        {/* Zoom/Move buttons - only show if not in filtered view */}
+        {/* Zoom/Move & Highlight buttons - only show if not in filtered view */}
         {!submittedGraphSearchTerm && (
           <div className="absolute top-4 right-4 flex space-x-2 z-10">
-            <Button variant="outline" size="icon" onClick={handleZoomIn} aria-label="Zoom In">
+            <Button variant="outline" size="icon" onClick={handleZoomIn} aria-label="Zoom In" className="h-10 w-10">
               <ZoomIn className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={handleZoomOut} aria-label="Zoom Out">
+            <Button variant="outline" size="icon" onClick={handleZoomOut} aria-label="Zoom Out" className="h-10 w-10">
               <ZoomOut className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" aria-label="Pan/Move">
+            {/* Pan/Move functionality is usually handled by graph library directly via drag */}
+            {/* <Button variant="outline" size="icon" aria-label="Pan/Move" className="h-10 w-10">
               <Move className="h-4 w-4" />
+            </Button> */}
+
+            {/* Highlight Toggle Buttons */}
+            <Button
+              variant={activeHighlight === 'coupling' ? 'default' : 'outline'}
+              size="sm" // Use sm for text buttons or keep icon-like if just icon
+              onClick={() => handleHighlightToggle('coupling')}
+              className="h-10 px-3 text-xs flex items-center gap-1"
+              title="Show highly coupled classes"
+            >
+              <Zap size={14} /> Coupling
             </Button>
+            <Button
+              variant={activeHighlight === 'cohesion' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleHighlightToggle('cohesion')}
+              className="h-10 px-3 text-xs flex items-center gap-1"
+              title="Show classes with low cohesion"
+            >
+             <AlertTriangle size={14} /> Cohesion
+            </Button>
+             {activeHighlight && (
+                <Button variant="ghost" size="icon" onClick={() => handleHighlightToggle(null)} className="h-10 w-10" aria-label="Clear highlights">
+                    <XIcon className="h-4 w-4" />
+                </Button>
+            )}
           </div>
         )}
 
@@ -230,6 +276,9 @@ export function RightPanel({
             jsonData={jsonData}
             onNodeSelect={onNodeSelect}
             searchTerm={submittedGraphSearchTerm}
+            // Pass highlight props if FilteredGraphView should also support them
+            // activeHighlight={activeHighlight} 
+            // highlightThresholds={HIGHLIGHT_THRESHOLDS}
           />
         ) : (
           <GraphVisualization
@@ -239,11 +288,12 @@ export function RightPanel({
             perspective={perspective}
             zoomLevel={zoomLevel} 
             jsonData={jsonData}
+            activeHighlight={activeHighlight}
+            highlightThresholds={HIGHLIGHT_THRESHOLDS}
           />
         )}
       </TabsContent>
       
-      {/* Other TabsContent remain the same */}
       <TabsContent value="overview" className="flex-1 m-0 p-6 h-full overflow-auto">
         <Card>
           <CardHeader>
@@ -254,6 +304,12 @@ export function RightPanel({
           </CardHeader>
           <CardContent>
             <p>Use the Visualizations tab to explore the class relationships and metrics.</p>
+            <p className="mt-2">
+              <strong>Highly Coupled Classes:</strong> Classes with many connections (dependencies, associations) to other classes. Indicated by <Zap size={14} className="inline align-text-bottom"/> icon.
+            </p>
+            <p className="mt-1">
+              <strong>Low Cohesion Classes:</strong> Classes whose members (methods, attributes) are not well related or grouped. Indicated by <AlertTriangle size={14} className="inline align-text-bottom"/> icon. (Based on LCOM4 metric).
+            </p>
             {matrices && activeMatrixTab && (
               <div className="mt-4">
                 <h3 className="font-medium mb-2">Current Matrix: {activeMatrixTab.replace(/_/g, " ")}</h3>

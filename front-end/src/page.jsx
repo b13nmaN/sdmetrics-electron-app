@@ -26,7 +26,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [jsonData, setJsonData] = useState(null);
   // console.log("jsonData fro page.jsx line: 30", jsonData);
-  console.log("Metrics from page.jsx line: 31", metrics);
+  console.log("Metrics from page.jsx line: 31", matrices);
 
 
   // Load initial data on mount
