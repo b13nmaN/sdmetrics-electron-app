@@ -36,7 +36,6 @@ export function NavBar() {
           <span className="text-xl font-bold">UML Insights</span>
         </div>
         <TabsList className="ml-auto">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="visualizations">Visualizations</TabsTrigger>
           <TabsTrigger value="metrics">Metrics</TabsTrigger>
           {/* <TabsTrigger value="editor">Editor</TabsTrigger> */}

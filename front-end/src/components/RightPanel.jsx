@@ -372,33 +372,7 @@ export function RightPanel({
           ))}
         </div>
       </TabsContent>
-      
-      <TabsContent value="overview" className="flex-1 m-0 p-6 h-full overflow-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle>Project Overview</CardTitle>
-            <CardDescription>
-              This application visualizes class relationships from XMI files as directed graphs.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Use the Visualizations tab to explore the class relationships and metrics.</p>
-            <p className="mt-2">
-              <strong>Highly Coupled Classes:</strong> Classes with many connections (dependencies, associations) to other classes. Indicated by <Zap size={14} className="inline align-text-bottom"/> icon.
-            </p>
-            <p className="mt-1">
-              <strong>Low Cohesion Classes:</strong> Classes whose members (methods, attributes) are not well related or grouped. Indicated by <AlertTriangle size={14} className="inline align-text-bottom"/> icon. (Based on LCOM4 metric).
-            </p>
-            {matrices && activeMatrixTab && (
-              <div className="mt-4">
-                <h3 className="font-medium mb-2">Current Matrix: {activeMatrixTab.replace(/_/g, " ")}</h3>
-                <p>This matrix represents relationships between software elements.</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
+
     <TabsContent value="metrics" className="flex-1 m-0 h-full overflow-auto">
       <div className="p-6 h-full">
         <MetricsDisplay matrices={matrices} activeMatrixTab={activeMatrixTab} />
