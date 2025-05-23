@@ -1,0 +1,403 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<XMI xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmi.version="2.1">
+  <uml:Model xmi:id="_universitySystem" name="UniversitySystem">
+    <packagedElement xmi:type="uml:Package" xmi:id="_peoplePackage" name="People">
+      <packagedElement xmi:type="uml:Class" xmi:id="_person" name="Person" isAbstract="true">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_personName" name="name" visibility="protected" type="_string" />
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_personGetName" name="getName" visibility="public" isQuery="true">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_personGetNameResult" name="result" type="_string" direction="return" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_student" name="Student">
+        <generalization xmi:type="uml:Generalization" xmi:id="_studentPerson" general="_person" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_studentID" name="studentID" visibility="private" type="_string" />
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_studentPort" name="studentPort" visibility="public" type="_string" />
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_studentEnroll" name="enroll" visibility="public">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_studentEnrollCourse" name="course" type="_course" direction="in" />
+        </ownedOperation>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_connector1">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end" role="_studentID" />
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_connector1end2" role="_studentPort" />
+        </ownedConnector>
+        <ownedAttribute xmi:type="uml:Property" name="hourlyRate" type="_packagedelement_elem_1" visibility="private" xmi:id="_ownedattribute_elem_58">
+          <lowerValue xmi:id="_lv_hourlyRate_elem_59" xmi:type="uml:LiteralInteger" value="0" />
+          <upperValue xmi:id="_uv_hourlyRate_elem_60" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+        <interfaceRealization xmi:type="uml:InterfaceRealization" contract="_packagedelement_elem_52" implementingClassifier="_student" xmi:id="_ir_StudentRealizesIStudentWorker_elem_61" name="StudentRealizesIStudentWorker" />
+        <ownedOperation xmi:type="uml:Operation" name="createTimesheetForPeriod" visibility="public" xmi:id="_ownedoperation_elem_62">
+          <ownedParameter xmi:type="uml:Parameter" name="period" type="_packagedelement_elem_12" direction="in" xmi:id="_ownedparameter_elem_63" />
+          <ownedParameter xmi:type="uml:Parameter" name="newTimesheet" type="_packagedelement_elem_35" direction="return" xmi:id="_ownedparameter_elem_64" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interface" xmi:id="_igraduate" name="IGraduate">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_igraduateGrad" name="graduate" visibility="public" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_undergrad" name="UndergraduateStudent">
+        <generalization xmi:type="uml:Generalization" xmi:id="_undergradIS" general="_student" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_gradStudent" name="GradStudent">
+        <generalization xmi:type="uml:Generalization" xmi:id="_gradStudentPerson" general="_student" />
+        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_gradStudentIGrad" contract="_igraduate" implementingClassifier="_gradStudent" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_professor" name="Professor" isAbstract="true">
+        <generalization xmi:type="uml:Generalization" xmi:id="_professorPerson" general="_person" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_profID" name="professorID" visibility="private" type="_string" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_adjunct" name="AdjunctProfessor" isAbstract="false">
+        <generalization xmi:type="uml:Generalization" xmi:id="_adjunctToProfessor" general="_professor" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_ta" name="TeachingAssistant" isAbstract="false">
+        <generalization xmi:type="uml:Generalization" xmi:id="_taTOprofessor" general="_professor" />
+        <generalization xmi:type="uml:Generalization" xmi:id="_taTOgrad" general="_gradStudent" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_admin" name="Administrator">
+        <generalization xmi:type="uml:Generalization" xmi:id="_adminPerson" general="_person" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interface" name="IStudentWorker" xmi:id="_packagedelement_elem_52">
+        <ownedOperation xmi:type="uml:Operation" name="recordHours" visibility="public" xmi:id="_ownedoperation_elem_53">
+          <ownedParameter xmi:type="uml:Parameter" name="timesheetId" type="_string" direction="in" xmi:id="_ownedparameter_elem_54" />
+          <ownedParameter xmi:type="uml:Parameter" name="entryData" type="_packagedelement_elem_30" direction="in" xmi:id="_ownedparameter_elem_55" />
+        </ownedOperation>
+        <ownedOperation xmi:type="uml:Operation" name="viewTimesheetHistory" visibility="public" isQuery="true" xmi:id="_ownedoperation_elem_56">
+          <ownedParameter xmi:type="uml:Parameter" name="historyData" type="_string" direction="return" xmi:id="_ownedparameter_elem_57" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="FacultySupervisor" xmi:id="_packagedelement_elem_65">
+        <generalization xmi:type="uml:Generalization" general="_professor" xmi:id="_gen_FacultySupervisor_to_Professor_elem_66" />
+        <ownedAttribute xmi:type="uml:Property" name="maxSupervisees" type="_integer" visibility="private" xmi:id="_ownedattribute_elem_67">
+          <defaultValue xmi:id="_dv_maxSupervisees_elem_68" xmi:type="uml:LiteralInteger" value="10" />
+        </ownedAttribute>
+        <ownedOperation xmi:type="uml:Operation" name="approveTimesheet" visibility="public" xmi:id="_ownedoperation_elem_69">
+          <ownedParameter xmi:type="uml:Parameter" name="timesheetToApprove" type="_packagedelement_elem_35" direction="in" xmi:id="_ownedparameter_elem_70" />
+        </ownedOperation>
+        <ownedOperation xmi:type="uml:Operation" name="rejectTimesheet" visibility="public" xmi:id="_ownedoperation_elem_71">
+          <ownedParameter xmi:type="uml:Parameter" name="timesheetToReject" type="_packagedelement_elem_35" direction="in" xmi:id="_ownedparameter_elem_72" />
+          <ownedParameter xmi:type="uml:Parameter" name="reason" type="_string" direction="in" xmi:id="_ownedparameter_elem_73" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="PayrollAdministrator" xmi:id="_packagedelement_elem_74">
+        <generalization xmi:type="uml:Generalization" general="_admin" xmi:id="_gen_PayrollAdministrator_to_Administrator_elem_75" />
+        <ownedAttribute xmi:type="uml:Property" name="payrollSystemAccessID" type="_string" visibility="private" xmi:id="_ownedattribute_elem_76" />
+        <ownedOperation xmi:type="uml:Operation" name="processPaymentForTimesheet" visibility="public" xmi:id="_ownedoperation_elem_77">
+          <ownedParameter xmi:type="uml:Parameter" name="timesheetToProcess" type="_packagedelement_elem_35" direction="in" xmi:id="_ownedparameter_elem_78" />
+        </ownedOperation>
+        <ownedOperation xmi:type="uml:Operation" name="verifyTimesheetCompliance" visibility="public" isQuery="true" xmi:id="_ownedoperation_elem_79">
+          <ownedParameter xmi:type="uml:Parameter" name="timesheetToVerify" type="_packagedelement_elem_35" direction="in" xmi:id="_ownedparameter_elem_80" />
+          <ownedParameter xmi:type="uml:Parameter" name="isCompliant" type="_packagedelement_elem_4" direction="return" xmi:id="_ownedparameter_elem_81" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" client="_student" supplier="_packagedelement_elem_12" xmi:id="_dep_StudentUsesTimesheetPeriod_elem_5" name="StudentUsesTimesheetPeriod" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_student" supplier="_packagedelement_elem_30" xmi:id="_dep_StudentUsesTimesheetEntry_elem_6" name="StudentUsesTimesheetEntry" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_student" supplier="_course" xmi:id="_dep_StudentUsesCourseInfo_elem_7" name="StudentUsesCourseInfo" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_65" supplier="_packagedelement_elem_35" xmi:id="_dep_SupervisorUsesTimesheet_elem_8" name="SupervisorUsesTimesheet" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_74" supplier="_packagedelement_elem_35" xmi:id="_dep_PayrollAdminUsesTimesheet_elem_9" name="PayrollAdminUsesTimesheet" stereotype="use" />
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_coursesPackage" name="Courses">
+      <packagedElement xmi:type="uml:DataType" xmi:id="_string" name="String" />
+      <packagedElement xmi:type="uml:DataType" xmi:id="_integer" name="Integer" />
+      <packagedElement xmi:type="uml:Class" xmi:id="_course" name="Course">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_courseCode" name="courseCode" visibility="private" type="_string" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_courseCredits" name="credits" visibility="public" type="_integer" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_courseDesc" name="description" visibility="public" type="_string" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_qual" name="qualifier" visibility="public" type="_integer">
+          <qualifier xmi:type="uml:Property" name="qual" xmi:id="_qual" type="_string" />
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_lecture" name="Lecture">
+        <generalization xmi:type="uml:Generalization" xmi:id="_lectureCourse" general="_course" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_lectureRoom" name="room" visibility="private" type="_string" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_lab" name="Lab">
+        <generalization xmi:type="uml:Generalization" xmi:id="_labCourse" general="_course" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_labEquip" name="equipment" visibility="private" type="_string" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_dept" name="Department">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_deptName" name="departmentName" visibility="private" type="_string" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_depts" name="department" visibility="private" type="_dept" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:AssociationClass" xmi:id="_enrollment" name="Enrollment">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_enrollmentGrade" name="grade" visibility="public" type="_string" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_enrollmentDate" name="dateEnrolled" visibility="public" type="_string" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_enrollmentAssociation" name="Enrolls" memberEnd="_studentEnrollment _courseEnrollment">
+    </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_studentEnrollment" name="student" association="_enrollmentAssociation" type="_student">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_sELower" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_sEUpper" value="*" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_courseEnrollment" name="course" association="_enrollmentAssociation" type="_course">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cELower" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cEUpper" value="1" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_studentCourseDependency" client="_student" supplier="_course" />
+      <packagedElement xmi:type="uml:Class" xmi:id="_onlineCourse" name="OnlineCourse">
+        <generalization xmi:type="uml:Generalization" xmi:id="_onlineTOcourse" general="_course" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:DataType" name="Double" xmi:id="_packagedelement_elem_1" />
+      <packagedElement xmi:type="uml:DataType" name="Date" xmi:id="_packagedelement_elem_2" />
+      <packagedElement xmi:type="uml:DataType" name="DateTime" xmi:id="_packagedelement_elem_3" />
+      <packagedElement xmi:type="uml:DataType" name="Boolean" xmi:id="_packagedelement_elem_4" />
+      <packagedElement xmi:type="uml:Dependency" client="_dept" supplier="_course" xmi:id="_dep_DepartmentManagesCourses_elem_15" name="DepartmentManagesCourses" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_dept" supplier="_professor" xmi:id="_dep_DepartmentAssignsProfessors_elem_16" name="DepartmentAssignsProfessors" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_lecture" supplier="_room" xmi:id="_dep_LectureScheduledInRoom_elem_17" name="LectureScheduledInRoom" />
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_adminPackage" name="Administration">
+      <packagedElement xmi:type="uml:Class" xmi:id="_building" name="Building">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_buildingName" name="buildingName" visibility="private" type="_string" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_room" name="Room">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_roomNum" name="roomNumber" visibility="private" type="_string" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_roomCap" name="capacity" visibility="private" type="_integer" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_building_association" name="Contains" memberEnd="_building_rooms _room_building">
+        </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_building_rooms" name="rooms" type="_room" association="_building_association" aggregation="composite" isNavigable="true">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_bRoomsLower" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_bRoomsUpper" value="*" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_room_building" name="building" type="_building" association="_building_association">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_rBLower" value="1" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_rBUpper" value="1" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="_year" name="Year">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_freshman" name="Freshman" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_sophomore" name="Sophomore" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_junior" name="Junior" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_senior" name="Senior" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_finaid" name="FinancialAid">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_finaidType" name="aidType" visibility="private" type="_string" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_scholar" name="Scholarship">
+        <generalization xmi:type="uml:Generalization" xmi:id="_scholarTOaid" general="_finaid" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_scholarAmount" name="amount" visibility="private" type="_integer" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_student_aid_association" isLeaf="false" isAbstract="false" name="Receives" memberEnd="_studentAid _aidStudent">
+        </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_studentAid" name="financialAid" type="_finaid" association="_student_aid_association">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_aidLower" value="0" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_aidUpper" value="*" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_aidStudent" name="student" type="_student" association="_student_aid_association">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_studentLower" value="0" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_studentUpper" value="1" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="SystemConfigurationManager" xmi:id="_packagedelement_elem_118">
+        <ownedAttribute xmi:type="uml:Property" name="configFileLocation" type="_string" visibility="private" xmi:id="_ownedattribute_elem_119" />
+        <ownedAttribute xmi:type="uml:Property" name="lastLoaded" type="_packagedelement_elem_3" visibility="private" xmi:id="_ownedattribute_elem_120">
+          <lowerValue xmi:id="_lv_lastLoaded_elem_121" xmi:type="uml:LiteralInteger" value="0" />
+          <upperValue xmi:id="_uv_lastLoaded_elem_122" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+        <ownedOperation xmi:type="uml:Operation" name="loadConfiguration" visibility="public" xmi:id="_ownedoperation_elem_123" />
+        <ownedOperation xmi:type="uml:Operation" name="getConfigurationValue" visibility="public" isQuery="true" xmi:id="_ownedoperation_elem_124">
+          <ownedParameter xmi:type="uml:Parameter" name="key" type="_string" direction="in" xmi:id="_ownedparameter_elem_125" />
+          <ownedParameter xmi:type="uml:Parameter" name="value" type="_string" direction="return" xmi:id="_ownedparameter_elem_126" />
+        </ownedOperation>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_securityPackage" name="Security">
+      <packagedElement xmi:type="uml:Class" xmi:id="_clearance" name="Clearance">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_clearanceLevel" name="clearanceLevel" visibility="private" type="_integer" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_guard" name="SecurityGuard">
+        <generalization xmi:type="uml:Generalization" xmi:id="_guardPerson" general="_person" />
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_guardID" name="guardID" visibility="private" type="_string" />
+        <ownedOperation xmi:type="uml:Operation" name="reviewAccessLogs" visibility="public" xmi:id="_ownedoperation_elem_136">
+          <ownedParameter xmi:type="uml:Parameter" name="filterDate" type="_packagedelement_elem_2" direction="in" xmi:id="_ownedparameter_elem_137" />
+          <ownedParameter xmi:type="uml:Parameter" name="logs" type="_string" direction="return" xmi:id="_ownedparameter_elem_138" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_guard_association" isLeaf="false" isAbstract="false" name="Has" memberEnd="_guardClearance _clearanceGuard">
+        </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_guardClearance" name="clearance" type="_clearance" association="_guard_association">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_clearLower" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_clearUpper" value="1" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Property" xmi:id="_clearanceGuard" name="guard" type="_guard" association="_guard_association">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_guardLower" value="1" />
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_guardUpper" value="1" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="AccessLog" xmi:id="_packagedelement_elem_127">
+        <ownedAttribute xmi:type="uml:Property" name="accessTimestamp" type="_packagedelement_elem_3" visibility="private" xmi:id="_ownedattribute_elem_128" />
+        <ownedAttribute xmi:type="uml:Property" name="userIdAttempt" type="_string" visibility="private" xmi:id="_ownedattribute_elem_129" />
+        <ownedAttribute xmi:type="uml:Property" name="resourceAccessed" type="_string" visibility="private" xmi:id="_ownedattribute_elem_130" />
+        <ownedAttribute xmi:type="uml:Property" name="accessGranted" type="_packagedelement_elem_4" visibility="private" xmi:id="_ownedattribute_elem_131" />
+        <ownedOperation xmi:type="uml:Operation" name="recordAccessAttempt" visibility="public" xmi:id="_ownedoperation_elem_132">
+          <ownedParameter xmi:type="uml:Parameter" name="user" type="_string" direction="in" xmi:id="_ownedparameter_elem_133" />
+          <ownedParameter xmi:type="uml:Parameter" name="resource" type="_string" direction="in" xmi:id="_ownedparameter_elem_134" />
+          <ownedParameter xmi:type="uml:Parameter" name="granted" type="_packagedelement_elem_4" direction="in" xmi:id="_ownedparameter_elem_135" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" client="_guard" supplier="_packagedelement_elem_127" xmi:id="_dep_GuardReviewsAccessLogs_elem_13" name="GuardReviewsAccessLogs" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_guard" supplier="_clearance" xmi:id="_dep_GuardUsesClearanceInfo_elem_14" name="GuardUsesClearanceInfo" stereotype="use" />
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" name="TimesheetManagement" xmi:id="_packagedelement_elem_5">
+      <packagedElement xmi:type="uml:Enumeration" name="ApprovalStatus" xmi:id="_packagedelement_elem_6">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" name="Pending" xmi:id="_lit_ApprovalStatus_Pending_elem_7" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" name="Submitted" xmi:id="_lit_ApprovalStatus_Submitted_elem_8" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" name="Approved" xmi:id="_lit_ApprovalStatus_Approved_elem_9" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" name="Rejected" xmi:id="_lit_ApprovalStatus_Rejected_elem_10" />
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" name="Processed" xmi:id="_lit_ApprovalStatus_Processed_elem_11" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="TimesheetPeriod" xmi:id="_packagedelement_elem_12">
+        <ownedAttribute xmi:type="uml:Property" name="startDate" type="_packagedelement_elem_2" visibility="public" xmi:id="_ownedattribute_elem_13">
+          <lowerValue xmi:id="_lv_startDate_elem_14" xmi:type="uml:LiteralInteger" value="1" />
+          <upperValue xmi:id="_uv_startDate_elem_15" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" name="endDate" type="_packagedelement_elem_2" visibility="public" xmi:id="_ownedattribute_elem_16">
+          <lowerValue xmi:id="_lv_endDate_elem_17" xmi:type="uml:LiteralInteger" value="1" />
+          <upperValue xmi:id="_uv_endDate_elem_18" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="Project" xmi:id="_packagedelement_elem_19">
+        <ownedAttribute xmi:type="uml:Property" name="projectCode" type="_string" visibility="private" xmi:id="_ownedattribute_elem_20" />
+        <ownedAttribute xmi:type="uml:Property" name="projectName" type="_string" visibility="public" xmi:id="_ownedattribute_elem_21" />
+        <ownedAttribute xmi:type="uml:Property" name="projectBudget" type="_packagedelement_elem_1" visibility="private" xmi:id="_ownedattribute_elem_22" />
+        <ownedOperation xmi:type="uml:Operation" name="getProjectDetails" visibility="public" isQuery="true" xmi:id="_ownedoperation_elem_23">
+          <ownedParameter xmi:type="uml:Parameter" name="details" type="_string" direction="return" xmi:id="_ownedparameter_elem_24" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="AbstractWorkEffort" isAbstract="true" xmi:id="_packagedelement_elem_25">
+        <ownedAttribute xmi:type="uml:Property" name="effortDate" type="_packagedelement_elem_2" visibility="protected" xmi:id="_ownedattribute_elem_26" />
+        <ownedAttribute xmi:type="uml:Property" name="durationHours" type="_packagedelement_elem_1" visibility="protected" xmi:id="_ownedattribute_elem_27" />
+        <ownedOperation xmi:type="uml:Operation" name="logEffort" visibility="public" isAbstract="true" xmi:id="_ownedoperation_elem_28">
+          <ownedParameter xmi:type="uml:Parameter" name="description" type="_string" direction="in" xmi:id="_ownedparameter_elem_29" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="TimesheetEntry" xmi:id="_packagedelement_elem_30">
+        <generalization xmi:type="uml:Generalization" general="_packagedelement_elem_25" xmi:id="_gen_TimesheetEntry_to_AbstractWorkEffort_elem_31" />
+        <ownedAttribute xmi:type="uml:Property" name="taskDescription" type="_string" visibility="public" xmi:id="_ownedattribute_elem_32" />
+        <ownedOperation xmi:type="uml:Operation" name="validateEntry" visibility="public" isQuery="true" xmi:id="_ownedoperation_elem_33">
+          <ownedParameter xmi:type="uml:Parameter" name="isValid" type="_packagedelement_elem_4" direction="return" xmi:id="_ownedparameter_elem_34" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="Timesheet" xmi:id="_packagedelement_elem_35">
+        <ownedAttribute xmi:type="uml:Property" name="timesheetPeriod" type="_packagedelement_elem_12" visibility="public" aggregation="composite" xmi:id="_ownedattribute_elem_36">
+          <lowerValue xmi:id="_lv_timesheetPeriod_elem_37" xmi:type="uml:LiteralInteger" value="1" />
+          <upperValue xmi:id="_uv_timesheetPeriod_elem_38" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" name="totalHours" type="_packagedelement_elem_1" visibility="public" isDerived="true" xmi:id="_ownedattribute_elem_39" />
+        <ownedAttribute xmi:type="uml:Property" name="status" type="_packagedelement_elem_6" visibility="public" xmi:id="_ownedattribute_elem_40">
+          <defaultValue xmi:id="_dv_status_elem_41" xmi:type="uml:LiteralString" value="Pending" />
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" name="submissionDate" type="_packagedelement_elem_2" visibility="public" xmi:id="_ownedattribute_elem_42">
+          <lowerValue xmi:id="_lv_submissionDate_elem_43" xmi:type="uml:LiteralInteger" value="0" />
+          <upperValue xmi:id="_uv_submissionDate_elem_44" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" name="approvalDate" type="_packagedelement_elem_2" visibility="public" xmi:id="_ownedattribute_elem_45">
+          <lowerValue xmi:id="_lv_approvalDate_elem_46" xmi:type="uml:LiteralInteger" value="0" />
+          <upperValue xmi:id="_uv_approvalDate_elem_47" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+        </ownedAttribute>
+        <ownedOperation xmi:type="uml:Operation" name="submitTimesheet" visibility="public" xmi:id="_ownedoperation_elem_48" />
+        <ownedOperation xmi:type="uml:Operation" name="calculateTotalHours" visibility="private" xmi:id="_ownedoperation_elem_49" />
+        <ownedOperation xmi:type="uml:Operation" name="addEntry" visibility="public" xmi:id="_ownedoperation_elem_50">
+          <ownedParameter xmi:type="uml:Parameter" name="entry" type="_packagedelement_elem_30" direction="in" xmi:id="_ownedparameter_elem_51" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interface" name="INotificationService" xmi:id="_packagedelement_elem_82">
+        <ownedOperation xmi:type="uml:Operation" name="sendNotification" visibility="public" xmi:id="_ownedoperation_elem_83">
+          <ownedParameter xmi:type="uml:Parameter" name="recipientId" type="_string" direction="in" xmi:id="_ownedparameter_elem_84" />
+          <ownedParameter xmi:type="uml:Parameter" name="message" type="_string" direction="in" xmi:id="_ownedparameter_elem_85" />
+          <ownedParameter xmi:type="uml:Parameter" name="subject" type="_string" direction="in" xmi:id="_param_subject_elem_86" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="EmailNotificationProvider" xmi:id="_packagedelement_elem_87">
+        <interfaceRealization xmi:type="uml:InterfaceRealization" contract="_packagedelement_elem_82" implementingClassifier="_packagedelement_elem_87" xmi:id="_ir_EmailNotificationProviderRealizesINotificationService_elem_88" name="EmailNotificationProviderRealizesINotificationService" />
+        <ownedAttribute xmi:type="uml:Property" name="smtpServer" type="_string" visibility="private" xmi:id="_ownedattribute_elem_89" />
+        <ownedAttribute xmi:type="uml:Property" name="senderAddress" type="_string" visibility="private" xmi:id="_ownedattribute_elem_90" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="SystemLog" xmi:id="_class_SystemLog_elem_91">
+        <ownedAttribute xmi:type="uml:Property" name="logTimestamp" type="_packagedelement_elem_3" visibility="public" xmi:id="_ownedattribute_elem_92" />
+        <ownedAttribute xmi:type="uml:Property" name="eventType" type="_string" visibility="public" xmi:id="_ownedattribute_elem_93" />
+        <ownedAttribute xmi:type="uml:Property" name="description" type="_string" visibility="public" xmi:id="_ownedattribute_elem_94" />
+        <ownedOperation xmi:type="uml:Operation" name="addLogEntry" visibility="public" xmi:id="_ownedoperation_elem_95">
+          <ownedParameter xmi:type="uml:Parameter" name="event" type="_string" direction="in" xmi:id="_ownedparameter_elem_96" />
+          <ownedParameter xmi:type="uml:Parameter" name="details" type="_string" direction="in" xmi:id="_ownedparameter_elem_97" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interface" name="IAuditTrailService" xmi:id="_packagedelement_elem_98">
+        <ownedOperation xmi:type="uml:Operation" name="logChange" visibility="public" xmi:id="_ownedoperation_elem_99">
+          <ownedParameter xmi:type="uml:Parameter" name="entityType" type="_string" direction="in" xmi:id="_ownedparameter_elem_100" />
+          <ownedParameter xmi:type="uml:Parameter" name="entityId" type="_string" direction="in" xmi:id="_ownedparameter_elem_101" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="DatabaseAuditTrail" xmi:id="_packagedelement_elem_102">
+        <interfaceRealization xmi:type="uml:InterfaceRealization" contract="_packagedelement_elem_98" implementingClassifier="_packagedelement_elem_102" xmi:id="_ir_DatabaseAuditTrailRealizesIAuditTrailService_elem_103" name="DatabaseAuditTrailRealizesIAuditTrailService" />
+        <ownedAttribute xmi:type="uml:Property" name="dbConnectionString" type="_string" visibility="private" xmi:id="_ownedattribute_elem_104" />
+        <ownedAttribute xmi:type="uml:Property" name="auditTableName" type="_string" visibility="private" xmi:id="_ownedattribute_elem_105">
+          <defaultValue xmi:id="_dv_auditTableName_elem_106" xmi:type="uml:LiteralString" value="AuditLogs" />
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interface" name="IReportable" xmi:id="_packagedelement_elem_107">
+        <ownedOperation xmi:type="uml:Operation" name="generateReportData" visibility="public" isQuery="true" xmi:id="_ownedoperation_elem_108">
+          <ownedParameter xmi:type="uml:Parameter" name="reportContent" type="_string" direction="return" xmi:id="_ownedparameter_elem_109" />
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" name="TimesheetSystem" xmi:id="_packagedelement_elem_110">
+        <interfaceRealization xmi:type="uml:InterfaceRealization" contract="_packagedelement_elem_107" implementingClassifier="_packagedelement_elem_110" xmi:id="_ir_TimesheetSystemRealizesIReportable_elem_111" name="TimesheetSystemRealizesIReportable" />
+        <ownedAttribute xmi:type="uml:Property" name="systemLoggerRef" type="_class_SystemLog_elem_91" visibility="private" xmi:id="_ownedattribute_elem_112" />
+        <ownedAttribute xmi:type="uml:Property" name="notificationServiceRef" type="_packagedelement_elem_82" visibility="private" xmi:id="_ownedattribute_elem_113" />
+        <ownedAttribute xmi:type="uml:Property" name="auditServiceRef" type="_packagedelement_elem_98" visibility="private" xmi:id="_ownedattribute_elem_114" />
+        <ownedAttribute xmi:type="uml:Property" name="maxPendingTimesheets" type="_integer" visibility="private" xmi:id="_ownedattribute_elem_115">
+          <defaultValue xmi:id="_dv_maxPendingTimesheets_elem_116" xmi:type="uml:LiteralInteger" value="1000" />
+        </ownedAttribute>
+        <ownedOperation xmi:type="uml:Operation" name="processAllPendingTimesheets" visibility="public" xmi:id="_ownedoperation_elem_117" />
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_82" xmi:id="_dep_TimesheetSystemDependsOnINotificationService_elem_174" name="TimesheetSystemDependsOnINotificationService" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_98" xmi:id="_dep_TimesheetSystemDependsOnIAuditTrailService_elem_175" name="TimesheetSystemDependsOnIAuditTrailService" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_118" xmi:id="_dep_TimesheetSystemUsesConfig_elem_177" name="TimesheetSystemUsesConfig" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_35" supplier="_packagedelement_elem_30" xmi:id="_dep_TimesheetManagesEntries_elem_10" name="TimesheetManagesEntries" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_35" supplier="_packagedelement_elem_6" xmi:id="_dep_TimesheetUsesApprovalStatus_elem_11" name="TimesheetUsesApprovalStatus" stereotype="use" />
+      <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_30" supplier="_packagedelement_elem_19" xmi:id="_dep_TimesheetEntryValidatesAgainstProject_elem_12" name="TimesheetEntryValidatesAgainstProject" stereotype="use" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_end_submittedBy_elem_139" xmi:type="uml:Property" name="submittedBy" type="_student" association="_assoc_StudentOwnsTimesheets_elem_145" isNavigable="true">
+      <lowerValue xmi:id="_lv_submittedBy_elem_140" xmi:type="uml:LiteralInteger" value="1" />
+      <upperValue xmi:id="_uv_submittedBy_elem_141" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_end_timesheets_elem_142" xmi:type="uml:Property" name="timesheets" type="_packagedelement_elem_35" association="_assoc_StudentOwnsTimesheets_elem_145" isNavigable="true">
+      <lowerValue xmi:id="_lv_timesheets_elem_143" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_timesheets_elem_144" xmi:type="uml:LiteralUnlimitedNatural" value="*" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_stud_ts" xmi:type="uml:Association" name="StudentOwnsTimesheets" memberEnd="_assoc_end_submittedBy_elem_139 _assoc_end_timesheets_elem_142" />
+    <packagedElement xmi:id="_assoc_end_parentTimesheet_elem_146" xmi:type="uml:Property" name="parentTimesheet" type="_packagedelement_elem_35" association="_assoc_TimesheetHasEntries_elem_152" isNavigable="true">
+      <lowerValue xmi:id="_lv_parentTimesheet_elem_147" xmi:type="uml:LiteralInteger" value="1" />
+      <upperValue xmi:id="_uv_parentTimesheet_elem_148" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_end_entries_elem_149" xmi:type="uml:Property" name="entries" type="_packagedelement_elem_30" association="_assoc_TimesheetHasEntries_elem_152" aggregation_val="composite" isNavigable="true">
+      <lowerValue xmi:id="_lv_entries_elem_150" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_entries_elem_151" xmi:type="uml:LiteralUnlimitedNatural" value="*" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_ts_tse" xmi:type="uml:Association" name="TimesheetHasEntries" memberEnd="_assoc_end_parentTimesheet_elem_146 _assoc_end_entries_elem_149" />
+    <packagedElement xmi:id="_assoc_end_approvingSupervisor_elem_153" xmi:type="uml:Property" name="approvingSupervisor" type="_packagedelement_elem_65" association="_assoc_SupervisorApprovesTimesheets_elem_159" isNavigable="true">
+      <lowerValue xmi:id="_lv_approvingSupervisor_elem_154" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_approvingSupervisor_elem_155" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_end_supervisedTimesheets_elem_156" xmi:type="uml:Property" name="supervisedTimesheets" type="_packagedelement_elem_35" association="_assoc_SupervisorApprovesTimesheets_elem_159" isNavigable="true">
+      <lowerValue xmi:id="_lv_supervisedTimesheets_elem_157" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_supervisedTimesheets_elem_158" xmi:type="uml:LiteralUnlimitedNatural" value="*" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_fs_ts" xmi:type="uml:Association" name="SupervisorApprovesTimesheets" memberEnd="_assoc_end_approvingSupervisor_elem_153 _assoc_end_supervisedTimesheets_elem_156" />
+    <packagedElement xmi:id="_assoc_end_project_elem_160" xmi:type="uml:Property" name="project" type="_packagedelement_elem_19" association="_assoc_EntryBelongsToProject_elem_166" isNavigable="true">
+      <lowerValue xmi:id="_lv_project_elem_161" xmi:type="uml:LiteralInteger" value="1" />
+      <upperValue xmi:id="_uv_project_elem_162" xmi:type="uml:LiteralUnlimitedNatural" value="1" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_end_workEntries_elem_163" xmi:type="uml:Property" name="workEntries" type="_packagedelement_elem_30" association="_assoc_EntryBelongsToProject_elem_166" isNavigable="true">
+      <lowerValue xmi:id="_lv_workEntries_elem_164" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_workEntries_elem_165" xmi:type="uml:LiteralUnlimitedNatural" value="*" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_tse_proj" xmi:type="uml:Association" name="EntryBelongsToProject" memberEnd="_assoc_end_project_elem_160 _assoc_end_workEntries_elem_163" />
+    <packagedElement xmi:id="_assoc_end_reviewedByGuard_elem_167" xmi:type="uml:Property" name="reviewedByGuard" type="_guard" association="_assoc_GuardReviewsLogs_elem_173">
+      <lowerValue xmi:id="_lv_reviewedByGuard_elem_168" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_reviewedByGuard_elem_169" xmi:type="uml:LiteralUnlimitedNatural" value="*" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_end_accessEvents_elem_170" xmi:type="uml:Property" name="accessEvents" type="_packagedelement_elem_127" association="_assoc_GuardReviewsLogs_elem_173">
+      <lowerValue xmi:id="_lv_accessEvents_elem_171" xmi:type="uml:LiteralInteger" value="0" />
+      <upperValue xmi:id="_uv_accessEvents_elem_172" xmi:type="uml:LiteralUnlimitedNatural" value="*" />
+    </packagedElement>
+    <packagedElement xmi:id="_assoc_guard_log" xmi:type="uml:Association" name="GuardReviewsLogs" memberEnd="_assoc_end_reviewedByGuard_elem_167 _assoc_end_accessEvents_elem_170" />
+    <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_82" xmi:id="_dep_TimesheetSystemUsesNotificationSvc_elem_1" name="TimesheetSystemUsesNotificationSvc" stereotype="use" />
+    <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_98" xmi:id="_dep_TimesheetSystemUsesAuditSvc_elem_2" name="TimesheetSystemUsesAuditSvc" stereotype="use" />
+    <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_118" xmi:id="_dep_TimesheetSystemUsesSysConfigMgr_elem_3" name="TimesheetSystemUsesSysConfigMgr" stereotype="use" />
+    <packagedElement xmi:type="uml:Dependency" client="_packagedelement_elem_110" supplier="_packagedelement_elem_35" xmi:id="_dep_TimesheetSystemProcessesTimesheets_elem_4" name="TimesheetSystemProcessesTimesheets" stereotype="use" />
+  </uml:Model>
+</XMI>
