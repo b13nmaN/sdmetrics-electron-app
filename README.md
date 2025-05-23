@@ -22,7 +22,7 @@ Follow these steps to clone, set up, and run UML Insight:
 ### 1. Clone the Repository
 First, clone the project repository from GitHub to your local machine:
 ```bash
-git clone [URL_OF_YOUR_GITHUB_REPOSITORY]
+git clone [https://github.com/b13nmaN/sdmetrics-electron-app.git]
 cd SDMETRICS-ELECTRON-APP
 ```
 
