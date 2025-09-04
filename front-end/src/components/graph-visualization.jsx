@@ -163,13 +163,14 @@ export default function GraphVisualization({
            const key = `${source}->${target}->${type}`;
            const pairKey = [source, target].sort().join('--');
 
-           if (type === 'association') {
-               if (!processedAssociationPairs.has(pairKey)) {
-                    processedAssociationPairs.add(pairKey);
-               } else {
-                   return false; 
-               }
-           } else if (type === 'dependency') {
+          //  if (type === 'association') {
+          //      if (!processedAssociationPairs.has(pairKey)) {
+          //           processedAssociationPairs.add(pairKey);
+          //      } else {
+          //          return false; 
+          //      } // TODO: remove this block of code
+          //  }  
+           if (type === 'dependency') {
                 if (!addedDependencyEdges.has(key)) {
                     addedDependencyEdges.add(key);
                 } else {
@@ -210,7 +211,7 @@ export default function GraphVisualization({
                             const targetClass = columns[colIndex];
                             if (targetClass && sourceClass !== targetClass) {
                                 if (value === 1) { 
-                                    addEdge(sourceClass, targetClass, 'association');
+                                    // addEdge(sourceClass, targetClass, 'association'); // TODO: remove this line
                                 } else { 
                                     addEdge(sourceClass, targetClass, 'dependency', value);
                                 }
@@ -562,13 +563,13 @@ export default function GraphVisualization({
               width: 2, "z-index": 6
             },
           },
-          { 
-            selector: 'edge.association', 
-            style: {
-              "line-color": "#f97316", "target-arrow-color": "#f97316",
-              "line-style": "solid", "target-arrow-shape": "none", width: 1.5, "z-index": 5
-            },
-          },
+          // { 
+          //   selector: 'edge.association', 
+          //   style: {
+          //     "line-color": "#f97316", "target-arrow-color": "#f97316",
+          //     "line-style": "solid", "target-arrow-shape": "none", width: 1.5, "z-index": 5
+          //   },
+          // },
            { 
              selector: 'edge.association.interPackage', 
              style: {

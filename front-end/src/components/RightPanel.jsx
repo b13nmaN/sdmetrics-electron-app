@@ -9,6 +9,7 @@ import GraphVisualization from "@/components/graph-visualization";
 import FilteredGraphView from "@/components/FilteredGraphView";
 import XMIEditor from "@/components/xmi-editor";
 import MetricsDisplay from "@/components/MetricsDisplay";
+import Overview from './Overview';
 
 export function RightPanel({
   onNodeSelect,
@@ -44,8 +45,6 @@ export function RightPanel({
     { style: { type: 'node', shape: 'ellipse', bgColor: '#3b82f6', borderColor: '#2563eb', borderW: 2, borderStyle: 'dashed', fontStyle: 'italic' }, label: 'Abstract Class' },
     { style: { type: 'edge', lineStyle: 'solid', color: '#ef4444', arrow: 'hollow-triangle' }, label: 'Inheritance' },
     { style: { type: 'edge', lineStyle: 'dashed', color: '#8b5cf6', arrow: 'hollow-triangle', dashPattern: '6,3' }, label: 'Implementation' },
-    { style: { type: 'edge', lineStyle: 'solid', color: '#f97316', arrow: 'none' }, label: 'Association' },
-    { style: { type: 'edge', lineStyle: 'dashed', color: '#f97316', arrow: 'none', dashPattern: '5,5' }, label: 'Inter-Package Assoc.' },
     { style: { type: 'edge', lineStyle: 'dashed', color: '#22c55e', arrow: 'vee', dashPattern: '4,2' }, label: 'Dependency' },
     { style: { type: 'node', shape: 'ellipse', bgColor: '#E53E3E', borderColor: '#C53030', borderW: 2 }, label: 'Highly Coupled Class' },
     { style: { type: 'node', shape: 'ellipse', bgColor: '#DD6B20', borderColor: '#C05621', borderW: 2 }, label: 'Low Cohesion Class' },
@@ -219,6 +218,11 @@ export function RightPanel({
 
   return (
     <div className="w-4/5 flex flex-col overflow-y-hidden">
+      <TabsContent value="overview" className="flex-1 m-0 h-full overflow-auto">
+      <div className="p-6 h-full">
+        <Overview />
+      </div>
+    </TabsContent>
       <TabsContent value="visualizations" className="flex-1 m-0 relative h-full overflow-y-hidden">
         
         {/* "View All Nodes" / Exit Filter Button */}
